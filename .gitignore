@@ -1,0 +1,9 @@
+#Settings folder
+.gradle
+.idea
+gradle.properties
+
+#Building folders
+**/build
+**/bin
+opt

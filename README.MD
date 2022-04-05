@@ -15,7 +15,7 @@ to be simplest as possible.
 - [ ] Automatic help generation
 
 ## How to use it
-This is a simple implementation of the command dispatcher.
+This is a simple implementation of the command manager.
 
     public class MyCommand extends Command {
 

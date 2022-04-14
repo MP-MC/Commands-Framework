@@ -47,6 +47,4 @@ public abstract class ParameterParser<T> {
         int index();
     }
 
-    public interface Greedy {
-    }
 }

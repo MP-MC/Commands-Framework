@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.annotations.CommandRoot;
 import tk.empee.commandManager.command.parameters.ParameterManager;
 import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
+import tk.empee.commandManager.command.parameters.parsers.greedy.GreedyParser;
 import tk.empee.commandManager.helpers.PluginCommand;
 
 import java.lang.reflect.InvocationTargetException;
@@ -116,7 +117,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
     private Object parseArgument(CommandContext context, ParameterParser<?> parameter, String[] args, int offset) {
         Object parsedArg;
-        if(parameter instanceof ParameterParser.Greedy) {
+        if(parameter instanceof GreedyParser) {
             parsedArg = parameter.parse(offset, args);
         } else {
             parsedArg = parameter.parse(args[offset]);

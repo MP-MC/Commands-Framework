@@ -3,7 +3,7 @@ package tk.empee.commandManager.command.parameters.parsers.greedy;
 import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
 import tk.empee.commandManager.command.parameters.parsers.annotations.StringParam;
 
-public class GreedyStringParser extends ParameterParser<String> implements ParameterParser.Greedy {
+public class GreedyStringParser extends ParameterParser<String> implements GreedyParser {
 
     public GreedyStringParser(String label, String defaultValue) {
         super(StringParam.class, label, defaultValue);

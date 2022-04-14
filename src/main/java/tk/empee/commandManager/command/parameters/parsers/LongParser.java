@@ -31,4 +31,9 @@ public class LongParser extends ParameterParser<Long> {
             throw new CommandException(" &4&l>&c The number &e" + args[offset] + "&c isn't valid");
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o) && min == ((LongParser) o).min && max == ((LongParser) o).max;
+    }
 }

@@ -33,4 +33,9 @@ public class FloatParser extends ParameterParser<Float> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o) && min == ((FloatParser) o).min && max == ((FloatParser) o).max;
+    }
+
 }

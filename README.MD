@@ -21,7 +21,7 @@ This is a simple implementation of the command manager.
 
         @CommandRoot( aliases = {"test2"} )
         @CommandNode( label = "test", permission = "test.test" )
-        public void myRootNode(CommandContext context, @StringParam String arg1, @PlayerParam Player arg2) {
+        public void myRootNode(CommandContext context, String arg1, Player arg2) {
             Player sender = context.getSource(Player.class);
             sender.sendMessage("Hello World!");
             arg2.sendMessage("Hello " + arg1);

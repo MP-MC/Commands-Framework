@@ -3,6 +3,7 @@ package tk.empee.commandManager.command;
 import lombok.Getter;
 import tk.empee.commandManager.command.parameters.ParameterManager;
 import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
+import tk.empee.commandManager.command.parameters.parsers.greedy.GreedyParser;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -37,7 +38,7 @@ public final class CommandNode {
         parameters = getParameters(parameterManager);
         children = getChildren(annotation.childNodes(), target, parameterManager);
 
-        if(children.length > 0 && parameters[parameters.length-1] instanceof ParameterParser.Greedy) {
+        if(children.length > 0 && parameters[parameters.length-1] instanceof GreedyParser) {
             throw new IllegalArgumentException("You can't have children inside the node " + label + ", his last parameter is a greedy one!");
         }
 
@@ -59,7 +60,7 @@ public final class CommandNode {
             ParameterParser<?> type = convertParameter(rawParameters[i], parameterManager);
             Objects.requireNonNull(type, "The parameter of " + label + " linked to " + rawParameters[i].getName() + " isn't registered");
 
-            if(i != 1 && parameters[i-2] instanceof ParameterParser.Greedy) {
+            if(i != 1 && parameters[i-2] instanceof GreedyParser) {
                 throw new IllegalArgumentException("You can't have a parameter after a greedy parameter inside the node " + label);
             }
 
@@ -83,6 +84,8 @@ public final class CommandNode {
                     if (property != null) {
 
                         int index = property.index();
+
+                        //Fill ArrayList to prevent OutOfBoundsException
                         for(int i=0; i<=index; i++) {
                             if(params.size() <= i) {
                                 params.add(null);

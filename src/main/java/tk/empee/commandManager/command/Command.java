@@ -6,9 +6,9 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import tk.empee.commandManager.CommandManager;
 import tk.empee.commandManager.command.annotations.CommandRoot;
-import tk.empee.commandManager.command.parsers.ParserManager;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
 import tk.empee.commandManager.command.parsers.types.greedy.GreedyParser;
 import tk.empee.commandManager.helpers.PluginCommand;
@@ -20,22 +20,30 @@ import java.util.List;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
+    protected static final String MALFORMED_COMMAND = "&4&l > &cThe command is missing arguments, check the help menu";
+    protected static final String MISSING_PERMISSIONS = "&4&l > &cYou haven't enough permissions";
+    protected static final String RUNTIME_ERROR = " &4&l > &cError while executing the command";
+
     @Getter
     private org.bukkit.command.PluginCommand pluginCommand;
-
     @Getter
     private CommandNode rootNode;
 
-    public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
         try {
             run(new CommandContext(sender), rootNode, args, 0);
         } catch (CommandException exception) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', exception.getMessage()));
+
+            Throwable cause = exception.getCause();
+            if(cause != null) {
+                cause.printStackTrace();
+            }
         }
 
         return true;
     }
-    public final List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+    public final List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
 
         CommandNode node = rootNode;
         int offset = 0;
@@ -56,11 +64,11 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private void run(CommandContext context, CommandNode node, String[] args, int offset) {
 
         if(node == null) {
-            throw new CommandException("&4&l > &cThe command is missing arguments, check the help menu");
+            throw new CommandException(MALFORMED_COMMAND);
         } else {
 
             if(!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
-                throw new CommandException("&4&l > &cYou haven't enough permissions");
+                throw new CommandException(MISSING_PERMISSIONS);
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -69,12 +77,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
             if(node.getChildren().length == 0) {
                 if(!node.isExecutable()) {
-                    throw new CommandException("&4&l > &cThe command is missing arguments, check the help menu");
+                    throw new CommandException(MALFORMED_COMMAND);
                 }
             } else {
                 CommandNode nextNode = findNextNode(node, args, offset);
                 if(nextNode == null && !node.isExecutable()) {
-                    throw new CommandException("&4&l > &cThe command is missing arguments, check the help menu");
+                    throw new CommandException(MALFORMED_COMMAND);
                 } else if(nextNode != null) {
                     run(context, nextNode, args, offset+1);
                 }
@@ -87,8 +95,10 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         if(node.isExecutable()) {
             try {
                 node.getExecutor().invoke(this, arguments);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e.getCause()); //TODO Better handling
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new CommandException(RUNTIME_ERROR, e.getCause());
             }
         }
     }
@@ -104,7 +114,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 if(parsers[i].isOptional()) {
                     arguments[i+1] = parsers[i].parseDefaultValue();
                 } else {
-                    throw new CommandException("&4&l > &cThe command is missing arguments, check the help menu");
+                    throw new CommandException(MALFORMED_COMMAND);
                 }
             } else {
                 arguments[i+1] = parseArgument(context, parsers[i], args, offset);
@@ -147,13 +157,13 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         throw new UnsupportedOperationException("This is a work in progress");
     }
 
-    public final org.bukkit.command.PluginCommand build(JavaPlugin plugin, ParserManager parserManager) {
+    public final org.bukkit.command.PluginCommand build(CommandManager commandManager) {
         Method rootMethod = getRootMethod();
         rootMethod.setAccessible(true);
 
-        rootNode = new CommandNode(rootMethod, getClass(), parserManager);
+        rootNode = new CommandNode(rootMethod, getClass(), commandManager.getParserManager());
 
-        pluginCommand = PluginCommand.createInstance(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class), plugin);
+        pluginCommand = PluginCommand.createInstance(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class), commandManager.getPlugin());
         pluginCommand.setExecutor(this);
 
         return pluginCommand;

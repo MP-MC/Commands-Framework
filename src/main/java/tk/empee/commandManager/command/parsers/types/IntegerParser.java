@@ -1,8 +1,8 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parameters.parsers.annotations.IntegerParam;
+import tk.empee.commandManager.command.parsers.types.annotations.IntegerParam;
 
 public class IntegerParser extends ParameterParser<Integer> {
 

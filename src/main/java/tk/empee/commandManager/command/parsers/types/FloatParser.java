@@ -1,25 +1,25 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parameters.parsers.annotations.DoubleParam;
+import tk.empee.commandManager.command.parsers.types.annotations.FloatParam;
 
-public class DoubleParser extends ParameterParser<Double> {
+public class FloatParser extends ParameterParser<Float> {
 
-    @Getter private final double min;
-    @Getter private final double max;
+    @Getter private final float min;
+    @Getter private final float max;
 
-    protected DoubleParser(String label, String defaultValue, Double min, Double max) {
-        super(DoubleParam.class, label, defaultValue);
+    protected FloatParser(String label, String defaultValue, Float min, Float max) {
+        super(FloatParam.class, label, defaultValue);
 
         this.min = min;
         this.max = max;
     }
 
     @Override
-    public Double parse(int offset, String... args) {
+    public Float parse(int offset, String... args) {
         try {
-            double result = Double.parseDouble(args[offset]);
+            float result = Float.parseFloat(args[offset]);
 
             if(result < min) {
                 throw new CommandException("&4&l > &cThe value must be higher then &e" + min + "&c but it's value is &e" + result);
@@ -35,6 +35,7 @@ public class DoubleParser extends ParameterParser<Double> {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) && min == ((DoubleParser) o).min && max == ((DoubleParser) o).max;
+        return super.equals(o) && min == ((FloatParser) o).min && max == ((FloatParser) o).max;
     }
+
 }

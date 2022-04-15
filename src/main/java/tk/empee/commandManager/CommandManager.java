@@ -6,11 +6,11 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.Command;
-import tk.empee.commandManager.command.parameters.ParameterManager;
-import tk.empee.commandManager.command.parameters.parsers.*;
-import tk.empee.commandManager.command.parameters.parsers.annotations.*;
-import tk.empee.commandManager.command.parameters.parsers.annotations.greedy.GreedyStringParam;
-import tk.empee.commandManager.command.parameters.parsers.greedy.GreedyStringParser;
+import tk.empee.commandManager.command.parsers.ParserManager;
+import tk.empee.commandManager.command.parsers.types.*;
+import tk.empee.commandManager.command.parsers.types.annotations.*;
+import tk.empee.commandManager.command.parsers.types.annotations.greedy.GreedyStringParam;
+import tk.empee.commandManager.command.parsers.types.greedy.GreedyStringParser;
 import tk.empee.commandManager.helpers.CommandMap;
 import tk.empee.commandManager.services.CompletionService;
 
@@ -27,28 +27,28 @@ public final class CommandManager implements Listener {
     private final Logger logger;
 
     private CompletionService completionService = null;
-    @Getter private final ParameterManager parameterManager;
+    @Getter private final ParserManager parserManager;
 
 
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
 
-        this.parameterManager = new ParameterManager();
+        this.parserManager = new ParserManager();
 
         registerDefaultParameters();
         setupCompletionService();
     }
 
     private void registerDefaultParameters() {
-        parameterManager.registerParameter(IntegerParam.class, IntegerParser.class);
-        parameterManager.registerParameter(FloatParam.class, FloatParser.class);
-        parameterManager.registerParameter(DoubleParam.class, DoubleParser.class);
-        parameterManager.registerParameter(LongParam.class, LongParser.class);
-        parameterManager.registerParameter(BoolParam.class, BoolParser.class);
-        parameterManager.registerParameter(PlayerParam.class, PlayerParser.class);
-        parameterManager.registerParameter(StringParam.class, StringParser.class);
-        parameterManager.registerParameter(GreedyStringParam.class, GreedyStringParser.class);
+        parserManager.registerParser(IntegerParam.class, IntegerParser.class);
+        parserManager.registerParser(FloatParam.class, FloatParser.class);
+        parserManager.registerParser(DoubleParam.class, DoubleParser.class);
+        parserManager.registerParser(LongParam.class, LongParser.class);
+        parserManager.registerParser(BoolParam.class, BoolParser.class);
+        parserManager.registerParser(PlayerParam.class, PlayerParser.class);
+        parserManager.registerParser(StringParam.class, StringParser.class);
+        parserManager.registerParser(GreedyStringParam.class, GreedyStringParser.class);
     }
     private void setupCompletionService() {
         if(CommodoreProvider.isSupported()) {
@@ -60,7 +60,7 @@ public final class CommandManager implements Listener {
     }
 
     public void registerCommand(Command command) {
-        PluginCommand pluginCommand = command.build(plugin, parameterManager);
+        PluginCommand pluginCommand = command.build(plugin, parserManager);
         if(!CommandMap.register(pluginCommand)) {
             logger.warning("It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead");
         }

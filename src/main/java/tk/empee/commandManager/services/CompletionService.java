@@ -8,8 +8,8 @@ import me.lucko.commodore.Commodore;
 import org.bukkit.command.PluginCommand;
 import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.command.CommandNode;
-import tk.empee.commandManager.command.parameters.parsers.*;
-import tk.empee.commandManager.command.parameters.parsers.greedy.GreedyStringParser;
+import tk.empee.commandManager.command.parsers.types.*;
+import tk.empee.commandManager.command.parsers.types.greedy.GreedyStringParser;
 
 @SuppressWarnings("unchecked")
 public final class CompletionService {
@@ -30,11 +30,11 @@ public final class CompletionService {
     private LiteralArgumentBuilder<?> convertNodeToBrigadier(CommandNode node) {
 
         LiteralArgumentBuilder<Object> rootNode = LiteralArgumentBuilder.literal(node.getLabel());
-        ParameterParser<?>[] parameters = node.getParameters();
+        ParameterParser<?>[] parsers = node.getParameterParsers();
         ArgumentBuilder<Object, ?> lastArg;
 
-        if(parameters.length > 0) {
-            lastArg = RequiredArgumentBuilder.argument(parameters[parameters.length-1].getLabel(), findArgType(parameters[parameters.length-1]));
+        if(parsers.length > 0) {
+            lastArg = RequiredArgumentBuilder.argument(parsers[parsers.length-1].getLabel(), findArgType(parsers[parsers.length-1]));
         } else {
             lastArg = rootNode;
         }
@@ -43,8 +43,8 @@ public final class CompletionService {
             lastArg.then((ArgumentBuilder<Object, ?>) convertNodeToBrigadier(child));
         }
 
-        for(int i=parameters.length-2; i>=0; i--) {
-            ArgumentBuilder<Object, ?> arg = RequiredArgumentBuilder.argument(parameters[i].getLabel(), findArgType(parameters[i]));
+        for(int i=parsers.length-2; i>=0; i--) {
+            ArgumentBuilder<Object, ?> arg = RequiredArgumentBuilder.argument(parsers[i].getLabel(), findArgType(parsers[i]));
             arg.then(lastArg);
             lastArg = arg;
         }

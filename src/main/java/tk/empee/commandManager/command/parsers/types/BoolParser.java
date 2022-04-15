@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
-import tk.empee.commandManager.command.parameters.parsers.annotations.BoolParam;
+import tk.empee.commandManager.command.parsers.types.annotations.BoolParam;
 
 public class BoolParser extends ParameterParser<Boolean> {
     public BoolParser(String label, String defaultValue) {

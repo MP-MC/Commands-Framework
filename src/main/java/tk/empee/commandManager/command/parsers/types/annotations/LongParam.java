@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parameters.parsers.annotations;
+package tk.empee.commandManager.command.parsers.types.annotations;
 
-import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
+import tk.empee.commandManager.command.parsers.types.ParameterParser;
 
 public @interface LongParam {
 

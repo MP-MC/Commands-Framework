@@ -1,4 +1,4 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandSender;

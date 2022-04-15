@@ -1,25 +1,24 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parameters.parsers.annotations.FloatParam;
+import tk.empee.commandManager.command.parsers.types.annotations.LongParam;
 
-public class FloatParser extends ParameterParser<Float> {
+public class LongParser extends ParameterParser<Long> {
+    @Getter private final long min;
+    @Getter private final long max;
 
-    @Getter private final float min;
-    @Getter private final float max;
-
-    protected FloatParser(String label, String defaultValue, Float min, Float max) {
-        super(FloatParam.class, label, defaultValue);
+    protected LongParser(String label, String defaultValue, Long min, Long max) {
+        super(LongParam.class, label, defaultValue);
 
         this.min = min;
         this.max = max;
     }
 
     @Override
-    public Float parse(int offset, String... args) {
+    public Long parse(int offset, String... args) {
         try {
-            float result = Float.parseFloat(args[offset]);
+            long result = Long.parseLong(args[offset]);
 
             if(result < min) {
                 throw new CommandException("&4&l > &cThe value must be higher then &e" + min + "&c but it's value is &e" + result);
@@ -35,7 +34,6 @@ public class FloatParser extends ParameterParser<Float> {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) && min == ((FloatParser) o).min && max == ((FloatParser) o).max;
+        return super.equals(o) && min == ((LongParser) o).min && max == ((LongParser) o).max;
     }
-
 }

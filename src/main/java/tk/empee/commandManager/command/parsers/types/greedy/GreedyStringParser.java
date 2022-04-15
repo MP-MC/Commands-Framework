@@ -1,7 +1,7 @@
-package tk.empee.commandManager.command.parameters.parsers.greedy;
+package tk.empee.commandManager.command.parsers.types.greedy;
 
-import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
-import tk.empee.commandManager.command.parameters.parsers.annotations.StringParam;
+import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.command.parsers.types.annotations.StringParam;
 
 public class GreedyStringParser extends ParameterParser<String> implements GreedyParser {
 

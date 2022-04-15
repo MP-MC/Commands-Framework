@@ -1,24 +1,25 @@
-package tk.empee.commandManager.command.parameters.parsers;
+package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parameters.parsers.annotations.LongParam;
+import tk.empee.commandManager.command.parsers.types.annotations.DoubleParam;
 
-public class LongParser extends ParameterParser<Long> {
-    @Getter private final long min;
-    @Getter private final long max;
+public class DoubleParser extends ParameterParser<Double> {
 
-    protected LongParser(String label, String defaultValue, Long min, Long max) {
-        super(LongParam.class, label, defaultValue);
+    @Getter private final double min;
+    @Getter private final double max;
+
+    protected DoubleParser(String label, String defaultValue, Double min, Double max) {
+        super(DoubleParam.class, label, defaultValue);
 
         this.min = min;
         this.max = max;
     }
 
     @Override
-    public Long parse(int offset, String... args) {
+    public Double parse(int offset, String... args) {
         try {
-            long result = Long.parseLong(args[offset]);
+            double result = Double.parseDouble(args[offset]);
 
             if(result < min) {
                 throw new CommandException("&4&l > &cThe value must be higher then &e" + min + "&c but it's value is &e" + result);
@@ -34,6 +35,6 @@ public class LongParser extends ParameterParser<Long> {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) && min == ((LongParser) o).min && max == ((LongParser) o).max;
+        return super.equals(o) && min == ((DoubleParser) o).min && max == ((DoubleParser) o).max;
     }
 }

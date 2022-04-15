@@ -8,9 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.annotations.CommandRoot;
-import tk.empee.commandManager.command.parameters.ParameterManager;
-import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
-import tk.empee.commandManager.command.parameters.parsers.greedy.GreedyParser;
+import tk.empee.commandManager.command.parsers.ParserManager;
+import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.command.parsers.types.greedy.GreedyParser;
 import tk.empee.commandManager.helpers.PluginCommand;
 
 import java.lang.reflect.InvocationTargetException;
@@ -40,13 +40,13 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         CommandNode node = rootNode;
         int offset = 0;
         while (node != null) {
-            ParameterParser<?>[] parameters = node.getParameters();
-            if (args.length - offset > parameters.length) {
-                offset += parameters.length;
+            ParameterParser<?>[] parsers = node.getParameterParsers();
+            if (args.length - offset > parsers.length) {
+                offset += parsers.length;
                 node = findNextNode(node, args, offset);
                 offset += 1;
             } else {
-                return parameters[args.length-offset-1].getSuggestions(sender);
+                return parsers[args.length-offset-1].getSuggestions(sender);
             }
         }
 
@@ -63,9 +63,9 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 throw new CommandException("&4&l > &cYou haven't enough permissions");
             }
 
-            ParameterParser<?>[] parameters = node.getParameters();
-            executeNode(context, node, parameters, args, offset);
-            offset += parameters.length;
+            ParameterParser<?>[] parsers = node.getParameterParsers();
+            executeNode(context, node, parsers, args, offset);
+            offset += parsers.length;
 
             if(node.getChildren().length == 0) {
                 if(!node.isExecutable()) {
@@ -82,8 +82,8 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         }
 
     }
-    private void executeNode(CommandContext context, CommandNode node, ParameterParser<?>[] parameters, String[] args, int offset) {
-        Object[] arguments = parseArguments(context, parameters, args, offset);
+    private void executeNode(CommandContext context, CommandNode node, ParameterParser<?>[] parsers, String[] args, int offset) {
+        Object[] arguments = parseArguments(context, parsers, args, offset);
         if(node.isExecutable()) {
             try {
                 node.getExecutor().invoke(this, arguments);
@@ -95,19 +95,19 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     /**
      * Parse the arguments and updates correspondingly the command context
      */
-    private Object[] parseArguments(CommandContext context, ParameterParser<?>[] parameters, String[] args, int offset) {
-        Object[] arguments = new Object[parameters.length+1];
+    private Object[] parseArguments(CommandContext context, ParameterParser<?>[] parsers, String[] args, int offset) {
+        Object[] arguments = new Object[parsers.length+1];
         arguments[0] = context;
 
-        for(int i=0; i<parameters.length; i++) {
+        for(int i=0; i<parsers.length; i++) {
             if(offset >= args.length) {
-                if(parameters[i].isOptional()) {
-                    arguments[i+1] = parameters[i].parseDefaultValue();
+                if(parsers[i].isOptional()) {
+                    arguments[i+1] = parsers[i].parseDefaultValue();
                 } else {
                     throw new CommandException("&4&l > &cThe command is missing arguments, check the help menu");
                 }
             } else {
-                arguments[i+1] = parseArgument(context, parameters[i], args, offset);
+                arguments[i+1] = parseArgument(context, parsers[i], args, offset);
             }
 
             offset += 1;
@@ -147,11 +147,11 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         throw new UnsupportedOperationException("This is a work in progress");
     }
 
-    public final org.bukkit.command.PluginCommand build(JavaPlugin plugin, ParameterManager parameterManager) {
+    public final org.bukkit.command.PluginCommand build(JavaPlugin plugin, ParserManager parserManager) {
         Method rootMethod = getRootMethod();
         rootMethod.setAccessible(true);
 
-        rootNode = new CommandNode(rootMethod, getClass(), parameterManager);
+        rootNode = new CommandNode(rootMethod, getClass(), parserManager);
 
         pluginCommand = PluginCommand.createInstance(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class), plugin);
         pluginCommand.setExecutor(this);

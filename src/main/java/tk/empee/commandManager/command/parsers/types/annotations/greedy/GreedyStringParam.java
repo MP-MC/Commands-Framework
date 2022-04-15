@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parameters.parsers.annotations.greedy;
+package tk.empee.commandManager.command.parsers.types.annotations.greedy;
 
-import tk.empee.commandManager.command.parameters.parsers.ParameterParser;
+import tk.empee.commandManager.command.parsers.types.ParameterParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

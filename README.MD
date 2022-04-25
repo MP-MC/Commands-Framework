@@ -17,24 +17,26 @@ to be simplest as possible.
 ## How to use it
 This is a simple implementation of the command manager.
 
-    public class MyCommand extends Command {
+```java
+public class MyCommand extends Command {
 
-        @CommandRoot( aliases = {"test2"} )
-        @CommandNode( label = "test", permission = "test.test" )
-        public void myRootNode(CommandContext context, String arg1, Player arg2) {
-            Player sender = context.getSource(Player.class);
-            sender.sendMessage("Hello World!");
-            arg2.sendMessage("Hello " + arg1);
-        }
-
+    @CommandRoot( aliases = {"test2"} )
+    @CommandNode( label = "test", permission = "test.test" )
+    public void myRootNode(CommandContext context, String arg1, Player arg2) {
+        Player sender = context.getSource(Player.class);
+        sender.sendMessage("Hello World!");
+        arg2.sendMessage("Hello " + arg1);
     }
 
-    public class MyPlugin extends JavaPlugin {
+}
 
-        @Override
-        public void onEnable() {
-            CommandManager commandManager = new CommandManager(this);
-            commandManager.register(new MyCommand());
-        }
+public class MyPlugin extends JavaPlugin {
 
+    @Override
+    public void onEnable() {
+        CommandManager commandManager = new CommandManager(this);
+        commandManager.register(new MyCommand());
     }
+
+}
+```

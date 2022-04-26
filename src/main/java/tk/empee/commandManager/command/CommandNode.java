@@ -38,12 +38,14 @@ public final class CommandNode {
         parameterParsers = getParameterParsers(parserManager);
         children = getChildren(annotation.childNodes(), target, parserManager);
 
-        if(children.length > 0 && parameterParsers[parameterParsers.length-1] instanceof GreedyParser) {
-            throw new IllegalArgumentException("You can't have children inside the node " + label + ", his last parameter is a greedy one!");
-        }
+        if(children.length > 0 && parameterParsers.length > 0) {
+            ParameterParser<?> lastParser = parameterParsers[parameterParsers.length-1];
 
-        if(children.length > 0 && parameterParsers[parameterParsers.length-1].isOptional()) {
-            throw new IllegalArgumentException("You can't have a children after a optional argument inside the node " + label);
+            if(lastParser instanceof GreedyParser) {
+                throw new IllegalArgumentException("You can't have children inside the node " + label + ", his last parameter is a greedy one!");
+            } else if(lastParser.isOptional()) {
+                throw new IllegalArgumentException("You can't have a children after a optional argument inside the node " + label);
+            }
         }
 
     }
@@ -131,20 +133,26 @@ public final class CommandNode {
     private CommandNode[] getChildren(String[] labels, Class<? extends Command> target, ParserManager parserManager) {
 
         CommandNode[] children = new CommandNode[labels.length];
-        Method[] methods = target.getDeclaredMethods();
+
         int matches = 0;
+        while (target != null) {
+            Method[] methods = target.getDeclaredMethods();
+            for(int i=0; i<labels.length; i++) {
 
-        for(int i=0; i<labels.length; i++) {
-
-            for(Method m : methods) {
-                tk.empee.commandManager.command.annotations.CommandNode annotation = m.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class);
-                if(annotation != null && annotation.label().equals(labels[i])) {
-                    m.setAccessible(true);
-                    children[i] = new CommandNode(m, target, parserManager);
-                    matches += 1;
+                if(children[i] == null) {
+                    for (Method m : methods) {
+                        tk.empee.commandManager.command.annotations.CommandNode annotation = m.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class);
+                        if (annotation != null && annotation.label().equals(labels[i])) {
+                            m.setAccessible(true);
+                            children[i] = new CommandNode(m, target, parserManager);
+                            matches += 1;
+                        }
+                    }
                 }
+
             }
 
+            target = (Class<? extends Command>) target.getSuperclass();
         }
 
         if(matches != labels.length) {

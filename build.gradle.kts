@@ -9,8 +9,8 @@ version = "1.0"
 
 repositories {
 
-    //Spigot Repo
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    //Paper Repo
+    maven(url = "https://papermc.io/repo/repository/maven-public/")
     //Brigadier Repo
     maven("https://libraries.minecraft.net/")
 
@@ -21,6 +21,7 @@ dependencies {
 
     implementation("me.lucko:commodore:1.13")
 
+    compileOnly("net.kyori:adventure-platform-bukkit:4.1.0")
     compileOnly("org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT")
 
 }
@@ -30,7 +31,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "commandManager"
+            artifactId = "commandsFramework"
             from(components["java"])
         }
     }

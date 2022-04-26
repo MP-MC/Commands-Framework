@@ -1,2 +1,2 @@
-rootProject.name = "CommandManager"
+rootProject.name = "Commands Framework"
 

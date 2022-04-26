@@ -1,5 +1,5 @@
-# CommandManager
-The commandManager framework helps you create commands. 
+# Commands Framework
+The commands framework helps you create commands with advanced features. 
 This framework is annotation based, and it is designed
 to be simplest as possible.
 

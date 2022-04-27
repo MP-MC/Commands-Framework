@@ -2,6 +2,7 @@ package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
+import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.annotations.FloatParam;
 
 public class FloatParser extends ParameterParser<Float> {
@@ -14,6 +15,12 @@ public class FloatParser extends ParameterParser<Float> {
 
         this.min = min;
         this.max = max;
+
+        descriptor = new ParserDescription("float", "This parameter can only contain a decimal number", new String[]{
+                "Min: ", (min != Float.MIN_VALUE ? min+"" : "-∞"),
+                "Max: ", (max != Float.MAX_VALUE ? max+"" : "+∞"),
+                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+        });
     }
 
     @Override

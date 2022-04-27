@@ -1,6 +1,8 @@
 package tk.empee.commandManager.command;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import tk.empee.commandManager.command.parsers.ParserManager;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
@@ -16,7 +18,7 @@ public final class CommandNode {
     @Getter private final String label;
 
     @Getter private final String permission;
-    @Getter private final String description;
+    @Getter private Component description;
 
     @Getter private final ParameterParser<?>[] parameterParsers;
     @Getter private final CommandNode[] children;
@@ -32,7 +34,19 @@ public final class CommandNode {
 
         label = annotation.label();
         permission = annotation.permission();
-        description = annotation.description();
+
+        description = Component.newline();
+        if(!annotation.description().isEmpty()) {
+            description = description
+                    .append(Component.text(annotation.description()).color(NamedTextColor.DARK_AQUA))
+                    .append(Component.newline()).append(Component.newline());
+        }
+
+        description = description
+                .append(Component.text("Permission: ").color(NamedTextColor.YELLOW))
+                .append(Component.text(permission.isEmpty() ? "none" : permission).color(NamedTextColor.LIGHT_PURPLE))
+                .append(Component.newline());
+
         executable = annotation.executable();
 
         parameterParsers = getParameterParsers(parserManager);

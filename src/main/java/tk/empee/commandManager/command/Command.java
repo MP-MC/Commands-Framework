@@ -1,6 +1,14 @@
 package tk.empee.commandManager.command;
 
 import lombok.Getter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
@@ -9,20 +17,31 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import tk.empee.commandManager.CommandManager;
 import tk.empee.commandManager.command.annotations.CommandRoot;
+import tk.empee.commandManager.command.parsers.types.IntegerParser;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
 import tk.empee.commandManager.command.parsers.types.greedy.GreedyParser;
 import tk.empee.commandManager.helpers.PluginCommand;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
-    protected static final String MALFORMED_COMMAND = "&4&l > &cThe command is missing arguments, check the help menu";
-    protected static final String MISSING_PERMISSIONS = "&4&l > &cYou haven't enough permissions";
-    protected static final String RUNTIME_ERROR = " &4&l > &cError while executing the command";
+    private static final String MALFORMED_COMMAND = "&4&l > &cThe command is missing arguments, check the help menu";
+    private static final String MISSING_PERMISSIONS = "&4&l > &cYou haven't enough permissions";
+    private static final String RUNTIME_ERROR = "&4&l > &cError while executing the command";
+    private static final String INVALID_PAGE = "&4&l > &cError the page number is invalid";
+
+    private static final int helpPageSize = 5;
+
+    private BukkitAudiences adventure;
+    private int helpPages;
+    protected Component[] helpMenu;
+    protected TextComponent header;
 
     @Getter
     private org.bukkit.command.PluginCommand pluginCommand;
@@ -31,6 +50,20 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
     public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
         try {
+
+            if(args.length > 0) {
+                //Handling of default commands
+                if(args[0].equalsIgnoreCase("help")) {
+                    if(args.length > 1) {
+                        sendHelp(sender, IntegerParser.DEFAULT.parse(args[1]));
+                    } else {
+                        sendHelp(sender, 0);
+                    }
+
+                    return true;
+                }
+            }
+
             run(new CommandContext(sender), rootNode, args, 0);
         } catch (CommandException exception) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', exception.getMessage()));
@@ -98,12 +131,16 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {
+                if(e.getCause() instanceof CommandException) {
+                    throw (CommandException) e.getCause();
+                }
+
                 throw new CommandException(RUNTIME_ERROR, e.getCause());
             }
         }
     }
     /**
-     * Parse the arguments and updates correspondingly the command context
+     * Parse the arguments and put them inside the command context if needed
      */
     private Object[] parseArguments(CommandContext context, ParameterParser<?>[] parsers, String[] args, int offset) {
         Object[] arguments = new Object[parsers.length+1];
@@ -152,9 +189,89 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         return null;
     }
 
-    protected final void sendHelp(CommandContext context) {
-        //TODO Implements adventure support, (Checks for already implemented services)
-        throw new UnsupportedOperationException("This is a work in progress");
+    private void sendHelp(CommandSender target, Integer page) {
+        if(page >= helpPages) {
+            throw new CommandException(INVALID_PAGE);
+        }
+
+        Audience audience;
+
+        //If it is running paper use the target as the audience
+        if(target instanceof Audience) {
+            audience = (Audience) target;
+        } else {
+            audience = adventure.sender(target);
+        }
+
+        audience.sendMessage(header);
+
+        for(int i=page*helpPageSize; i<(page+1)*helpPageSize && i<helpMenu.length; i++) {
+            audience.sendMessage(helpMenu[i]);
+        }
+
+        Component footer = Component.newline().append(Component.text("   "));
+        for(int i=0; i<helpPages; i++) {
+            Component pageNumber = Component.text(i + " ");
+            if(i == page) {
+                pageNumber = pageNumber.color(NamedTextColor.RED);
+            } else {
+                pageNumber = pageNumber.color(NamedTextColor.YELLOW)
+                        .clickEvent(ClickEvent.runCommand("/" + rootNode.getLabel() + " help " + i));
+            }
+
+            footer = footer.append(pageNumber);
+        }
+        audience.sendMessage(footer.append(Component.newline()));
+    }
+
+    private void buildHelpMessage() {
+        ArrayList<TextComponent> menu = buildHelpMenu(new ArrayList<>(), rootNode, rootNode.getLabel());
+        menu.sort(Comparator.comparing(TextComponent::content));
+        helpMenu = menu.toArray(new Component[0]);
+
+        helpPages = (int) Math.ceil(helpMenu.length / (float) helpPageSize);
+        header = Component.newline()
+                .append(Component.text("   Help Menu").color(NamedTextColor.YELLOW))
+                .append(Component.text("    -    ").color(NamedTextColor.GRAY))
+                .append(Component.text(pluginCommand.getPlugin().getName()).color(NamedTextColor.GOLD))
+                .append(Component.newline());
+    }
+    private ArrayList<TextComponent> buildHelpMenu(ArrayList<TextComponent> target, CommandNode node, String parent) {
+        for(CommandNode child : node.getChildren()) {
+
+            TextComponent component = Component.text("   ")
+                    .append(Component.text("? ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
+                    .append(Component.text("/").color(NamedTextColor.DARK_GRAY))
+                    .append(Component.text(parent + " " + child.getLabel() + " ").color(NamedTextColor.GRAY));
+
+            StringBuilder command = new StringBuilder(parent + " " + child.getLabel());
+            for(ParameterParser<?> parameter : child.getParameterParsers()) {
+                String label = parameter.getLabel();
+                if(label.isEmpty()) {
+                    label = parameter.getDescriptor().getFallbackLabel();
+                }
+
+                component = component.append(
+                        Component.text("<" + label + "> ")
+                                .color(NamedTextColor.RED)
+                                .hoverEvent(HoverEvent.showText(parameter.getDescriptor().getDescription()))
+                );
+
+                command.append(" <").append(label).append(">");
+            }
+
+            component = component
+                    .hoverEvent(HoverEvent.showText(child.getDescription()))
+                    .clickEvent(ClickEvent.suggestCommand("/" + command));
+
+            if(child.isExecutable()) {
+                target.add(component);
+            }
+
+            buildHelpMenu(target, child, command.toString());
+        }
+
+        return target;
     }
 
     public final org.bukkit.command.PluginCommand build(CommandManager commandManager) {
@@ -165,6 +282,9 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         pluginCommand = PluginCommand.createInstance(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class), commandManager.getPlugin());
         pluginCommand.setExecutor(this);
+
+        adventure = commandManager.getAdventure();
+        buildHelpMessage();
 
         return pluginCommand;
     }

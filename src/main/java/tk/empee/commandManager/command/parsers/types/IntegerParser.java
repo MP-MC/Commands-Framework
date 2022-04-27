@@ -1,10 +1,15 @@
 package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandException;
+import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.annotations.IntegerParam;
 
 public class IntegerParser extends ParameterParser<Integer> {
+
+    public static final IntegerParser DEFAULT = new IntegerParser("", "0", Integer.MIN_VALUE, Integer.MAX_VALUE);
 
     @Getter private final int min;
     @Getter private final int max;
@@ -14,6 +19,12 @@ public class IntegerParser extends ParameterParser<Integer> {
 
         this.min = min;
         this.max = max;
+
+        descriptor = new ParserDescription("integer", "This parameter can only contain an integer", new String[]{
+                "Min: ", (min != Integer.MIN_VALUE ? min+"" : "-∞"),
+                "Max: ", (max != Integer.MAX_VALUE ? max+"" : "+∞"),
+                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+        });
     }
 
     @Override

@@ -10,9 +10,10 @@ to be simplest as possible.
  - [x] Automatic command registration
  - [x] Optional parameters
  - [x] Greedy parameters
+ - [x] Automatic interactive help generation
 
 ## TODOs
-- [ ] Automatic help generation
+ - [ ] Add support for sub-command aliases
 
 ## How to use it
 This is a simple implementation of the command manager.

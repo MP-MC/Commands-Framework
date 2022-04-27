@@ -2,6 +2,7 @@ package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
+import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.annotations.LongParam;
 
 public class LongParser extends ParameterParser<Long> {
@@ -13,6 +14,12 @@ public class LongParser extends ParameterParser<Long> {
 
         this.min = min;
         this.max = max;
+
+        descriptor = new ParserDescription("long", "This parameter can only contain an integer", new String[]{
+                "Min: ", (min != Long.MIN_VALUE ? min+"" : "-∞"),
+                "Max: ", (max != Long.MAX_VALUE ? max+"" : "+∞"),
+                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+        });
     }
 
     @Override

@@ -1,7 +1,9 @@
 package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
+import tk.empee.commandManager.command.parsers.ParserDescription;
 
 import java.lang.annotation.*;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.List;
 
 public abstract class ParameterParser<T> {
 
+    @Getter protected ParserDescription descriptor = new ParserDescription("", "", null);
     @Getter private final Class<? extends Annotation> identifier;
     @Getter private final String label;
     @Getter private final String defaultValue;

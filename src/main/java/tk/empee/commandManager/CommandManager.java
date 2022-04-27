@@ -2,6 +2,7 @@ package tk.empee.commandManager;
 
 import lombok.Getter;
 import me.lucko.commodore.CommodoreProvider;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,24 +24,29 @@ import java.util.logging.Logger;
 public final class CommandManager implements Listener {
 
     private final ArrayList<Command> commands = new ArrayList<>();
-    private final JavaPlugin plugin;
     private final Logger logger;
-
     private CompletionService completionService = null;
-    @Getter private final ParserManager parserManager;
 
+    @Getter final JavaPlugin plugin;
+    @Getter private final ParserManager parserManager;
+    @Getter private final BukkitAudiences adventure;
 
     public CommandManager(JavaPlugin plugin) {
+        this(plugin, null);
+    }
+
+    public CommandManager(JavaPlugin plugin, BukkitAudiences adventure) {
         this.plugin = plugin;
+        this.adventure = adventure;
         this.logger = plugin.getLogger();
 
         this.parserManager = new ParserManager();
+        registerDefaultParsers();
 
-        registerDefaultParameters();
         setupCompletionService();
     }
 
-    private void registerDefaultParameters() {
+    private void registerDefaultParsers() {
         parserManager.registerParser(IntegerParam.class, IntegerParser.class);
         parserManager.registerParser(FloatParam.class, FloatParser.class);
         parserManager.registerParser(DoubleParam.class, DoubleParser.class);
@@ -60,7 +66,7 @@ public final class CommandManager implements Listener {
     }
 
     public void registerCommand(Command command) {
-        PluginCommand pluginCommand = command.build(plugin, parserManager);
+        PluginCommand pluginCommand = command.build(this);
         if(!CommandMap.register(pluginCommand)) {
             logger.warning("It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead");
         }

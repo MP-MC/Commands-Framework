@@ -1,5 +1,6 @@
 package tk.empee.commandManager.command.parsers.types.greedy;
 
+import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
 import tk.empee.commandManager.command.parsers.types.annotations.StringParam;
 
@@ -7,6 +8,10 @@ public class GreedyStringParser extends ParameterParser<String> implements Greed
 
     public GreedyStringParser(String label, String defaultValue) {
         super(StringParam.class, label, defaultValue);
+
+        descriptor = new ParserDescription("message", "This parameter can only contain a string value with spaces", new String[]{
+                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+        });
     }
 
     @Override

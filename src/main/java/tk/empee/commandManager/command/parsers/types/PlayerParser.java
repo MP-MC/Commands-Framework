@@ -1,9 +1,12 @@
 package tk.empee.commandManager.command.parsers.types;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.annotations.PlayerParam;
 
 import java.util.List;
@@ -17,6 +20,10 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
         super(PlayerParam.class, label, defaultValue);
 
         this.onlyOnline = onlyOnline;
+        descriptor = new ParserDescription("player", "This parameter can only contain a player's name or his UUID", new String[]{
+                "Requires online: ", (onlyOnline ? "yes" : "no"),
+                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+        });
     }
 
     @Override

@@ -11,7 +11,6 @@ import tk.empee.commandManager.command.CommandNode;
 import tk.empee.commandManager.command.parsers.types.*;
 import tk.empee.commandManager.command.parsers.types.greedy.GreedyStringParser;
 
-@SuppressWarnings("unchecked")
 public final class CompletionService {
 
     private final Commodore commodore;
@@ -24,10 +23,15 @@ public final class CompletionService {
         PluginCommand pluginCommand = command.getPluginCommand();
 
         pluginCommand.setTabCompleter(command);
-        commodore.register(pluginCommand, convertNodeToBrigadier(command.getRootNode()));
+
+        LiteralArgumentBuilder<Object> rootNode = convertNodeToBrigadier(command.getRootNode());
+        //Registering completion for default commandNode "help"
+        rootNode.then(LiteralArgumentBuilder.literal("help").then(RequiredArgumentBuilder.argument("page", IntegerArgumentType.integer(0))));
+
+        commodore.register(pluginCommand, rootNode);
     }
 
-    private LiteralArgumentBuilder<?> convertNodeToBrigadier(CommandNode node) {
+    private LiteralArgumentBuilder<Object> convertNodeToBrigadier(CommandNode node) {
 
         LiteralArgumentBuilder<Object> rootNode = LiteralArgumentBuilder.literal(node.getLabel());
         ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -40,7 +44,7 @@ public final class CompletionService {
         }
 
         for(CommandNode child : node.getChildren()) {
-            lastArg.then((ArgumentBuilder<Object, ?>) convertNodeToBrigadier(child));
+            lastArg.then(convertNodeToBrigadier(child));
         }
 
         for(int i=parsers.length-2; i>=0; i--) {

@@ -9,7 +9,7 @@ public class LongParser extends ParameterParser<Long> {
     @Getter private final long min;
     @Getter private final long max;
 
-    protected LongParser(String label, String defaultValue, Long min, Long max) {
+    public LongParser(String label, String defaultValue, Long min, Long max) {
         super(LongParam.class, label, defaultValue);
 
         this.min = min;

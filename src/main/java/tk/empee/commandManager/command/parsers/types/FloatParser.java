@@ -10,14 +10,14 @@ public class FloatParser extends ParameterParser<Float> {
     @Getter private final float min;
     @Getter private final float max;
 
-    protected FloatParser(String label, String defaultValue, Float min, Float max) {
+    public FloatParser(String label, String defaultValue, Float min, Float max) {
         super(FloatParam.class, label, defaultValue);
 
         this.min = min;
         this.max = max;
 
         descriptor = new ParserDescription("float", "This parameter can only contain a decimal number", new String[]{
-                "Min: ", (min != Float.MIN_VALUE ? min+"" : "-∞"),
+                "Min: ", (min != -Float.MAX_VALUE ? min+"" : "-∞"),
                 "Max: ", (max != Float.MAX_VALUE ? max+"" : "+∞"),
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
         });

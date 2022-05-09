@@ -10,14 +10,14 @@ public class DoubleParser extends ParameterParser<Double> {
     @Getter private final double min;
     @Getter private final double max;
 
-    protected DoubleParser(String label, String defaultValue, Double min, Double max) {
+    public DoubleParser(String label, String defaultValue, Double min, Double max) {
         super(DoubleParam.class, label, defaultValue);
 
         this.min = min;
         this.max = max;
 
         descriptor = new ParserDescription("double", "This parameter can only contain a decimal number", new String[]{
-                "Min: ", (min != Double.MIN_VALUE ? min+"" : "-∞"),
+                "Min: ", (min != -Double.MAX_VALUE ? min+"" : "-∞"),
                 "Max: ", (max != Double.MAX_VALUE ? max+"" : "+∞"),
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
         });

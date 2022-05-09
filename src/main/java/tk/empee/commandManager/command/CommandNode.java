@@ -121,10 +121,10 @@ public final class CommandNode {
                         "", "", Integer.MIN_VALUE, Integer.MAX_VALUE );
             } else if(type == Double.class) {
                 parser = parserManager.buildParser( DoubleParam.class,
-                        "", "", Double.MIN_VALUE, Double.MAX_VALUE );
+                        "", "", -Double.MAX_VALUE, Double.MAX_VALUE );
             } else if(type == Float.class) {
                 parser = parserManager.buildParser( FloatParam.class,
-                        "", "", Float.MIN_VALUE, Float.MAX_VALUE );
+                        "", "", -Float.MAX_VALUE, Float.MAX_VALUE );
             } else if(type == Long.class) {
                 parser = parserManager.buildParser( LongParam.class,
                         "", "", Long.MIN_VALUE, Long.MAX_VALUE );

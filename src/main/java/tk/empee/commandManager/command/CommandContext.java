@@ -28,7 +28,7 @@ public final class CommandContext {
         if(sourceClazz.isInstance(source)) {
             return (T) source;
         }
-        throw new CommandException("&4&l > &cOnly a &e" + sourceClazz.getSimpleName() + "&c can use this command");
+        throw new CommandException("&4&l > &cYou aren't an allowed sender type of this command");
     }
 
 }

@@ -87,7 +87,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 node = findNextNode(node, args, offset);
                 offset += 1;
             } else {
-                return parsers[args.length-offset-1].getSuggestions(sender);
+                return parsers[args.length-offset-1].getSuggestions(sender); //TODO fix out of bound (QUando brigadier vedere un valore non valido non lo passa neanche al server)
             }
         }
 
@@ -225,7 +225,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
 
     private void buildHelpMessage() {
-        ArrayList<TextComponent> menu = buildHelpMenu(new ArrayList<>(), rootNode, rootNode.getLabel());
+        ArrayList<TextComponent> menu = buildHelpMenu();
         menu.sort(Comparator.comparing(TextComponent::content));
         helpMenu = menu.toArray(new Component[0]);
 
@@ -236,42 +236,50 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 .append(Component.text(pluginCommand.getPlugin().getName()).color(NamedTextColor.GOLD))
                 .append(Component.newline());
     }
-    private ArrayList<TextComponent> buildHelpMenu(ArrayList<TextComponent> target, CommandNode node, String parent) {
+
+    private ArrayList<TextComponent> buildHelpMenu() {
+        return buildHelpMenu(new ArrayList<>(), rootNode,
+                Component.text("   ")
+                .append(Component.text("? ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
+                .append(Component.text("/").color(NamedTextColor.DARK_GRAY))
+                .append(Component.text(rootNode.getLabel() + " ").color(NamedTextColor.GRAY))
+        );
+    }
+    private ArrayList<TextComponent> buildHelpMenu(ArrayList<TextComponent> menu, CommandNode node, TextComponent parent) {
         for(CommandNode child : node.getChildren()) {
 
-            TextComponent component = Component.text("   ")
-                    .append(Component.text("? ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                    .append(Component.text("/").color(NamedTextColor.DARK_GRAY))
-                    .append(Component.text(parent + " " + child.getLabel() + " ").color(NamedTextColor.GRAY));
-
-            StringBuilder command = new StringBuilder(parent + " " + child.getLabel());
+            TextComponent helpRow = parent.append(Component.text(child.getLabel() + " ").color(NamedTextColor.GRAY));
             for(ParameterParser<?> parameter : child.getParameterParsers()) {
                 String label = parameter.getLabel();
                 if(label.isEmpty()) {
                     label = parameter.getDescriptor().getFallbackLabel();
                 }
 
-                component = component.append(
+                helpRow = helpRow.append(
                         Component.text("<" + label + "> ")
-                                .color(NamedTextColor.RED)
-                                .hoverEvent(HoverEvent.showText(parameter.getDescriptor().getDescription()))
+                        .color(NamedTextColor.RED)
+                        .hoverEvent(HoverEvent.showText(parameter.getDescriptor().getDescription()))
                 );
-
-                command.append(" <").append(label).append(">");
             }
 
-            component = component
-                    .hoverEvent(HoverEvent.showText(child.getDescription()))
-                    .clickEvent(ClickEvent.suggestCommand("/" + command));
+            StringBuilder rawCommand = new StringBuilder();
+            for(Component component : helpRow.children()) {
+                if(component instanceof TextComponent) {
+                    rawCommand.append(((TextComponent) component).content());
+                }
+            }
+
+            helpRow = helpRow.hoverEvent(HoverEvent.showText(child.getDescription()))
+                    .clickEvent(ClickEvent.suggestCommand(rawCommand.substring(2, rawCommand.length()-1 )));
 
             if(child.isExecutable()) {
-                target.add(component);
+                menu.add(helpRow);
             }
 
-            buildHelpMenu(target, child, command.toString());
+            buildHelpMenu(menu, child, helpRow);
         }
 
-        return target;
+        return menu;
     }
 
     public final org.bukkit.command.PluginCommand build(CommandManager commandManager) {
@@ -299,4 +307,15 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         throw new IllegalStateException("Can't find the root node of " + getClass().getName());
     }
+
+    /**
+     * UTILITIES
+     */
+
+    protected void sendMessage(CommandSender sender, String... messages) {
+        for(String message : messages) {
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+
 }

@@ -51,7 +51,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
         try {
 
-            if(args.length > 0) {
+            if(args.length > 0 && sender.hasPermission(rootNode.getPermission())) {
                 //Handling of default commands
                 if(args[0].equalsIgnoreCase("help")) {
                     if(args.length > 1) {
@@ -196,7 +196,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender target, Integer page) {
-        if(page >= helpPages) {
+        if(page >= helpPages || page < 0) {
             throw new CommandException(INVALID_PAGE);
         }
 

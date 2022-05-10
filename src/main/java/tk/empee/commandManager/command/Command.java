@@ -17,14 +17,17 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import tk.empee.commandManager.CommandManager;
 import tk.empee.commandManager.command.annotations.CommandRoot;
-import tk.empee.commandManager.command.parsers.types.IntegerParser;
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
-import tk.empee.commandManager.command.parsers.types.greedy.GreedyParser;
 import tk.empee.commandManager.helpers.PluginCommand;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.types.IntegerParser;
+import tk.empee.commandManager.parsers.types.greedy.GreedyParser;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 

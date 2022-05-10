@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parsers.types.annotations;
+package tk.empee.commandManager.parsers.types.annotations;
 
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.parsers.ParameterParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,15 +9,15 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LongParam {
+public @interface FloatParam {
 
     @ParameterParser.Property(index = 0)
     String label() default "";
     @ParameterParser.Property(index = 1)
     String defaultValue() default "";
     @ParameterParser.Property(index = 2)
-    long min() default Long.MIN_VALUE;
+    float min() default -Float.MAX_VALUE;
     @ParameterParser.Property(index = 3)
-    long max() default Long.MAX_VALUE;
+    float max() default Float.MAX_VALUE;
 
 }

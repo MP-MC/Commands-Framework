@@ -1,11 +1,10 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers.types;
 
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parsers.ParserDescription;
-import tk.empee.commandManager.command.parsers.types.annotations.IntegerParam;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserDescription;
+import tk.empee.commandManager.parsers.types.annotations.IntegerParam;
 
 public class IntegerParser extends ParameterParser<Integer> {
 

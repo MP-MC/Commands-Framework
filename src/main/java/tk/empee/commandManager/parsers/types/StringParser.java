@@ -1,7 +1,8 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers.types;
 
-import tk.empee.commandManager.command.parsers.ParserDescription;
-import tk.empee.commandManager.command.parsers.types.annotations.StringParam;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserDescription;
+import tk.empee.commandManager.parsers.types.annotations.StringParam;
 
 public class StringParser extends ParameterParser<String> {
 

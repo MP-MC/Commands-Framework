@@ -5,10 +5,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import tk.empee.commandManager.command.parsers.ParserManager;
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
-import tk.empee.commandManager.command.parsers.types.annotations.*;
-import tk.empee.commandManager.command.parsers.types.greedy.GreedyParser;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserManager;
+import tk.empee.commandManager.parsers.types.annotations.*;
+import tk.empee.commandManager.parsers.types.greedy.GreedyParser;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

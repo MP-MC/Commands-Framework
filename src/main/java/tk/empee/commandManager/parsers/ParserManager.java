@@ -1,6 +1,4 @@
-package tk.empee.commandManager.command.parsers;
-
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
+package tk.empee.commandManager.parsers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

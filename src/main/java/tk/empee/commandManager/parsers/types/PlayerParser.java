@@ -1,13 +1,12 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers.types;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
-import tk.empee.commandManager.command.parsers.ParserDescription;
-import tk.empee.commandManager.command.parsers.types.annotations.PlayerParam;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserDescription;
+import tk.empee.commandManager.parsers.types.annotations.PlayerParam;
 
 import java.util.List;
 import java.util.UUID;

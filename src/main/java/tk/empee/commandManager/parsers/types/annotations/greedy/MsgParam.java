@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parsers.types.annotations;
+package tk.empee.commandManager.parsers.types.annotations.greedy;
 
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.parsers.ParameterParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StringParam {
+public @interface MsgParam {
 
     @ParameterParser.Property(index = 0)
     String label() default "";

@@ -1,4 +1,4 @@
-package tk.empee.commandManager.command.parsers;
+package tk.empee.commandManager.parsers;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;

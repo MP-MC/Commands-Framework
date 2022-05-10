@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parsers.types.annotations;
+package tk.empee.commandManager.parsers.types.annotations;
 
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.parsers.ParameterParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

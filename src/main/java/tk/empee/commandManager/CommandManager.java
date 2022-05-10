@@ -7,12 +7,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.Command;
-import tk.empee.commandManager.command.parsers.ParserManager;
-import tk.empee.commandManager.command.parsers.types.*;
-import tk.empee.commandManager.command.parsers.types.annotations.*;
-import tk.empee.commandManager.command.parsers.types.annotations.greedy.MsgParam;
-import tk.empee.commandManager.command.parsers.types.greedy.MsgParser;
 import tk.empee.commandManager.helpers.CommandMap;
+import tk.empee.commandManager.parsers.ParserManager;
+import tk.empee.commandManager.parsers.types.*;
+import tk.empee.commandManager.parsers.types.annotations.*;
+import tk.empee.commandManager.parsers.types.annotations.greedy.MsgParam;
+import tk.empee.commandManager.parsers.types.greedy.MsgParser;
 import tk.empee.commandManager.services.CompletionService;
 
 import java.util.ArrayList;

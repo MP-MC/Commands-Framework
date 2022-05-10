@@ -1,9 +1,10 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parsers.ParserDescription;
-import tk.empee.commandManager.command.parsers.types.annotations.FloatParam;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserDescription;
+import tk.empee.commandManager.parsers.types.annotations.FloatParam;
 
 public class FloatParser extends ParameterParser<Float> {
 

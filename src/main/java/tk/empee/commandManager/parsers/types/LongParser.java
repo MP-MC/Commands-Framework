@@ -1,9 +1,10 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers.types;
 
 import lombok.Getter;
 import org.bukkit.command.CommandException;
-import tk.empee.commandManager.command.parsers.ParserDescription;
-import tk.empee.commandManager.command.parsers.types.annotations.LongParam;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.ParserDescription;
+import tk.empee.commandManager.parsers.types.annotations.LongParam;
 
 public class LongParser extends ParameterParser<Long> {
     @Getter private final long min;

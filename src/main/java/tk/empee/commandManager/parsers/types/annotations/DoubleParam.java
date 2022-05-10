@@ -1,6 +1,6 @@
-package tk.empee.commandManager.command.parsers.types.annotations;
+package tk.empee.commandManager.parsers.types.annotations;
 
-import tk.empee.commandManager.command.parsers.types.ParameterParser;
+import tk.empee.commandManager.parsers.ParameterParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,13 +9,15 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PlayerParam {
+public @interface DoubleParam {
 
     @ParameterParser.Property(index = 0)
     String label() default "";
     @ParameterParser.Property(index = 1)
-    boolean online() default true;
-    @ParameterParser.Property(index = 2)
     String defaultValue() default "";
+    @ParameterParser.Property(index = 2)
+    double min() default -Double.MAX_VALUE;
+    @ParameterParser.Property(index = 3)
+    double max() default Double.MAX_VALUE;
 
 }

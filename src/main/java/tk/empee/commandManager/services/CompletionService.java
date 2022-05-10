@@ -8,8 +8,9 @@ import me.lucko.commodore.Commodore;
 import org.bukkit.command.PluginCommand;
 import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.command.CommandNode;
-import tk.empee.commandManager.command.parsers.types.*;
-import tk.empee.commandManager.command.parsers.types.greedy.MsgParser;
+import tk.empee.commandManager.parsers.ParameterParser;
+import tk.empee.commandManager.parsers.types.*;
+import tk.empee.commandManager.parsers.types.greedy.MsgParser;
 
 public final class CompletionService {
 

@@ -1,12 +1,13 @@
-package tk.empee.commandManager.command.parsers.types;
+package tk.empee.commandManager.parsers;
 
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
-import tk.empee.commandManager.command.parsers.ParserDescription;
 
 import java.lang.annotation.*;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class ParameterParser<T> {
 

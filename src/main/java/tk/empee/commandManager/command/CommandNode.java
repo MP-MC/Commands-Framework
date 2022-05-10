@@ -3,6 +3,7 @@ package tk.empee.commandManager.command;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import tk.empee.commandManager.command.parsers.ParserManager;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
@@ -104,6 +105,7 @@ public final class CommandNode {
      *     <li>Boolean</li>
      *     <li>String</li>
      *     <li>Player</li>
+     *     <li>OfflinePlayer</li>
      * </ul>
      */
     private ParameterParser<?> getParameterParser(java.lang.reflect.Parameter parameter, ParserManager parserManager) {
@@ -134,6 +136,9 @@ public final class CommandNode {
             } else if(type == Player.class) {
                 parser = parserManager.buildParser( PlayerParam.class,
                         "", true, "" );
+            } else if(type == OfflinePlayer.class) {
+                parser = parserManager.buildParser(PlayerParam.class,
+                        "", false, "");
             } else if(type == String.class) {
                 parser = parserManager.buildParser( StringParam.class,
                         "", "" );

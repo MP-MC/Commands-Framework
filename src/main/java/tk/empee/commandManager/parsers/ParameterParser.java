@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public abstract class ParameterParser<T> {
 
-    @Getter protected ParserDescription descriptor = new ParserDescription("", "", null);
+    @Getter protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
     @Getter private final Class<? extends Annotation> identifier;
     @Getter private final String label;
     @Getter private final String defaultValue;

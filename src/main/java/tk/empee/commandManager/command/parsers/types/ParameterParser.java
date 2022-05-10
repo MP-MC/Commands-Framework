@@ -1,13 +1,12 @@
 package tk.empee.commandManager.command.parsers.types;
 
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import tk.empee.commandManager.command.parsers.ParserDescription;
 
 import java.lang.annotation.*;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public abstract class ParameterParser<T> {
 
@@ -27,7 +26,25 @@ public abstract class ParameterParser<T> {
     }
     public abstract T parse(int offset, String... args);
 
-    public List<String> getSuggestions(CommandSender source) {
+    public List<String> getSuggestions(CommandSender source, int offset, String[] args) {
+        List<String> suggestions = getSuggestions(source, args[offset]);
+
+        if(suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
+            String arg = args[offset].toUpperCase(Locale.ROOT);
+            List<String> matchedSuggestions = new ArrayList<>();
+            for (String suggestion : suggestions) {
+                if(suggestion.toUpperCase(Locale.ROOT).startsWith(arg)) {
+                    matchedSuggestions.add(suggestion);
+                }
+            }
+
+            return matchedSuggestions;
+        }
+
+        return suggestions;
+    }
+
+    public List<String> getSuggestions(CommandSender source, String arg) {
         return Collections.emptyList();
     }
 

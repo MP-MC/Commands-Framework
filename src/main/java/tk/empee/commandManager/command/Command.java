@@ -24,10 +24,7 @@ import tk.empee.commandManager.helpers.PluginCommand;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
@@ -78,18 +75,24 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
     public final List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
 
-        CommandNode node = rootNode;
         int offset = 0;
-        while (node != null) {
-            ParameterParser<?>[] parsers = node.getParameterParsers();
-            if (args.length - offset > parsers.length) {
-                offset += parsers.length;
-                node = findNextNode(node, args, offset);
+        CommandNode node = rootNode;
+        do {
+
+            ParameterParser<?>[] parameterParsers = node.getParameterParsers();
+            for (ParameterParser<?> parameterParser : parameterParsers) {
+
                 offset += 1;
-            } else {
-                return parsers[args.length-offset-1].getSuggestions(sender); //TODO fix out of bound (QUando brigadier vedere un valore non valido non lo passa neanche al server)
+                if (offset == args.length) {
+                    return parameterParser.getSuggestions(sender, offset-1, args);
+                }
+
             }
-        }
+
+            node = findNextNode(node, args, offset);
+            offset += 1;
+
+        } while (node != null);
 
         return Collections.emptyList();
     }

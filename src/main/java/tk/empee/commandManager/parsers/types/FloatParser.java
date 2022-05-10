@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.command.CommandException;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.FloatParam;
 
 public class FloatParser extends ParameterParser<Float> {
 
@@ -12,7 +11,7 @@ public class FloatParser extends ParameterParser<Float> {
     @Getter private final float max;
 
     public FloatParser(String label, String defaultValue, Float min, Float max) {
-        super(FloatParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         this.min = min;
         this.max = max;

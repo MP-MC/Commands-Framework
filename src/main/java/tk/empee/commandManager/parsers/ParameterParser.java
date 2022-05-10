@@ -3,7 +3,10 @@ package tk.empee.commandManager.parsers;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,12 +15,10 @@ import java.util.Locale;
 public abstract class ParameterParser<T> {
 
     @Getter protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
-    @Getter private final Class<? extends Annotation> identifier;
     @Getter private final String label;
     @Getter private final String defaultValue;
 
-    protected ParameterParser(Class<? extends Annotation> identifier, String label, String defaultValue) {
-        this.identifier = identifier;
+    protected ParameterParser(String label, String defaultValue) {
         this.label = label;
         this.defaultValue = defaultValue;
     }

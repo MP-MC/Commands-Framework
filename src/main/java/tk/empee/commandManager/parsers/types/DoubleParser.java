@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.command.CommandException;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.DoubleParam;
 
 public class DoubleParser extends ParameterParser<Double> {
 
@@ -12,7 +11,7 @@ public class DoubleParser extends ParameterParser<Double> {
     @Getter private final double max;
 
     public DoubleParser(String label, String defaultValue, Double min, Double max) {
-        super(DoubleParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         this.min = min;
         this.max = max;

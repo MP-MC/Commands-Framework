@@ -2,12 +2,11 @@ package tk.empee.commandManager.parsers.types.greedy;
 
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.StringParam;
 
 public class MsgParser extends ParameterParser<String> implements GreedyParser {
 
     public MsgParser(String label, String defaultValue) {
-        super(StringParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         descriptor = new ParserDescription("message", "This parameter can only contain a string value with spaces", new String[]{
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)

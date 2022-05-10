@@ -4,14 +4,13 @@ import lombok.Getter;
 import org.bukkit.command.CommandException;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.LongParam;
 
 public class LongParser extends ParameterParser<Long> {
     @Getter private final long min;
     @Getter private final long max;
 
     public LongParser(String label, String defaultValue, Long min, Long max) {
-        super(LongParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         this.min = min;
         this.max = max;

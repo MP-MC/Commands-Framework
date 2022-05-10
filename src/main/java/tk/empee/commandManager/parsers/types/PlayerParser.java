@@ -6,7 +6,6 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.PlayerParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +15,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     private final boolean onlyOnline;
 
     public PlayerParser(String label, Boolean onlyOnline, String defaultValue) {
-        super(PlayerParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         this.onlyOnline = onlyOnline;
         descriptor = new ParserDescription("player", "This parameter can only contain a player's name or his UUID", new String[]{

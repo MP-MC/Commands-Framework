@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.command.CommandException;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
-import tk.empee.commandManager.parsers.types.annotations.IntegerParam;
 
 public class IntegerParser extends ParameterParser<Integer> {
 
@@ -14,7 +13,7 @@ public class IntegerParser extends ParameterParser<Integer> {
     @Getter private final int max;
 
     public IntegerParser(String label, String defaultValue, Integer min, Integer max) {
-        super(IntegerParam.class, label, defaultValue);
+        super(label, defaultValue);
 
         this.min = min;
         this.max = max;

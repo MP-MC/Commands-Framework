@@ -9,15 +9,15 @@ import java.util.HashMap;
 
 public final class ParserManager {
 
-    private final HashMap<Class<? extends Annotation>, Class<? extends ParameterParser<?>>> registeredParameters = new HashMap<>();
-    private final ArrayList<ParameterParser<?>> parameterParsers = new ArrayList<>();
+    private final HashMap<Class<? extends Annotation>, Class<? extends ParameterParser<?>>> registeredParsers = new HashMap<>();
+    private final ArrayList<ParameterParser<?>> parsersCache = new ArrayList<>();
 
     public void registerParser(Class<? extends Annotation> identifier, Class<? extends ParameterParser<?>> parameter) {
-        registeredParameters.put(identifier, parameter);
+        registeredParsers.put(identifier, parameter);
     }
 
     public boolean isRegistered(Class<? extends Annotation> identifier) {
-        return registeredParameters.get(identifier) != null;
+        return registeredParsers.get(identifier) != null;
     }
 
     /**
@@ -57,17 +57,15 @@ public final class ParserManager {
     public ParameterParser<?> buildParser(Class<? extends Annotation> identifier, Object... params) {
 
         ParameterParser<?> parameter = createParser(identifier, params);
-        for(ParameterParser<?> p : parameterParsers) {
+        for(ParameterParser<?> p : parsersCache) {
 
-            if(p.getIdentifier() == identifier) {
-                if(p.equals(parameter)) {
-                    return p;
-                }
+            if(p.equals(parameter)) {
+                return p;
             }
 
         }
 
-        parameterParsers.add(parameter);
+        parsersCache.add(parameter);
         return parameter;
     }
     private ParameterParser<?> createParser(Class<? extends Annotation> identifier, Object[] params) {
@@ -88,7 +86,7 @@ public final class ParserManager {
     }
     private Class<? extends ParameterParser<?>> findParser(Class<? extends Annotation> identifier) {
 
-        Class<? extends ParameterParser<?>> parameterClazz = registeredParameters.get(identifier);
+        Class<? extends ParameterParser<?>> parameterClazz = registeredParsers.get(identifier);
 
         if(parameterClazz == null) {
             throw new IllegalArgumentException("The parameter linked to " + identifier.getName() + " isn't registered");

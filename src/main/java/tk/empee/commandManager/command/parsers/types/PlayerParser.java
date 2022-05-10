@@ -21,7 +21,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
         this.onlyOnline = onlyOnline;
         descriptor = new ParserDescription("player", "This parameter can only contain a player's name or his UUID", new String[]{
-                "Requires online: ", (onlyOnline ? "yes" : "no"),
+                "Requires online: ", onlyOnline.toString(),
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
         });
     }
@@ -46,7 +46,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     }
 
     @Override
-    public List<String> getSuggestions(CommandSender source) {
+    public List<String> getSuggestions(CommandSender source, String arg) {
         return null;
     }
 

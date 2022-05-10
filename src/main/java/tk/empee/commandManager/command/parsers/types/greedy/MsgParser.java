@@ -4,9 +4,9 @@ import tk.empee.commandManager.command.parsers.ParserDescription;
 import tk.empee.commandManager.command.parsers.types.ParameterParser;
 import tk.empee.commandManager.command.parsers.types.annotations.StringParam;
 
-public class GreedyStringParser extends ParameterParser<String> implements GreedyParser {
+public class MsgParser extends ParameterParser<String> implements GreedyParser {
 
-    public GreedyStringParser(String label, String defaultValue) {
+    public MsgParser(String label, String defaultValue) {
         super(StringParam.class, label, defaultValue);
 
         descriptor = new ParserDescription("message", "This parameter can only contain a string value with spaces", new String[]{

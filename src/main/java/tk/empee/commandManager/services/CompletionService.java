@@ -9,7 +9,7 @@ import org.bukkit.command.PluginCommand;
 import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.command.CommandNode;
 import tk.empee.commandManager.command.parsers.types.*;
-import tk.empee.commandManager.command.parsers.types.greedy.GreedyStringParser;
+import tk.empee.commandManager.command.parsers.types.greedy.MsgParser;
 
 public final class CompletionService {
 
@@ -61,7 +61,7 @@ public final class CompletionService {
     }
     private ArgumentType<?> findArgType(ParameterParser<?> rawType) {
 
-        if(rawType instanceof GreedyStringParser) {
+        if(rawType instanceof MsgParser) {
             return StringArgumentType.greedyString();
         } else if(rawType instanceof IntegerParser) {
             return IntegerArgumentType.integer(((IntegerParser) rawType).getMin(), ((IntegerParser) rawType).getMax());

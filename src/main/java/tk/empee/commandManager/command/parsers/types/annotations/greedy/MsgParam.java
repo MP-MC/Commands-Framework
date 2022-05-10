@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GreedyStringParam {
+public @interface MsgParam {
 
     @ParameterParser.Property(index = 0)
     String label() default "";

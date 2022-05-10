@@ -10,8 +10,8 @@ import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.command.parsers.ParserManager;
 import tk.empee.commandManager.command.parsers.types.*;
 import tk.empee.commandManager.command.parsers.types.annotations.*;
-import tk.empee.commandManager.command.parsers.types.annotations.greedy.GreedyStringParam;
-import tk.empee.commandManager.command.parsers.types.greedy.GreedyStringParser;
+import tk.empee.commandManager.command.parsers.types.annotations.greedy.MsgParam;
+import tk.empee.commandManager.command.parsers.types.greedy.MsgParser;
 import tk.empee.commandManager.helpers.CommandMap;
 import tk.empee.commandManager.services.CompletionService;
 
@@ -54,7 +54,7 @@ public final class CommandManager implements Listener {
         parserManager.registerParser(BoolParam.class, BoolParser.class);
         parserManager.registerParser(PlayerParam.class, PlayerParser.class);
         parserManager.registerParser(StringParam.class, StringParser.class);
-        parserManager.registerParser(GreedyStringParam.class, GreedyStringParser.class);
+        parserManager.registerParser(MsgParam.class, MsgParser.class);
     }
     private void setupCompletionService() {
         if(CommodoreProvider.isSupported()) {

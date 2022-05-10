@@ -11,7 +11,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
  * The {@link #description} is shown when a user goes hover a parser identifier
  */
 public final class ParserDescription {
-
     @Getter
     private final String fallbackLabel;
     @Getter

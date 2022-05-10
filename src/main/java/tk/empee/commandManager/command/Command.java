@@ -35,8 +35,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private static final String MISSING_PERMISSIONS = "&4&l > &cYou haven't enough permissions";
     private static final String RUNTIME_ERROR = "&4&l > &cError while executing the command";
     private static final String INVALID_PAGE = "&4&l > &cError the page number is invalid";
-
-    private static final int helpPageSize = 5;
+    private static final int HELP_PAGE_ROWS = 5;
 
     private BukkitAudiences adventure;
     private int helpPages;
@@ -211,7 +210,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         audience.sendMessage(header);
 
-        for(int i=page*helpPageSize; i<(page+1)*helpPageSize && i<helpMenu.length; i++) {
+        for(int i = page* HELP_PAGE_ROWS; i<(page+1)* HELP_PAGE_ROWS && i<helpMenu.length; i++) {
             audience.sendMessage(helpMenu[i]);
         }
 
@@ -235,7 +234,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         menu.sort(Comparator.comparing(TextComponent::content));
         helpMenu = menu.toArray(new Component[0]);
 
-        helpPages = (int) Math.ceil(helpMenu.length / (float) helpPageSize);
+        helpPages = (int) Math.ceil(helpMenu.length / (float) HELP_PAGE_ROWS);
         header = Component.newline()
                 .append(Component.text("   Help Menu").color(NamedTextColor.YELLOW))
                 .append(Component.text("    -    ").color(NamedTextColor.GRAY))

@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.lucko.commodore.CommodoreProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.helpers.CommandMap;
@@ -21,9 +20,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
-public final class CommandManager implements Listener {
+/**
+ * This class provides an entry point for accessing the framework
+ */
+public final class CommandManager {
 
-    private final ArrayList<Command> commands = new ArrayList<>();
+    private final ArrayList<Command> registeredCommands = new ArrayList<>();
     private final Logger logger;
     private CompletionService completionService = null;
 
@@ -32,12 +34,8 @@ public final class CommandManager implements Listener {
     @Getter private final BukkitAudiences adventure;
 
     public CommandManager(JavaPlugin plugin) {
-        this(plugin, null);
-    }
-
-    public CommandManager(JavaPlugin plugin, BukkitAudiences adventure) {
         this.plugin = plugin;
-        this.adventure = adventure;
+        this.adventure = BukkitAudiences.create(plugin);
         this.logger = plugin.getLogger();
 
         this.parserManager = new ParserManager();
@@ -71,7 +69,7 @@ public final class CommandManager implements Listener {
             logger.warning("It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead");
         }
 
-        commands.add(command);
+        registeredCommands.add(command);
         logger.info("The command '" + pluginCommand.getName() + "' has been registered");
 
         if(completionService != null) {
@@ -79,8 +77,8 @@ public final class CommandManager implements Listener {
             logger.info("Command completions for '" + pluginCommand.getName() + "' have been registered");
         }
     }
-    public void clearCommands() {
-        for(Command command : commands) {
+    public void unregisterCommands() {
+        for(Command command : registeredCommands) {
             PluginCommand pluginCommand = command.getPluginCommand();
 
             CommandMap.unregisterCommand(pluginCommand);
@@ -88,8 +86,8 @@ public final class CommandManager implements Listener {
         }
     }
 
-    public List<Command> getCommands() {
-        return Collections.unmodifiableList(commands);
+    public List<Command> getRegisteredCommands() {
+        return Collections.unmodifiableList(registeredCommands);
     }
 
 }

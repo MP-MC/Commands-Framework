@@ -76,7 +76,7 @@ public final class ParserManager {
                 paramsType[i] = params[i].getClass();
             }
 
-            Constructor<? extends ParameterParser<?>> constructor = findParser(identifier).getConstructor(paramsType);
+            Constructor<? extends ParameterParser<?>> constructor = getParser(identifier).getConstructor(paramsType);
 
             return constructor.newInstance(params);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -84,12 +84,12 @@ public final class ParserManager {
         }
 
     }
-    private Class<? extends ParameterParser<?>> findParser(Class<? extends Annotation> identifier) {
+    private Class<? extends ParameterParser<?>> getParser(Class<? extends Annotation> identifier) {
 
         Class<? extends ParameterParser<?>> parameterClazz = registeredParsers.get(identifier);
 
         if(parameterClazz == null) {
-            throw new IllegalArgumentException("The parameter linked to " + identifier.getName() + " isn't registered");
+            throw new IllegalArgumentException("The parser linked to " + identifier.getName() + " isn't registered");
         }
 
         return parameterClazz;

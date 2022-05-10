@@ -74,7 +74,7 @@ public final class CommandNode {
 
         for(int i=1; i<rawParameters.length; i++) {
             ParameterParser<?> type = getParameterParser(rawParameters[i], parserManager);
-            Objects.requireNonNull(type, "The parameter of " + label + " linked to " + rawParameters[i].getName() + " isn't registered");
+            Objects.requireNonNull(type, "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
 
             if(i != 1 && parameters[i-2] instanceof GreedyParser) {
                 throw new IllegalArgumentException("You can't have a parameter after a greedy parameter inside the node " + label);

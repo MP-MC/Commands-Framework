@@ -17,7 +17,7 @@ public final class DemoCommand extends Command {
 
     @CommandRoot
     @CommandNode(
-            label = "tk/empee/demo",
+            label = "demo",
             childNodes = {"world", "teleport", "player"},
             executable = false
     )

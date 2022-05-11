@@ -161,7 +161,7 @@ public final class CommandNode {
                 if(children[i] == null) {
                     for (Method m : methods) {
                         tk.empee.commandManager.command.annotations.CommandNode annotation = m.getAnnotation(tk.empee.commandManager.command.annotations.CommandNode.class);
-                        if (annotation != null && annotation.label().equals(labels[i])) {
+                        if (annotation != null && ((annotation.id().isEmpty() && annotation.label().equals(labels[i])) || !annotation.id().isEmpty() && annotation.id().equals(labels[i])) ) {
                             m.setAccessible(true);
                             children[i] = new CommandNode(m, target, parserManager);
                             matches += 1;

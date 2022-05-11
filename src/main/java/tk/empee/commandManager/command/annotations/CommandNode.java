@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface CommandNode {
 
+    String id() default "";
     String label();
 
     String permission() default "";

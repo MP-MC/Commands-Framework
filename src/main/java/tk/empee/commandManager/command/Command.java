@@ -22,7 +22,6 @@ import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.types.IntegerParser;
 import tk.empee.commandManager.parsers.types.greedy.GreedyParser;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +45,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private org.bukkit.command.PluginCommand pluginCommand;
     @Getter
     private CommandNode rootNode;
+
 
     public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
         try {
@@ -99,6 +99,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         return Collections.emptyList();
     }
 
+
     private void run(CommandContext context, CommandNode node, String[] args, int offset) {
 
         if(node == null) {
@@ -133,14 +134,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         if(node.isExecutable()) {
             try {
                 node.getExecutor().invoke(this, arguments);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                if(e.getCause() instanceof CommandException) {
-                    throw (CommandException) e.getCause();
+            } catch (Throwable e) {
+                if((e=e.getCause()) instanceof CommandException) {
+                    throw (CommandException) e;
                 }
 
-                throw new CommandException(RUNTIME_ERROR, e.getCause());
+                throw new CommandException(RUNTIME_ERROR, e);
             }
         }
     }
@@ -228,7 +227,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         }
         audience.sendMessage(footer.append(Component.newline()));
     }
-
     private void buildHelpMessage() {
         ArrayList<TextComponent> menu = buildHelpMenu();
         menu.sort(Comparator.comparing(TextComponent::content));
@@ -241,7 +239,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 .append(Component.text(pluginCommand.getPlugin().getName()).color(NamedTextColor.GOLD))
                 .append(Component.newline());
     }
-
     private ArrayList<TextComponent> buildHelpMenu() {
         return buildHelpMenu(new ArrayList<>(), rootNode,
                 Component.text("   ")

@@ -41,3 +41,4 @@ public class MyPlugin extends JavaPlugin {
 
 }
 ```
+[You can find a more advanced example by clicking here](https://github.com/MP-MC/Commands-Framework/tree/master/example-plugin/src/main/java/tk/empee/demo)

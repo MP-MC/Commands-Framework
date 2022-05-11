@@ -12,6 +12,8 @@ import java.util.UUID;
 
 public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
+    public static final PlayerParser DEFAULT = new PlayerParser("", true, "");
+
     private final boolean onlyOnline;
 
     public PlayerParser(String label, Boolean onlyOnline, String defaultValue) {

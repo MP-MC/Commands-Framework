@@ -5,6 +5,8 @@ import tk.empee.commandManager.parsers.ParserDescription;
 
 public class StringParser extends ParameterParser<String> {
 
+    public static final StringParser DEFAULT = new StringParser("", "");
+
     public StringParser(String label, String defaultValue) {
         super(label, defaultValue);
 

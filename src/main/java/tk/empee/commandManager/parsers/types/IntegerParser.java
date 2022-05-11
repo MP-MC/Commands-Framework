@@ -7,7 +7,7 @@ import tk.empee.commandManager.parsers.ParserDescription;
 
 public class IntegerParser extends ParameterParser<Integer> {
 
-    public static final IntegerParser DEFAULT = new IntegerParser("", "0", Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public static final IntegerParser DEFAULT = new IntegerParser("", "", Integer.MIN_VALUE, Integer.MAX_VALUE);
 
     @Getter private final int min;
     @Getter private final int max;

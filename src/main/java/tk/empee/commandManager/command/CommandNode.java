@@ -3,11 +3,8 @@ package tk.empee.commandManager.command;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserManager;
-import tk.empee.commandManager.parsers.types.annotations.*;
 import tk.empee.commandManager.parsers.types.greedy.GreedyParser;
 
 import java.lang.annotation.Annotation;
@@ -96,7 +93,7 @@ public final class CommandNode {
      * Get the parameter parser for the given parameter, if a cached one already exists return that instance. <br><br>
      *
      * If it isn't specified through annotation the parser that should have been picked try picking a default one.<br>
-     * The default types are:
+     * The registered default types are:
      * <ul>
      *     <li>Integer</li>
      *     <li>Double</li>
@@ -112,38 +109,11 @@ public final class CommandNode {
 
         ParameterParser<?> parser = null;
         for (Annotation annotation : parameter.getAnnotations()) {
-            parser = parserManager.buildParser(annotation);
+            parser = parserManager.registerParser(annotation);
         }
 
         if(parser == null) {
-
-            Class<?> type = parameter.getType();
-            if(type == Integer.class) {
-                parser = parserManager.buildParser( IntegerParam.class,
-                        "", "", Integer.MIN_VALUE, Integer.MAX_VALUE );
-            } else if(type == Double.class) {
-                parser = parserManager.buildParser( DoubleParam.class,
-                        "", "", -Double.MAX_VALUE, Double.MAX_VALUE );
-            } else if(type == Float.class) {
-                parser = parserManager.buildParser( FloatParam.class,
-                        "", "", -Float.MAX_VALUE, Float.MAX_VALUE );
-            } else if(type == Long.class) {
-                parser = parserManager.buildParser( LongParam.class,
-                        "", "", Long.MIN_VALUE, Long.MAX_VALUE );
-            } else if(type == Boolean.class) {
-                parser = parserManager.buildParser( BoolParam.class,
-                        "", "" );
-            } else if(type == Player.class) {
-                parser = parserManager.buildParser( PlayerParam.class,
-                        "", true, "" );
-            } else if(type == OfflinePlayer.class) {
-                parser = parserManager.buildParser(PlayerParam.class,
-                        "", false, "");
-            } else if(type == String.class) {
-                parser = parserManager.buildParser( StringParam.class,
-                        "", "" );
-            }
-
+            parser = parserManager.getDefaultParser(parameter.getType());
         }
 
         return parser;

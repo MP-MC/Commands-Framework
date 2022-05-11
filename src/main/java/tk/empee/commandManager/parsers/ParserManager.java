@@ -9,11 +9,20 @@ import java.util.HashMap;
 
 public final class ParserManager {
 
+    private final HashMap<Class<?>, ParameterParser<?>> defaultParsers = new HashMap<>();
     private final HashMap<Class<? extends Annotation>, Class<? extends ParameterParser<?>>> registeredParsers = new HashMap<>();
     private final ArrayList<ParameterParser<?>> parsersCache = new ArrayList<>();
 
-    public void registerParser(Class<? extends Annotation> identifier, Class<? extends ParameterParser<?>> parameter) {
-        registeredParsers.put(identifier, parameter);
+    public void registerParser(Class<? extends Annotation> identifier, Class<? extends ParameterParser<?>> parser) {
+        registeredParsers.put(identifier, parser);
+    }
+
+    public void registerDefaultParser(Class<?> targetType, ParameterParser<?> parser) {
+        defaultParsers.put(targetType, getCachedParser(parser));
+    }
+
+    public ParameterParser<?> getDefaultParser(Class<?> targetType) {
+        return defaultParsers.get(targetType);
     }
 
     public boolean isRegistered(Class<? extends Annotation> identifier) {
@@ -21,9 +30,9 @@ public final class ParserManager {
     }
 
     /**
-     * Extract the fields from the annotation and build the parser using {@link #buildParser(Class, Object...)}
+     * Extract the fields from the annotation and build the parser
      */
-    public ParameterParser<?> buildParser(Annotation annotation) {
+    public ParameterParser<?> registerParser(Annotation annotation) {
         if (isRegistered(annotation.annotationType())) {
             ArrayList<Object> params = new ArrayList<>();
             for (Method method : annotation.annotationType().getMethods()) {
@@ -45,30 +54,13 @@ public final class ParserManager {
                 }
             }
 
-            return buildParser(annotation.annotationType(), params.toArray());
+            return getCachedParser(buildParser(annotation.annotationType(), params.toArray()));
         }
 
         return null;
 
     }
-    /**
-     * Build a parser with the given parameters, if an equal parser already exists return the instance of the cached one
-     */
-    public ParameterParser<?> buildParser(Class<? extends Annotation> identifier, Object... params) {
-
-        ParameterParser<?> parameter = createParser(identifier, params);
-        for(ParameterParser<?> p : parsersCache) {
-
-            if(p.equals(parameter)) {
-                return p;
-            }
-
-        }
-
-        parsersCache.add(parameter);
-        return parameter;
-    }
-    private ParameterParser<?> createParser(Class<? extends Annotation> identifier, Object[] params) {
+    private ParameterParser<?> buildParser(Class<? extends Annotation> identifier, Object[] params) {
 
         try {
             Class<?>[] paramsType = new Class<?>[params.length];
@@ -94,6 +86,18 @@ public final class ParserManager {
 
         return parameterClazz;
 
+    }
+    private ParameterParser<?> getCachedParser(ParameterParser<?> parser) {
+        for(ParameterParser<?> p : parsersCache) {
+
+            if(p.equals(parser)) {
+                return p;
+            }
+
+        }
+
+        parsersCache.add(parser);
+        return parser;
     }
 
 }

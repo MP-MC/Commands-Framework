@@ -4,6 +4,9 @@ import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
 
 public class BoolParser extends ParameterParser<Boolean> {
+
+    public static final BoolParser DEFAULT = new BoolParser("", "");
+
     public BoolParser(String label, String defaultValue) {
         super(label, defaultValue);
 

@@ -6,6 +6,9 @@ import tk.empee.commandManager.parsers.ParameterParser;
 import tk.empee.commandManager.parsers.ParserDescription;
 
 public class LongParser extends ParameterParser<Long> {
+
+    public static final LongParser DEFAULT = new LongParser("", "", Long.MIN_VALUE, Long.MAX_VALUE);
+
     @Getter private final long min;
     @Getter private final long max;
 

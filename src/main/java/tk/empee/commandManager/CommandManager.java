@@ -3,7 +3,9 @@ package tk.empee.commandManager;
 import lombok.Getter;
 import me.lucko.commodore.CommodoreProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.empee.commandManager.command.Command;
 import tk.empee.commandManager.helpers.CommandMap;
@@ -46,12 +48,34 @@ public final class CommandManager {
 
     private void registerDefaultParsers() {
         parserManager.registerParser(IntegerParam.class, IntegerParser.class);
+        parserManager.registerDefaultParser(int.class, IntegerParser.DEFAULT);
+        parserManager.registerDefaultParser(Integer.class, IntegerParser.DEFAULT);
+
         parserManager.registerParser(FloatParam.class, FloatParser.class);
+        parserManager.registerDefaultParser(float.class, FloatParser.DEFAULT);
+        parserManager.registerDefaultParser(Float.class, FloatParser.DEFAULT);
+
         parserManager.registerParser(DoubleParam.class, DoubleParser.class);
+        parserManager.registerDefaultParser(double.class, DoubleParser.DEFAULT);
+        parserManager.registerDefaultParser(Double.class, DoubleParser.DEFAULT);
+
         parserManager.registerParser(LongParam.class, LongParser.class);
+        parserManager.registerDefaultParser(long.class, LongParser.DEFAULT);
+        parserManager.registerDefaultParser(Long.class, LongParser.DEFAULT);
+
         parserManager.registerParser(BoolParam.class, BoolParser.class);
+        parserManager.registerDefaultParser(boolean.class, BoolParser.DEFAULT);
+        parserManager.registerDefaultParser(Boolean.class, BoolParser.DEFAULT);
+
         parserManager.registerParser(PlayerParam.class, PlayerParser.class);
+        parserManager.registerDefaultParser(Player.class, PlayerParser.DEFAULT);
+        parserManager.registerDefaultParser(OfflinePlayer.class, new PlayerParser(
+                "", false, ""
+        ));
+
         parserManager.registerParser(StringParam.class, StringParser.class);
+        parserManager.registerDefaultParser(String.class, StringParser.DEFAULT);
+
         parserManager.registerParser(MsgParam.class, MsgParser.class);
     }
     private void setupCompletionService() {
@@ -79,11 +103,13 @@ public final class CommandManager {
     }
     public void unregisterCommands() {
         for(Command command : registeredCommands) {
-            PluginCommand pluginCommand = command.getPluginCommand();
-
-            CommandMap.unregisterCommand(pluginCommand);
-            logger.info("The command '" + pluginCommand.getName() + "' has been unregistered");
+            unregisterCommand(command);
         }
+    }
+
+    public void unregisterCommand(Command command) {
+        CommandMap.unregisterCommand(command.getPluginCommand());
+        logger.info("The command '" + command.getRootNode().getLabel() + "' has been unregistered");
     }
 
     public List<Command> getRegisteredCommands() {

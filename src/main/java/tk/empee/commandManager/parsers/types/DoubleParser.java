@@ -7,6 +7,8 @@ import tk.empee.commandManager.parsers.ParserDescription;
 
 public class DoubleParser extends ParameterParser<Double> {
 
+    public static final DoubleParser DEFAULT = new DoubleParser("", "", -Double.MAX_VALUE, Double.MAX_VALUE);
+
     @Getter private final double min;
     @Getter private final double max;
 

@@ -7,6 +7,8 @@ import tk.empee.commandManager.parsers.ParserDescription;
 
 public class FloatParser extends ParameterParser<Float> {
 
+    public static final FloatParser DEFAULT = new FloatParser("", "", -Float.MAX_VALUE, Float.MAX_VALUE);
+
     @Getter private final float min;
     @Getter private final float max;
 

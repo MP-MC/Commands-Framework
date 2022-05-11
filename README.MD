@@ -16,7 +16,7 @@ to be simplest as possible.
  - [ ] Add support for sub-command aliases
 
 ## How to use it
-This is a simple implementation of the command manager.
+This is a simple implementation of the command framework.
 
 ```java
 public class MyCommand extends Command {

@@ -8,17 +8,17 @@ group = "tk.empee"
 version = "1.0"
 
 repositories {
-
-    //Paper Repo
-    maven(url = "https://papermc.io/repo/repository/maven-public/")
-    //Brigadier Repo
+    //Spigot Repo
+    maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    //Mojang Repo
     maven("https://libraries.minecraft.net/")
 
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 
     implementation("me.lucko:commodore:1.13")
     implementation("net.kyori:adventure-platform-bukkit:4.1.0")

@@ -1,0 +1,3 @@
+main: tk.empee.demo.DemoPlugin
+version: 1.0.0
+name: DemoPlugin

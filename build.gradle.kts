@@ -4,14 +4,15 @@ plugins {
     id("io.freefair.lombok") version "6.4.1"
 }
 
-group = "tk.empee"
-version = "1.0"
+group = "ml.empee"
+version = "0.1"
 
 repositories {
     //Spigot Repo
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     //Mojang Repo
     maven("https://libraries.minecraft.net/")
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
 
     mavenCentral()
     mavenLocal()
@@ -29,7 +30,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "commandsFramework"
+            artifactId = "commandsManager"
             from(components["java"])
         }
     }

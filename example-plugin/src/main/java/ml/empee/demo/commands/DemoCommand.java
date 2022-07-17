@@ -4,10 +4,11 @@ import ml.empee.commandsManager.command.Command;
 import ml.empee.commandsManager.command.CommandContext;
 import ml.empee.commandsManager.command.annotations.CommandNode;
 import ml.empee.commandsManager.command.annotations.CommandRoot;
+import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -56,6 +57,7 @@ public final class DemoCommand extends Command {
             @IntegerParam(label = "magicV")
             int magicValue,
 
+            @ColorParam(label = "color")
             ChatColor color
     ) {
         sendMessage(c.getSource(Player.class), "&cCompound effect! :D");
@@ -77,7 +79,7 @@ public final class DemoCommand extends Command {
     @CommandNode(parent="player", label = "echo")
     private void makeEcho(CommandContext c, @MsgParam(defaultValue = "this is a default message") String message) {
         CommandSender sender = c.getSource(CommandSender.class);
-        sendMessage(sender,message);
+        sendMessage(sender, c.getArgument("color") + message);
     }
 
 }

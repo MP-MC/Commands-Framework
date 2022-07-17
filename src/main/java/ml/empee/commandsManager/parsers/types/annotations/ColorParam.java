@@ -1,4 +1,4 @@
-package ml.empee.demo.commands.parsers.annotations;
+package ml.empee.commandsManager.parsers.types.annotations;
 
 import ml.empee.commandsManager.parsers.ParameterParser;
 

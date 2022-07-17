@@ -6,7 +6,6 @@ import ml.empee.commandsManager.command.annotations.CommandRoot;
 import ml.empee.commandsManager.helpers.PluginCommand;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
-import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
 import ml.empee.commandsManager.services.helpMenu.AdventureHelpMenu;
 import ml.empee.commandsManager.services.helpMenu.HelpMenuGenerator;
 import org.bukkit.ChatColor;
@@ -17,8 +16,10 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
@@ -36,7 +37,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
     public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
         try {
-
             if(args.length > 0 && sender.hasPermission(rootNode.getPermission())) {
                 //Handling of default commands
                 if(args[0].equalsIgnoreCase("help")) {
@@ -50,7 +50,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 }
             }
 
-            run(new CommandContext(sender), rootNode, args, 0);
+            executeNode(new CommandContext(sender), rootNode, args, 0);
         } catch (CommandException exception) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', exception.getMessage()));
 
@@ -87,39 +87,46 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
 
 
-    private void run(CommandContext context, CommandNode node, String[] args, int offset) {
-
+    private void executeNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node == null) {
             throw new CommandException(MALFORMED_COMMAND);
         } else {
-
             if(!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
                 throw new CommandException(MISSING_PERMISSIONS);
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
-            executeNode(context, node, parsers, args, offset);
+            Map.Entry<String, Object>[] arguments = parseArguments(parsers, args, offset);
+            performNodeActions(node, context, arguments);
+            context.addArguments(arguments);
             offset += parsers.length;
 
-            if(node.getChildren().length == 0) {
-                if(!node.isExecutable()) {
-                    throw new CommandException(MALFORMED_COMMAND);
-                }
-            } else {
-                CommandNode nextNode = findNextNode(node, args, offset);
-                if(nextNode == null && !node.isExecutable()) {
-                    throw new CommandException(MALFORMED_COMMAND);
-                } else if(nextNode != null) {
-                    run(context, nextNode, args, offset+1);
-                }
+            findAndExecuteChild(context, node, args, offset);
+        }
+    }
+    private void findAndExecuteChild(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
+        if(node.getChildren().length == 0) {
+            if(!node.isExecutable()) {
+                throw new CommandException(MALFORMED_COMMAND);
+            }
+        } else {
+            CommandNode nextNode = findNextNode(node, args, offset);
+            if(nextNode == null && !node.isExecutable()) {
+                throw new CommandException(MALFORMED_COMMAND);
+            } else if(nextNode != null) {
+                executeNode(context, nextNode, args, offset +1);
             }
         }
-
     }
-    private void executeNode(CommandContext context, CommandNode node, ParameterParser<?>[] parsers, String[] args, int offset) throws CommandException {
-        Object[] arguments = parseArguments(context, parsers, args, offset);
+    private void performNodeActions(CommandNode node, CommandContext context, Map.Entry<String, Object>[] arguments) throws CommandException {
+        Object[] args = new Object[arguments.length + 1];
+        args[0] = context;
+        for(int i=0; i<arguments.length; i++) {
+            args[i+1] = arguments[i].getValue();
+        }
+
         try {
-            node.executor.invoke(this, arguments);
+            node.executor.invoke(this, args);
         } catch (Exception e) {
             if(e.getCause() instanceof CommandException) {
                 throw (CommandException) e.getCause();
@@ -128,43 +135,24 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             throw new CommandException(RUNTIME_ERROR, e);
         }
     }
-    /**
-     * Parse the arguments and put them inside the command context if needed
-     */
-    private Object[] parseArguments(CommandContext context, ParameterParser<?>[] parsers, String[] args, int offset) {
-        Object[] arguments = new Object[parsers.length+1];
-        arguments[0] = context;
+
+    private Map.Entry<String, Object>[] parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
+        Map.Entry<String, Object>[] arguments = new Map.Entry[parsers.length];
 
         for(int i=0; i<parsers.length; i++) {
-            if(offset >= args.length) {
-                if(parsers[i].isOptional()) {
-                    arguments[i+1] = parsers[i].parseDefaultValue();
+            if (offset >= args.length) {
+                if (parsers[i].isOptional()) {
+                    arguments[i] = new AbstractMap.SimpleEntry<>( parsers[i].getLabel(), parsers[i].parseDefaultValue() );
                 } else {
                     throw new CommandException(MALFORMED_COMMAND);
                 }
             } else {
-                arguments[i+1] = parseArgument(context, parsers[i], args, offset);
+                arguments[i] = new AbstractMap.SimpleEntry<>( parsers[i].getLabel(), parsers[i].parse(offset, args) );
             }
-
             offset += 1;
         }
 
         return arguments;
-    }
-    private Object parseArgument(CommandContext context, ParameterParser<?> parameter, String[] args, int offset) {
-        Object parsedArg;
-        if(parameter instanceof GreedyParser) {
-            parsedArg = parameter.parse(offset, args);
-        } else {
-            parsedArg = parameter.parse(args[offset]);
-        }
-
-        String parameterLabel = parameter.getLabel();
-        if(!parameterLabel.isEmpty()) {
-            context.addArgument(parameterLabel, parsedArg);
-        }
-
-        return parsedArg;
     }
     private CommandNode findNextNode(CommandNode node, String[] args, int offset) {
         if(offset < args.length) {
@@ -206,7 +194,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     /**
      * UTILITIES
      */
-
     protected void sendMessage(CommandSender sender, String... messages) {
         for(String message : messages) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));

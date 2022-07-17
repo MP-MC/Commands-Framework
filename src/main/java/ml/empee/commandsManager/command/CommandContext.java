@@ -4,6 +4,7 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public final class CommandContext {
@@ -22,6 +23,15 @@ public final class CommandContext {
     }
     public <T> T getArgument(String id) {
         return (T) arguments.get(id);
+    }
+
+    void addArguments(Map.Entry<String, Object>[] arguments) {
+        for(Map.Entry<String, Object> arg : arguments) {
+            String key = arg.getKey();
+            if(key != null && !key.isEmpty()) {
+                this.arguments.put(key, arg.getValue());
+            }
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
 import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
 import ml.empee.commandsManager.services.CompletionService;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -77,6 +78,9 @@ public final class CommandManager {
         parserManager.registerDefaultParser(String.class, StringParser.DEFAULT);
 
         parserManager.registerParser(MsgParam.class, MsgParser.class);
+
+        parserManager.registerParser(ColorParam.class, ColorParser.class);
+        parserManager.registerDefaultParser(ChatColor.class, ColorParser.DEFAULT);
     }
     private void setupCompletionService() {
         if(CommodoreProvider.isSupported()) {

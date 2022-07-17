@@ -9,7 +9,7 @@ import ml.empee.commandsManager.command.Command;
 import ml.empee.commandsManager.command.CommandNode;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.*;
-import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
+import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
 import org.bukkit.command.PluginCommand;
 
 public final class CompletionService {
@@ -27,7 +27,7 @@ public final class CompletionService {
 
         LiteralArgumentBuilder<Object> rootNode = convertNodeToBrigadier(command.getRootNode());
         //Registering completion for default commandNode "help"
-        rootNode.then(LiteralArgumentBuilder.literal("help").then(RequiredArgumentBuilder.argument("page", IntegerArgumentType.integer(0))));
+        rootNode.then(LiteralArgumentBuilder.literal("help").then(RequiredArgumentBuilder.argument("page", IntegerArgumentType.integer())));
 
         commodore.register(pluginCommand, rootNode);
     }
@@ -62,20 +62,20 @@ public final class CompletionService {
     }
     private ArgumentType<?> findArgType(ParameterParser<?> rawType) {
 
-        if(rawType instanceof MsgParser) {
+        if(rawType instanceof GreedyParser) {
             return StringArgumentType.greedyString();
         } else if(rawType instanceof IntegerParser) {
-            return IntegerArgumentType.integer(((IntegerParser) rawType).getMin(), ((IntegerParser) rawType).getMax());
+            return IntegerArgumentType.integer();
         } else if(rawType instanceof FloatParser) {
-            return FloatArgumentType.floatArg(((FloatParser) rawType).getMin(), ((FloatParser) rawType).getMax());
+            return FloatArgumentType.floatArg();
         } else if(rawType instanceof DoubleParser) {
-            return DoubleArgumentType.doubleArg(((DoubleParser) rawType).getMin(), ((DoubleParser) rawType).getMax());
+            return DoubleArgumentType.doubleArg();
         } else if(rawType instanceof LongParser) {
-            return LongArgumentType.longArg(((LongParser) rawType).getMin(), ((LongParser) rawType).getMax());
+            return LongArgumentType.longArg();
         } else if(rawType instanceof BoolParser) {
             return BoolArgumentType.bool();
         } else {
-            return StringArgumentType.word();
+            return StringArgumentType.string();
         }
 
     }

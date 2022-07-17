@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.16.1-R0.1-SNAPSHOT")
 
     implementation("me.lucko:commodore:1.13")
     implementation("net.kyori:adventure-platform-bukkit:4.1.0")

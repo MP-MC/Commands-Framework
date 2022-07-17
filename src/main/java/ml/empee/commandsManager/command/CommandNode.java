@@ -1,55 +1,51 @@
-package tk.empee.commandsFramework.command;
+package ml.empee.commandsManager.command;
 
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import tk.empee.commandsFramework.parsers.ParameterParser;
-import tk.empee.commandsFramework.parsers.ParserManager;
-import tk.empee.commandsFramework.parsers.types.greedy.GreedyParser;
+import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.parsers.ParserManager;
+import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
+import org.bukkit.ChatColor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public final class CommandNode {
 
+    @Getter private final String id;
     @Getter private final String label;
 
     @Getter private final String permission;
-    @Getter private Component description;
-
+    @Getter private final String description;
     @Getter private final ParameterParser<?>[] parameterParsers;
     @Getter private final CommandNode[] children;
-
-    @Getter private final Method executor;
     @Getter private final boolean executable;
 
+    final Method executor;
+
     CommandNode(Method executor, Class<? extends Command> target, ParserManager parserManager) {
+        this(null, executor, target, parserManager);
+    }
+    CommandNode(CommandNode parent, Method executor, Class<? extends Command> target, ParserManager parserManager) {
         this.executor = executor;
 
-        tk.empee.commandsFramework.command.annotations.CommandNode annotation = executor.getAnnotation(tk.empee.commandsFramework.command.annotations.CommandNode.class);
+        ml.empee.commandsManager.command.annotations.CommandNode annotation = executor.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class);
         Objects.requireNonNull(annotation, "Can't find the commandNode annotation of " + executor.getName());
 
-        label = annotation.label();
-        permission = annotation.permission();
-
-        description = Component.newline();
-        if(!annotation.description().isEmpty()) {
-            description = description
-                    .append(Component.text(annotation.description()).color(NamedTextColor.DARK_AQUA))
-                    .append(Component.newline()).append(Component.newline());
+        this.label = annotation.label();
+        if(parent == null) {
+            this.id = label;
+        } else {
+            this.id = parent.id + "." + label;
         }
 
-        description = description
-                .append(Component.text("Permission: ").color(NamedTextColor.YELLOW))
-                .append(Component.text(permission.isEmpty() ? "none" : permission).color(NamedTextColor.LIGHT_PURPLE))
-                .append(Component.newline());
+        this.permission = annotation.permission();
+        this.description = buildDescription(annotation.description());
+        this.executable = annotation.executable();
+        this.parameterParsers = getParameterParsers(parserManager);
 
-        executable = annotation.executable();
-
-        parameterParsers = getParameterParsers(parserManager);
-        children = getChildren(annotation.childNodes(), target, parserManager);
-
+        this.children = getChildren(target, parserManager);
         if(children.length > 0 && parameterParsers.length > 0) {
             ParameterParser<?> lastParser = parameterParsers[parameterParsers.length-1];
 
@@ -59,7 +55,22 @@ public final class CommandNode {
                 throw new IllegalArgumentException("You can't have a children after a optional argument inside the node " + label);
             }
         }
+    }
 
+    private String buildDescription(String rawDescription) {
+        StringBuilder description = new StringBuilder("\n");
+        if(!rawDescription.isEmpty()) {
+            description
+                    .append(ChatColor.DARK_AQUA + rawDescription)
+                    .append("\n\n");
+        }
+
+        description
+                .append(ChatColor.YELLOW + "Permission: ")
+                .append(ChatColor.LIGHT_PURPLE + (permission.isEmpty() ? "none" : permission) )
+                .append("\n");
+
+        return description.toString();
     }
 
     private ParameterParser<?>[] getParameterParsers(ParserManager parserManager) {
@@ -119,37 +130,26 @@ public final class CommandNode {
         return parser;
     }
 
-    private CommandNode[] getChildren(String[] labels, Class<? extends Command> target, ParserManager parserManager) {
+    private CommandNode[] getChildren(Class<? extends Command> target, ParserManager parserManager) {
 
-        CommandNode[] children = new CommandNode[labels.length];
+        ArrayList<CommandNode> children = new ArrayList<>();
 
-        int matches = 0;
         while (target != null) {
             Method[] methods = target.getDeclaredMethods();
-            for(int i=0; i<labels.length; i++) {
+            for (Method m : methods) {
+                if(m.equals(executor)) continue;
 
-                if(children[i] == null) {
-                    for (Method m : methods) {
-                        tk.empee.commandsFramework.command.annotations.CommandNode annotation = m.getAnnotation(tk.empee.commandsFramework.command.annotations.CommandNode.class);
-                        if (annotation != null && ((annotation.id().isEmpty() && annotation.label().equals(labels[i])) || !annotation.id().isEmpty() && annotation.id().equals(labels[i])) ) {
-                            m.setAccessible(true);
-                            children[i] = new CommandNode(m, target, parserManager);
-                            matches += 1;
-                        }
-                    }
+                ml.empee.commandsManager.command.annotations.CommandNode annotation = m.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class);
+                if (annotation != null && !annotation.parent().isEmpty() && id.endsWith(annotation.parent()) ) {
+                    m.setAccessible(true);
+                    children.add(new CommandNode(m, target, parserManager));
                 }
-
             }
 
             target = (Class<? extends Command>) target.getSuperclass();
         }
 
-        if(matches != labels.length) {
-            throw new IllegalArgumentException("Can't find all sub-commands of " + label);
-        }
-
-        return children;
-
+        return children.toArray(new CommandNode[0]);
     }
 
 }

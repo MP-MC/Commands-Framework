@@ -1,3 +1,4 @@
-main: ml.empee.demo.DemoPlugin
-version: 1.0.0
-name: DemoPlugin
+main: ${plugin.main}
+version: ${project.version}
+api-version: ${plugin.api}
+name: ${project.name}

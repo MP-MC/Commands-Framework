@@ -1,6 +1,7 @@
 package ml.empee.commandsManager;
 
 import lombok.Getter;
+import lombok.NonNull;
 import me.lucko.commodore.CommodoreProvider;
 import ml.empee.commandsManager.command.Command;
 import ml.empee.commandsManager.helpers.CommandMap;
@@ -34,17 +35,21 @@ public final class CommandManager {
 
     @Getter final JavaPlugin plugin;
     @Getter private final ParserManager parserManager;
-    @Getter private final BukkitAudiences adventure;
+    @Getter private BukkitAudiences adventure;
 
-    public CommandManager(JavaPlugin plugin) {
+    public CommandManager(@NonNull JavaPlugin plugin) {
         this.plugin = plugin;
-        this.adventure = BukkitAudiences.create(plugin);
         this.logger = plugin.getLogger();
 
         this.parserManager = new ParserManager();
         registerDefaultParsers();
 
         setupCompletionService();
+    }
+
+    public CommandManager(@NonNull JavaPlugin plugin, BukkitAudiences bukkitAudiences) {
+        this(plugin);
+        this.adventure = bukkitAudiences;
     }
 
     private void registerDefaultParsers() {
@@ -91,7 +96,7 @@ public final class CommandManager {
         }
     }
 
-    public void registerCommand(Command command) {
+    public void registerCommand(@NonNull Command command) {
         PluginCommand pluginCommand = command.build(this);
         if(!CommandMap.register(pluginCommand)) {
             logger.warning("It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead");
@@ -111,7 +116,7 @@ public final class CommandManager {
         }
     }
 
-    public void unregisterCommand(Command command) {
+    public void unregisterCommand(@NonNull Command command) {
         CommandMap.unregisterCommand(command.getPluginCommand());
         logger.info("The command '" + command.getRootNode().getLabel() + "' has been unregistered");
     }

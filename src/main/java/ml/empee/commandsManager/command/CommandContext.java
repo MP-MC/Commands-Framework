@@ -25,8 +25,8 @@ public final class CommandContext {
         return (T) arguments.get(id);
     }
 
-    void addArguments(Map.Entry<String, Object>[] arguments) {
-        for(Map.Entry<String, Object> arg : arguments) {
+    void addArguments(Map<String, Object> arguments) {
+        for(Map.Entry<String, Object> arg : arguments.entrySet()) {
             String key = arg.getKey();
             if(key != null && !key.isEmpty()) {
                 this.arguments.put(key, arg.getValue());

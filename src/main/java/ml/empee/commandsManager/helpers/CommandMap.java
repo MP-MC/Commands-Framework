@@ -13,7 +13,7 @@ import java.util.Map;
 
 public final class CommandMap {
 
-    private final static SimpleCommandMap commandMap;
+    private static final SimpleCommandMap commandMap;
     private static final Field commandMapField;
 
     static {

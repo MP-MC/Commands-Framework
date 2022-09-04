@@ -13,11 +13,11 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private HelpMenuGenerator helpMenuGenerator;
 
 
-    public final boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
+    public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         try {
             if(args.length > 0 && sender.hasPermission(rootNode.getPermission())) {
                 //Handling of default commands
@@ -62,7 +62,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         return true;
     }
-    public final List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, String[] args) {
+    public final List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
 
         int offset = 0;
         CommandNode node = rootNode;
@@ -96,8 +96,8 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
-            Map.Entry<String, Object>[] arguments = parseArguments(parsers, args, offset);
-            performNodeActions(node, context, arguments);
+            Map<String, Object> arguments = parseArguments(parsers, args, offset);
+            performNodeActions(node, context, arguments.values());
             context.addArguments(arguments);
             offset += parsers.length;
 
@@ -118,11 +118,13 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             }
         }
     }
-    private void performNodeActions(CommandNode node, CommandContext context, Map.Entry<String, Object>[] arguments) throws CommandException {
-        Object[] args = new Object[arguments.length + 1];
+    private void performNodeActions(CommandNode node, CommandContext context, Collection<Object> arguments) throws CommandException {
+        Object[] args = new Object[arguments.size() + 1];
         args[0] = context;
-        for(int i=0; i<arguments.length; i++) {
-            args[i+1] = arguments[i].getValue();
+
+        int i = 0;
+        for(Object arg : arguments) {
+            args[++i] = arg;
         }
 
         try {
@@ -136,18 +138,18 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         }
     }
 
-    private Map.Entry<String, Object>[] parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
-        Map.Entry<String, Object>[] arguments = new Map.Entry[parsers.length];
+    private Map<String, Object> parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
+        LinkedHashMap<String, Object> arguments = new LinkedHashMap<>();
 
         for(int i=0; i<parsers.length; i++) {
             if (offset >= args.length) {
                 if (parsers[i].isOptional()) {
-                    arguments[i] = new AbstractMap.SimpleEntry<>( parsers[i].getLabel(), parsers[i].parseDefaultValue() );
+                    arguments.put(parsers[i].getLabel(), parsers[i].parseDefaultValue());
                 } else {
                     throw new CommandException(MALFORMED_COMMAND);
                 }
             } else {
-                arguments[i] = new AbstractMap.SimpleEntry<>( parsers[i].getLabel(), parsers[i].parse(offset, args) );
+                arguments.put( parsers[i].getLabel(), parsers[i].parse(offset, args) );
             }
             offset += 1;
         }
@@ -175,7 +177,9 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         pluginCommand = PluginCommand.buildFromCommandRoot(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class), commandManager.getPlugin());
         pluginCommand.setExecutor(this);
 
-        helpMenuGenerator = new AdventureHelpMenu(commandManager.getAdventure(), rootNode);
+        if(commandManager.getAdventure() != null) {
+            helpMenuGenerator = new AdventureHelpMenu(commandManager.getAdventure(), rootNode);
+        }
 
         return pluginCommand;
     }

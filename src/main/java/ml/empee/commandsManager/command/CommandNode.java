@@ -1,5 +1,6 @@
 package ml.empee.commandsManager.command;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserManager;
@@ -11,17 +12,19 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Objects;
 
+@Getter
 public final class CommandNode {
 
-    @Getter private final String id;
-    @Getter private final String label;
+    private final String id;
+    private final String label;
 
-    @Getter private final String permission;
-    @Getter private final String description;
-    @Getter private final ParameterParser<?>[] parameterParsers;
-    @Getter private final CommandNode[] children;
-    @Getter private final boolean executable;
+    private final String permission;
+    private final String description;
+    private final ParameterParser<?>[] parameterParsers;
+    private final CommandNode[] children;
+    private final boolean executable;
 
+    @Getter(AccessLevel.NONE)
     final Method executor;
 
     CommandNode(Method executor, Class<? extends Command> target, ParserManager parserManager) {

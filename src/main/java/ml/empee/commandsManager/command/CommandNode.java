@@ -102,32 +102,15 @@ public final class CommandNode {
 
         return parameters;
     }
-
-    /**
-     * Get the parameter parser for the given parameter, if a cached one already exists return that instance. <br><br>
-     *
-     * If it isn't specified through annotation the parser that should have been picked try picking a default one.<br>
-     * The registered default types are:
-     * <ul>
-     *     <li>Integer</li>
-     *     <li>Double</li>
-     *     <li>Float</li>
-     *     <li>Long</li>
-     *     <li>Boolean</li>
-     *     <li>String</li>
-     *     <li>Player</li>
-     *     <li>OfflinePlayer</li>
-     * </ul>
-     */
     private ParameterParser<?> getParameterParser(java.lang.reflect.Parameter parameter, ParserManager parserManager) {
 
         ParameterParser<?> parser = null;
         for (Annotation annotation : parameter.getAnnotations()) {
-            parser = parserManager.registerParser(annotation);
+            parser = parserManager.getParser(annotation);
         }
 
         if(parser == null) {
-            parser = parserManager.getDefaultParser(parameter.getType());
+            parser = parserManager.getDefaultParserByType(parameter.getType());
         }
 
         return parser;

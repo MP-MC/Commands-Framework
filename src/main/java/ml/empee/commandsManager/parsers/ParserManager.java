@@ -1,66 +1,66 @@
 package ml.empee.commandsManager.parsers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import lombok.SneakyThrows;
+
 public final class ParserManager {
 
     private final HashMap<Class<?>, ParameterParser<?>> defaultParsers = new HashMap<>();
     private final HashMap<Class<? extends Annotation>, Class<? extends ParameterParser<?>>> registeredParsers = new HashMap<>();
-    private final ArrayList<ParameterParser<?>> parsersCache = new ArrayList<>();
+    private final ArrayList<ParameterParser<?>> cachedParsers = new ArrayList<>();
 
     public void registerParser(Class<? extends Annotation> identifier, Class<? extends ParameterParser<?>> parser) {
         registeredParsers.put(identifier, parser);
     }
 
-    public void registerDefaultParser(Class<?> targetType, ParameterParser<?> parser) {
-        defaultParsers.put(targetType, getCachedParser(parser));
+    public void setDefaultParserForType(Class<?> targetType, ParameterParser<?> parser) {
+        defaultParsers.put(targetType, checkParserCache(parser));
     }
 
-    public ParameterParser<?> getDefaultParser(Class<?> targetType) {
+    public ParameterParser<?> getDefaultParserByType(Class<?> targetType) {
         return defaultParsers.get(targetType);
     }
 
-    public boolean isRegistered(Class<? extends Annotation> identifier) {
+    public boolean isParserRegistered(Class<? extends Annotation> identifier) {
         return registeredParsers.get(identifier) != null;
     }
 
-    /**
-     * Extract the fields from the annotation and build the parser
-     */
-    public ParameterParser<?> registerParser(Annotation annotation) {
-        if (isRegistered(annotation.annotationType())) {
-            ArrayList<Object> params = new ArrayList<>();
-            for (Method method : annotation.annotationType().getMethods()) {
-                ParameterParser.Property property = method.getAnnotation(ParameterParser.Property.class);
-                if (property != null) {
-
-                    int index = property.index();
-
-                    //Fill ArrayList to prevent OutOfBoundsException
-                    for(int i=0; i<=index; i++) {
-                        if(params.size() <= i) {
-                            params.add(null);
-                        }
-                    }
-
-                    try {
-                        params.set(index, method.invoke(annotation));
-                    } catch (IllegalAccessException | InvocationTargetException ignored) {}
-                }
-            }
-
-            return getCachedParser(buildParser(annotation.annotationType(), params.toArray()));
+    public ParameterParser<?> getParser(Annotation annotation) {
+        if (isParserRegistered(annotation.annotationType())) {
+            return buildParser(annotation);
         }
 
         return null;
-
     }
-    private ParameterParser<?> buildParser(Class<? extends Annotation> identifier, Object[] params) {
+
+    @SneakyThrows
+    private Object[] extractParserConstructorArguments(Annotation annotation) {
+        ArrayList<Object> params = new ArrayList<>();
+        for (Method method : annotation.annotationType().getMethods()) {
+            ParameterParser.Property property = method.getAnnotation(ParameterParser.Property.class);
+            if (property != null) {
+
+                int index = property.index();
+
+                //Fill ArrayList to prevent OutOfBoundsException
+                while(index >= params.size()) {
+                    params.add(null);
+                }
+
+                params.set(index, method.invoke(annotation));
+            }
+        }
+
+        return params.toArray();
+    }
+    private ParameterParser<?> buildParser(Annotation annotation) {
+        Class<? extends Annotation> identifier = annotation.annotationType();
+        Object[] params = extractParserConstructorArguments(annotation);
 
         try {
             Class<?>[] paramsType = new Class<?>[params.length];
@@ -68,9 +68,9 @@ public final class ParserManager {
                 paramsType[i] = params[i].getClass();
             }
 
-            Constructor<? extends ParameterParser<?>> constructor = getParser(identifier).getConstructor(paramsType);
-
-            return constructor.newInstance(params);
+            return checkParserCache(
+                getParser(identifier).getConstructor(paramsType).newInstance(params)
+            );
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new IllegalStateException("The parameter " + identifier.getName() + " is missing the default constructor", e);
         }
@@ -87,8 +87,8 @@ public final class ParserManager {
         return parameterClazz;
 
     }
-    private ParameterParser<?> getCachedParser(ParameterParser<?> parser) {
-        for(ParameterParser<?> p : parsersCache) {
+    private ParameterParser<?> checkParserCache(ParameterParser<?> parser) {
+        for(ParameterParser<?> p : cachedParsers) {
 
             if(p.equals(parser)) {
                 return p;
@@ -96,7 +96,7 @@ public final class ParserManager {
 
         }
 
-        parsersCache.add(parser);
+        cachedParsers.add(parser);
         return parser;
     }
 

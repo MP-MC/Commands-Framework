@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -54,38 +55,38 @@ public final class CommandManager {
 
     private void registerDefaultParsers() {
         parserManager.registerParser(IntegerParam.class, IntegerParser.class);
-        parserManager.registerDefaultParser(int.class, IntegerParser.DEFAULT);
-        parserManager.registerDefaultParser(Integer.class, IntegerParser.DEFAULT);
+        parserManager.setDefaultParserForType(int.class, IntegerParser.DEFAULT);
+        parserManager.setDefaultParserForType(Integer.class, IntegerParser.DEFAULT);
 
         parserManager.registerParser(FloatParam.class, FloatParser.class);
-        parserManager.registerDefaultParser(float.class, FloatParser.DEFAULT);
-        parserManager.registerDefaultParser(Float.class, FloatParser.DEFAULT);
+        parserManager.setDefaultParserForType(float.class, FloatParser.DEFAULT);
+        parserManager.setDefaultParserForType(Float.class, FloatParser.DEFAULT);
 
         parserManager.registerParser(DoubleParam.class, DoubleParser.class);
-        parserManager.registerDefaultParser(double.class, DoubleParser.DEFAULT);
-        parserManager.registerDefaultParser(Double.class, DoubleParser.DEFAULT);
+        parserManager.setDefaultParserForType(double.class, DoubleParser.DEFAULT);
+        parserManager.setDefaultParserForType(Double.class, DoubleParser.DEFAULT);
 
         parserManager.registerParser(LongParam.class, LongParser.class);
-        parserManager.registerDefaultParser(long.class, LongParser.DEFAULT);
-        parserManager.registerDefaultParser(Long.class, LongParser.DEFAULT);
+        parserManager.setDefaultParserForType(long.class, LongParser.DEFAULT);
+        parserManager.setDefaultParserForType(Long.class, LongParser.DEFAULT);
 
         parserManager.registerParser(BoolParam.class, BoolParser.class);
-        parserManager.registerDefaultParser(boolean.class, BoolParser.DEFAULT);
-        parserManager.registerDefaultParser(Boolean.class, BoolParser.DEFAULT);
+        parserManager.setDefaultParserForType(boolean.class, BoolParser.DEFAULT);
+        parserManager.setDefaultParserForType(Boolean.class, BoolParser.DEFAULT);
 
         parserManager.registerParser(PlayerParam.class, PlayerParser.class);
-        parserManager.registerDefaultParser(Player.class, PlayerParser.DEFAULT);
-        parserManager.registerDefaultParser(OfflinePlayer.class, new PlayerParser(
+        parserManager.setDefaultParserForType(Player.class, PlayerParser.DEFAULT);
+        parserManager.setDefaultParserForType(OfflinePlayer.class, new PlayerParser(
                 "", false, ""
         ));
 
         parserManager.registerParser(StringParam.class, StringParser.class);
-        parserManager.registerDefaultParser(String.class, StringParser.DEFAULT);
+        parserManager.setDefaultParserForType(String.class, StringParser.DEFAULT);
 
         parserManager.registerParser(MsgParam.class, MsgParser.class);
 
         parserManager.registerParser(ColorParam.class, ColorParser.class);
-        parserManager.registerDefaultParser(ChatColor.class, ColorParser.DEFAULT);
+        parserManager.setDefaultParserForType(ChatColor.class, ColorParser.DEFAULT);
     }
     private void setupCompletionService() {
         if(CommodoreProvider.isSupported()) {
@@ -99,7 +100,9 @@ public final class CommandManager {
     public void registerCommand(@NonNull Command command) {
         PluginCommand pluginCommand = command.build(this);
         if(!CommandMap.register(pluginCommand)) {
-            logger.warning("It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead");
+            logger.log(Level.WARNING,
+                () -> "It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead"
+            );
         }
 
         registeredCommands.add(command);

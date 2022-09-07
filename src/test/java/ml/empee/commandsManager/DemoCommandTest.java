@@ -138,9 +138,9 @@ class DemoCommandTest {
 
     }
 
+    @CommandRoot("demo")
     private final class DemoCommand extends Command {
 
-        @CommandRoot
         @CommandNode(
                 label = "demo",
                 executable = false

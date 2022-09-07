@@ -174,7 +174,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         rootNode = new CommandNode(rootMethod, getClass(), commandManager.getParserManager());
 
-        pluginCommand = PluginCommand.buildFromCommandRoot(rootMethod.getAnnotation(CommandRoot.class), rootMethod.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class), commandManager.getPlugin());
+        pluginCommand = PluginCommand.buildFromCommandRoot(getClass().getAnnotation(CommandRoot.class), rootMethod.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class), commandManager.getPlugin());
         pluginCommand.setExecutor(this);
 
         if(commandManager.getAdventure() != null) {
@@ -184,9 +184,15 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         return pluginCommand;
     }
     private Method getRootMethod() {
+        CommandRoot commandRoot = getClass().getAnnotation(CommandRoot.class);
+        if(commandRoot == null) {
+            throw new IllegalStateException("The class " + getClass().getName() + " is not annotated with @CommandRoot");
+        }
+
         for(Method method : getClass().getDeclaredMethods()) {
 
-            if(method.getAnnotation(CommandRoot.class) != null) {
+            ml.empee.commandsManager.command.annotations.CommandNode commandNode = method.getAnnotation(ml.empee.commandsManager.command.annotations.CommandNode.class);
+            if(commandNode != null && commandNode.parent().isEmpty() && commandRoot.value().equals(commandNode.label())) {
                 return method;
             }
 

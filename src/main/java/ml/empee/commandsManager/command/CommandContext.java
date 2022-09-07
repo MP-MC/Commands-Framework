@@ -2,6 +2,8 @@ package ml.empee.commandsManager.command;
 
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,5 +47,18 @@ public final class CommandContext {
         }
         throw new CommandException(INVALID_SENDER);
     }
+
+    public Player getPlayer() {
+        return getSource(Player.class);
+    }
+
+    public CommandSender getSender() {
+        return source;
+    }
+
+    public ConsoleCommandSender getConsole() {
+        return getSource(ConsoleCommandSender.class);
+    }
+
 
 }

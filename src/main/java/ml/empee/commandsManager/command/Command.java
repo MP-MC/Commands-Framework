@@ -66,8 +66,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
         int offset = 0;
         CommandNode node = rootNode;
-        do {
-
+        while (true) {
             ParameterParser<?>[] parameterParsers = node.getParameterParsers();
             for (ParameterParser<?> parameterParser : parameterParsers) {
 
@@ -79,9 +78,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             }
 
             node = findNextNode(node, args, offset);
-            offset += 1;
+            if(node == null) {
+                break;
+            }
 
-        } while (node != null);
+            offset += node.getLabel().split(" ").length;
+        };
 
         return Collections.emptyList();
     }
@@ -114,7 +116,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
             if(nextNode == null && !node.isExecutable()) {
                 throw new CommandException(MALFORMED_COMMAND);
             } else if(nextNode != null) {
-                executeNode(context, nextNode, args, offset +1);
+                executeNode(context, nextNode, args, offset + nextNode.getLabel().split(" ").length);
             }
         }
     }
@@ -159,7 +161,16 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private CommandNode findNextNode(CommandNode node, String[] args, int offset) {
         if(offset < args.length) {
             for (CommandNode child : node.getChildren()) {
-                if (child.getLabel().equalsIgnoreCase(args[offset])) {
+                String[] labels = child.getLabel().split(" ");
+                boolean matchAllLabels = true;
+                for(int i=0; i<labels.length; i++) {
+                    if (!labels[i].equalsIgnoreCase(args[offset+i])) {
+                        matchAllLabels = false;
+                        break;
+                    }
+                }
+
+                if(matchAllLabels) {
                     return child;
                 }
             }

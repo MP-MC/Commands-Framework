@@ -138,6 +138,34 @@ class DemoCommandTest {
 
     }
 
+    @Test
+    void testLabelWithSpaces() {
+        JavaPlugin plugin = Mockito.mock(JavaPlugin.class);
+        when(plugin.getLogger()).thenReturn(
+            Logger.getLogger("MockedServer")
+        );
+
+        CommandManager commandManager = new CommandManager(plugin);
+        DemoCommand demoCommand = new DemoCommand();
+        PluginCommand builtCommand = demoCommand.build(commandManager);
+
+        CommandSender sender = Mockito.mock(Player.class);
+        when(sender.getName()).thenReturn("MockedPlayer");
+        when(sender.hasPermission(Mockito.anyString())).thenReturn(true);
+
+        Queue<String> queue = new LinkedList<>();
+        doAnswer( (invocation) -> {
+            return queue.add(invocation.getArguments()[0].toString());
+        }).when(sender).sendMessage(Mockito.anyString());
+
+        demoCommand.onCommand(sender, builtCommand, "demo", new String[] {"world", "label1"});
+        assert queue.poll().equals("First space label");
+
+        demoCommand.onCommand(sender, builtCommand, "demo", new String[] {"world", "label2", "test"});
+        assert queue.poll().equals("Second space label, with arg: test");
+
+    }
+
     @CommandRoot("demo")
     private final class DemoCommand extends Command {
 
@@ -146,7 +174,23 @@ class DemoCommandTest {
                 executable = false
         )
         private void root(CommandContext c) { }
-    
+
+        @CommandNode(
+                parent = "demo",
+                label = "world label1"
+        )
+        private void spaceLabel(CommandContext c) {
+            c.getSender().sendMessage("First space label");
+        }
+
+        @CommandNode(
+            parent = "demo",
+            label = "world label2"
+        )
+        private void spaceLabel2(CommandContext c, String arg) {
+            c.getSender().sendMessage("Second space label, with arg: " + arg);
+        }
+
         @CommandNode(
                 parent = "demo",
                 label = "hello",

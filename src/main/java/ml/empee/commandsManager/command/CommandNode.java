@@ -58,6 +58,18 @@ public final class CommandNode {
                 throw new IllegalArgumentException("You can't have a children after a optional argument inside the node " + label);
             }
         }
+
+        for(int i=0; i<children.length; i++) {
+            String label = children[i].getLabel().split(" ")[0];
+            for(int j=0; j<children.length; j++) {
+                if(i != j) {
+                    String comparedLabel = children[j].getLabel();
+                    if(label.equals(comparedLabel) || children[i].getLabel().equals(comparedLabel)) {
+                        throw new IllegalArgumentException("You can't have two children with the same label inside the node " + this.label);
+                    }
+                }
+            }
+        }
     }
 
     private String buildDescription(String rawDescription) {

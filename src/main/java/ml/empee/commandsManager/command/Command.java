@@ -213,13 +213,4 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         throw new IllegalStateException("Can't find the root node of " + getClass().getName());
     }
 
-    /**
-     * UTILITIES
-     */
-    protected void sendMessage(CommandSender sender, String... messages) {
-        for(String message : messages) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }
-    }
-
 }

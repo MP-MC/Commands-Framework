@@ -1,17 +1,9 @@
 package ml.empee.commandsManager;
 
-import lombok.Getter;
-import lombok.NonNull;
-import me.lucko.commodore.CommodoreProvider;
-import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.helpers.CommandMap;
-import ml.empee.commandsManager.parsers.ParserManager;
-import ml.empee.commandsManager.parsers.types.*;
-import ml.empee.commandsManager.parsers.types.annotations.*;
-import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
-import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
-import ml.empee.commandsManager.services.CompletionService;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.PluginCommand;
@@ -21,10 +13,32 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lombok.Getter;
+import lombok.NonNull;
+import me.lucko.commodore.CommodoreProvider;
+import ml.empee.commandsManager.command.Command;
+import ml.empee.commandsManager.helpers.CommandMap;
+import ml.empee.commandsManager.parsers.ParserManager;
+import ml.empee.commandsManager.parsers.types.BoolParser;
+import ml.empee.commandsManager.parsers.types.ColorParser;
+import ml.empee.commandsManager.parsers.types.DoubleParser;
+import ml.empee.commandsManager.parsers.types.FloatParser;
+import ml.empee.commandsManager.parsers.types.IntegerParser;
+import ml.empee.commandsManager.parsers.types.LongParser;
+import ml.empee.commandsManager.parsers.types.PlayerParser;
+import ml.empee.commandsManager.parsers.types.StringParser;
+import ml.empee.commandsManager.parsers.types.annotations.BoolParam;
+import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
+import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
+import ml.empee.commandsManager.parsers.types.annotations.FloatParam;
+import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
+import ml.empee.commandsManager.parsers.types.annotations.LongParam;
+import ml.empee.commandsManager.parsers.types.annotations.PlayerParam;
+import ml.empee.commandsManager.parsers.types.annotations.StringParam;
+import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
+import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
+import ml.empee.commandsManager.services.CompletionService;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
 /**
  * This class provides an entry point for accessing the framework
@@ -106,7 +120,7 @@ public final class CommandManager {
             completionService = new CompletionService(CommodoreProvider.getCommodore(plugin));
             logger.info("Hooked to brigadier NMS");
         } else {
-            logger.warning("Your server doesn't support the command completion");
+            logger.warning("Your server doesn't support command completion");
         }
     }
 
@@ -114,16 +128,14 @@ public final class CommandManager {
         PluginCommand pluginCommand = command.build(this);
         if(!CommandMap.register(pluginCommand)) {
             logger.log(Level.WARNING,
-                () -> "It already exists the command " + pluginCommand.getName() + ". Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + pluginCommand.getName() + " instead"
+                () -> "It already exists a command '" + pluginCommand.getName() + "' Use /" + pluginCommand.getPlugin().getName().toLowerCase() + ":" + pluginCommand.getName() + " instead"
             );
         }
 
         registeredCommands.add(command);
-        logger.info("The command '" + pluginCommand.getName() + "' has been registered");
 
         if(completionService != null) {
             completionService.registerCompletions(command);
-            logger.info("Command completions for '" + pluginCommand.getName() + "' have been registered");
         }
     }
     public void unregisterCommands() {
@@ -134,7 +146,6 @@ public final class CommandManager {
 
     public void unregisterCommand(@NonNull Command command) {
         CommandMap.unregisterCommand(command.getPluginCommand());
-        logger.info("The command '" + command.getRootNode().getLabel() + "' has been unregistered");
     }
 
 }

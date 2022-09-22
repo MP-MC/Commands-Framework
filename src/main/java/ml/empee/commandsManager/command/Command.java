@@ -23,9 +23,10 @@ import java.util.Map;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
-    private static final String MALFORMED_COMMAND = "&4&l > &cThe command is missing arguments, check the help menu";
-    private static final String MISSING_PERMISSIONS = "&4&l > &cYou haven't enough permissions";
-    private static final String RUNTIME_ERROR = "&4&l > &cError while executing the command";
+    protected static String PREFIX = "&4&l > &c";
+    protected static String MALFORMED_COMMAND = PREFIX + "The command is missing arguments, check the help menu";
+    protected static String MISSING_PERMISSIONS = PREFIX + "You haven't enough permissions";
+    protected static String RUNTIME_ERROR = PREFIX + "Error while executing the command";
 
     @Getter
     private org.bukkit.command.PluginCommand pluginCommand;

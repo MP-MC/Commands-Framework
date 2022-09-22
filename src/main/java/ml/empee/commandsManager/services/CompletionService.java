@@ -34,7 +34,9 @@ public final class CompletionService {
 
     private LiteralArgumentBuilder<Object> convertNodeToBrigadier(CommandNode node) {
 
-        LiteralArgumentBuilder<Object> rootNode = LiteralArgumentBuilder.literal(node.getLabel());
+        String[] labels = node.getLabel().split(" ");
+        LiteralArgumentBuilder<Object> rootNode = LiteralArgumentBuilder.literal(labels[labels.length-1]);
+
         ParameterParser<?>[] parsers = node.getParameterParsers();
         ArgumentBuilder<Object, ?> lastArg;
 
@@ -56,6 +58,10 @@ public final class CompletionService {
 
         if(lastArg != rootNode) {
             rootNode.then(lastArg);
+        }
+
+        for(int i=labels.length-2; i>=0; i--) {
+            rootNode = LiteralArgumentBuilder.literal(labels[i]).then(rootNode);
         }
 
         return rootNode;

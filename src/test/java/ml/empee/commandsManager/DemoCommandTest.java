@@ -250,5 +250,9 @@ class DemoCommandTest {
             sendMessage(sender, c.getArgument("color") + message);
         }
 
+        private void sendMessage(CommandSender sender, String message) {
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+
     }
 }

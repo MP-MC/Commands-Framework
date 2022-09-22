@@ -24,9 +24,9 @@ import java.util.Map;
 public abstract class Command implements CommandExecutor, TabCompleter {
 
     protected static String PREFIX = "&4&l > &c";
-    protected static String MALFORMED_COMMAND = PREFIX + "The command is missing arguments, check the help menu";
-    protected static String MISSING_PERMISSIONS = PREFIX + "You haven't enough permissions";
-    protected static String RUNTIME_ERROR = PREFIX + "Error while executing the command";
+    protected static String MALFORMED_COMMAND = "The command is missing arguments, check the help menu";
+    protected static String MISSING_PERMISSIONS = "You haven't enough permissions";
+    protected static String RUNTIME_ERROR = "Error while executing the command";
 
     @Getter
     private org.bukkit.command.PluginCommand pluginCommand;
@@ -92,10 +92,10 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
     private void executeNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node == null) {
-            throw new CommandException(MALFORMED_COMMAND);
+            throw new CommandException(PREFIX + MALFORMED_COMMAND);
         } else {
             if(!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
-                throw new CommandException(MISSING_PERMISSIONS);
+                throw new CommandException(PREFIX + MISSING_PERMISSIONS);
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -110,12 +110,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private void findAndExecuteChild(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node.getChildren().length == 0) {
             if(!node.isExecutable()) {
-                throw new CommandException(MALFORMED_COMMAND);
+                throw new CommandException(PREFIX + MALFORMED_COMMAND);
             }
         } else {
             CommandNode nextNode = findNextNode(node, args, offset);
             if(nextNode == null && !node.isExecutable()) {
-                throw new CommandException(MALFORMED_COMMAND);
+                throw new CommandException(PREFIX + MALFORMED_COMMAND);
             } else if(nextNode != null) {
                 executeNode(context, nextNode, args, offset + nextNode.getLabel().split(" ").length);
             }
@@ -137,7 +137,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 throw (CommandException) e.getCause();
             }
 
-            throw new CommandException(RUNTIME_ERROR, e);
+            throw new CommandException(PREFIX + RUNTIME_ERROR, e);
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 if (parsers[i].isOptional()) {
                     arguments.put(parsers[i].getLabel(), parsers[i].parseDefaultValue());
                 } else {
-                    throw new CommandException(MALFORMED_COMMAND);
+                    throw new CommandException(PREFIX + MALFORMED_COMMAND);
                 }
             } else {
                 arguments.put( parsers[i].getLabel(), parsers[i].parse(offset, args) );
@@ -165,7 +165,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 String[] labels = child.getLabel().split(" ");
                 boolean matchAllLabels = true;
                 for(int i=0; i<labels.length; i++) {
-                    if (!labels[i].equalsIgnoreCase(args[offset+i])) {
+                    if (offset+i >= args.length || !labels[i].equalsIgnoreCase(args[offset+i])) {
                         matchAllLabels = false;
                         break;
                     }

@@ -1,19 +1,27 @@
 package ml.empee.commandsManager.parsers;
 
-import lombok.Getter;
-import org.bukkit.command.CommandSender;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
-public abstract class ParameterParser<T> {
+import org.bukkit.command.CommandSender;
 
-    @Getter protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
-    @Getter private final String label;
-    @Getter private final T defaultValue;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
+@EqualsAndHashCode
+public abstract class ParameterParser<T> implements Cloneable {
+
+    protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
+    private String label;
+    private T defaultValue;
 
     protected ParameterParser(String label, String defaultValue) {
         this.label = label;
@@ -22,6 +30,12 @@ public abstract class ParameterParser<T> {
         } else {
             this.defaultValue = parse(defaultValue);
         }
+    }
+
+    protected ParameterParser(ParameterParser<T> parser) {
+        this.descriptor = parser.descriptor;
+        this.label = parser.label;
+        this.defaultValue = parser.defaultValue;
     }
 
     public T parse(String... args) {
@@ -48,12 +62,7 @@ public abstract class ParameterParser<T> {
     }
 
     public List<String> getSuggestions(CommandSender source, String arg) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o.getClass() == getClass() && ((ParameterParser<?>) o).label.equals(label) && Objects.equals( ((ParameterParser<?>) o).defaultValue, defaultValue );
+        return new ArrayList<>();
     }
 
     public final T parseDefaultValue() {
@@ -63,6 +72,8 @@ public abstract class ParameterParser<T> {
     public final boolean isOptional() {
         return defaultValue != null;
     }
+
+    public abstract ParameterParser<T> clone();
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

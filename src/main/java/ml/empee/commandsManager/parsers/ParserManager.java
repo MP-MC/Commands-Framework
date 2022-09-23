@@ -19,7 +19,7 @@ public final class ParserManager {
     }
 
     public void setDefaultParserForType(Class<?> targetType, ParameterParser<?> parser) {
-        defaultParsers.put(targetType, checkParserCache(parser));
+        defaultParsers.put(targetType, cacheParser(parser));
     }
 
     public ParameterParser<?> getDefaultParserByType(Class<?> targetType) {
@@ -68,7 +68,7 @@ public final class ParserManager {
                 paramsType[i] = params[i].getClass();
             }
 
-            return checkParserCache(
+            return cacheParser(
                 getParser(identifier).getConstructor(paramsType).newInstance(params)
             );
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -87,7 +87,7 @@ public final class ParserManager {
         return parameterClazz;
 
     }
-    private ParameterParser<?> checkParserCache(ParameterParser<?> parser) {
+    public ParameterParser<?> cacheParser(ParameterParser<?> parser) {
         for(ParameterParser<?> p : cachedParsers) {
 
             if(p.equals(parser)) {

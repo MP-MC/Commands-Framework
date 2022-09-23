@@ -73,7 +73,14 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
                 offset += 1;
                 if (offset == args.length) {
-                    return parameterParser.getSuggestions(sender, offset-1, args);
+                    List<String> suggestions = parameterParser.getSuggestions(sender, offset-1, args);
+                    if(parameterParser.isOptional()) {
+                        suggestions.add("[" + parameterParser.getLabel() + "]");
+                    } else {
+                        suggestions.add("<" + parameterParser.getLabel() + ">");
+                    }
+
+                    return suggestions;
                 }
 
             }

@@ -1,5 +1,7 @@
 package ml.empee.commandsManager.parsers.types;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 import org.bukkit.Bukkit;
@@ -10,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
     public static final PlayerParser DEFAULT = new PlayerParser("", true, "");
@@ -24,6 +28,12 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
                 "Requires online: ", onlyOnline.toString(),
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
         });
+    }
+
+    protected PlayerParser(PlayerParser parser) {
+        super(parser);
+
+        this.onlyOnline = parser.onlyOnline;
     }
 
     @Override
@@ -51,8 +61,8 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return super.equals(o) && ((PlayerParser) o).onlyOnline == onlyOnline;
+    public ParameterParser<OfflinePlayer> clone() {
+        return new PlayerParser(this);
     }
 
 }

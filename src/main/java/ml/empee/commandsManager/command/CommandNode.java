@@ -119,13 +119,24 @@ public final class CommandNode {
         ParameterParser<?> parser = null;
         for (Annotation annotation : parameter.getAnnotations()) {
             parser = parserManager.getParser(annotation);
+            if(parser != null) {
+                if(parser.getLabel().isEmpty() && parameter.isNamePresent()) {
+                    parser = parser.clone();
+                    parser.setLabel(parameter.getName());
+                }
+
+                break;
+            }
         }
 
         if(parser == null) {
             parser = parserManager.getDefaultParserByType(parameter.getType());
+            if(parser != null && parameter.isNamePresent()) {
+                parser.setLabel(parameter.getName());
+            }
         }
 
-        return parser;
+        return parserManager.cacheParser(parser);
     }
 
     private CommandNode[] getChildren(Class<? extends Command> target, ParserManager parserManager) {

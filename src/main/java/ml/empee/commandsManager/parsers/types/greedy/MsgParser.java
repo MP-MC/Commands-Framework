@@ -1,8 +1,11 @@
 package ml.empee.commandsManager.parsers.types.greedy;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 
+@EqualsAndHashCode(callSuper = true)
 public class MsgParser extends ParameterParser<String> implements GreedyParser {
 
     public MsgParser(String label, String defaultValue) {
@@ -13,6 +16,10 @@ public class MsgParser extends ParameterParser<String> implements GreedyParser {
         });
     }
 
+    protected MsgParser(MsgParser parser) {
+        super(parser);
+    }
+
     @Override
     public String parse(int offset, String... args) {
         StringBuilder string = new StringBuilder(args[offset]);
@@ -21,6 +28,11 @@ public class MsgParser extends ParameterParser<String> implements GreedyParser {
         }
 
         return string.toString();
+    }
+
+    @Override
+    public ParameterParser<String> clone() {
+        return new MsgParser(this);
     }
 
 }

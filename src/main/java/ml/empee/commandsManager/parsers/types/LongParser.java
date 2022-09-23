@@ -1,16 +1,20 @@
 package ml.empee.commandsManager.parsers.types;
 
+import org.bukkit.command.CommandException;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
-import org.bukkit.command.CommandException;
 
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public class LongParser extends ParameterParser<Long> {
 
     public static final LongParser DEFAULT = new LongParser("", "", Long.MIN_VALUE, Long.MAX_VALUE);
 
-    @Getter private final long min;
-    @Getter private final long max;
+    private final long min;
+    private final long max;
 
     public LongParser(String label, String defaultValue, Long min, Long max) {
         super(label, defaultValue);
@@ -23,6 +27,12 @@ public class LongParser extends ParameterParser<Long> {
                 "Max: ", (max != Long.MAX_VALUE ? max+"" : "+∞"),
                 "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
         });
+    }
+
+    protected LongParser(LongParser parser) {
+        super(parser);
+        this.min = parser.min;
+        this.max = parser.max;
     }
 
     @Override
@@ -43,7 +53,7 @@ public class LongParser extends ParameterParser<Long> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return super.equals(o) && min == ((LongParser) o).min && max == ((LongParser) o).max;
+    public ParameterParser<Long> clone() {
+        return new LongParser(this);
     }
 }

@@ -1,8 +1,10 @@
 package ml.empee.commandsManager.parsers.types;
 
+import lombok.EqualsAndHashCode;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 
+@EqualsAndHashCode(callSuper = true)
 public class StringParser extends ParameterParser<String> {
 
     public static final StringParser DEFAULT = new StringParser("", "");
@@ -15,9 +17,17 @@ public class StringParser extends ParameterParser<String> {
         });
     }
 
+    protected StringParser(StringParser parser) {
+        super(parser);
+    }
+
     @Override
     public String parse(int offset, String... args) {
         return args[offset];
     }
 
+    @Override
+    public ParameterParser<String> clone() {
+        return new StringParser(this);
+    }
 }

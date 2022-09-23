@@ -1,10 +1,13 @@
 package ml.empee.commandsManager.parsers.types;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 import org.bukkit.command.CommandException;
 
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public class DoubleParser extends ParameterParser<Double> {
 
     public static final DoubleParser DEFAULT = new DoubleParser("", "", -Double.MAX_VALUE, Double.MAX_VALUE);
@@ -25,6 +28,12 @@ public class DoubleParser extends ParameterParser<Double> {
         });
     }
 
+    protected DoubleParser(DoubleParser parser) {
+        super(parser);
+        this.min = parser.min;
+        this.max = parser.max;
+    }
+
     @Override
     public Double parse(int offset, String... args) {
         try {
@@ -43,7 +52,8 @@ public class DoubleParser extends ParameterParser<Double> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return super.equals(o) && min == ((DoubleParser) o).min && max == ((DoubleParser) o).max;
+    public ParameterParser<Double> clone() {
+        return new DoubleParser(this);
     }
+
 }

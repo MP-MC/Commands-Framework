@@ -1,14 +1,18 @@
 package ml.empee.commandsManager.parsers.types;
 
-import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
+
+import lombok.EqualsAndHashCode;
+import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.parsers.ParserDescription;
+import net.md_5.bungee.api.ChatColor;
+
+@EqualsAndHashCode(callSuper = true)
 public class ColorParser extends ParameterParser<ChatColor> {
 
     public static final ColorParser DEFAULT = new ColorParser("", "");
@@ -43,6 +47,10 @@ public class ColorParser extends ParameterParser<ChatColor> {
         });
     }
 
+    protected ColorParser(ColorParser parser) {
+        super(parser);
+    }
+
     @Override
     public ChatColor parse(int offset, String... strings) {
         try {
@@ -64,6 +72,11 @@ public class ColorParser extends ParameterParser<ChatColor> {
     @Override
     public List<String> getSuggestions(CommandSender source, String arg) {
         return COLORS;
+    }
+
+    @Override
+    public ParameterParser<ChatColor> clone() {
+        return new ColorParser(this);
     }
 
 }

@@ -1,8 +1,10 @@
 package ml.empee.commandsManager.parsers.types;
 
+import lombok.EqualsAndHashCode;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 
+@EqualsAndHashCode(callSuper = true)
 public class BoolParser extends ParameterParser<Boolean> {
 
     public static final BoolParser DEFAULT = new BoolParser("", "");
@@ -15,8 +17,18 @@ public class BoolParser extends ParameterParser<Boolean> {
         });
     }
 
+    protected BoolParser(BoolParser parser) {
+        super(parser);
+    }
+
     @Override
     public Boolean parse(int offset, String... args) {
         return Boolean.parseBoolean(args[offset]);
     }
+
+    @Override
+    public ParameterParser<Boolean> clone() {
+        return new BoolParser(this);
+    }
+
 }

@@ -53,7 +53,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
             executeNode(new CommandContext(sender), rootNode, args, 0);
         } catch (CommandException exception) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', exception.getMessage()));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX + exception.getMessage()));
 
             Throwable cause = exception.getCause();
             if(cause != null) {

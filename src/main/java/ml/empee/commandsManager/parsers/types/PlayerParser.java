@@ -16,7 +16,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
-    public static final PlayerParser DEFAULT = new PlayerParser("", true, "");
+    public static final PlayerParser DEFAULT = new PlayerParser("target", true, "");
 
     private final boolean onlyOnline;
 

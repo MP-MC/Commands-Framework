@@ -104,7 +104,7 @@ public final class CommandManager {
         parserManager.registerParser(PlayerParam.class, PlayerParser.class);
         parserManager.setDefaultParserForType(Player.class, PlayerParser.DEFAULT);
         parserManager.setDefaultParserForType(OfflinePlayer.class, new PlayerParser(
-                "", false, ""
+                "target", false, ""
         ));
 
         parserManager.registerParser(StringParam.class, StringParser.class);

@@ -15,7 +15,7 @@ import net.md_5.bungee.api.ChatColor;
 @EqualsAndHashCode(callSuper = true)
 public class ColorParser extends ParameterParser<ChatColor> {
 
-    public static final ColorParser DEFAULT = new ColorParser("", "");
+    public static final ColorParser DEFAULT = new ColorParser("color", "");
     private static final List<String> COLORS;
 
     static  {

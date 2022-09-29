@@ -99,10 +99,10 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
     private void executeNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node == null) {
-            throw new CommandException(PREFIX + MALFORMED_COMMAND);
+            throw new CommandException(MALFORMED_COMMAND);
         } else {
             if(!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
-                throw new CommandException(PREFIX + MISSING_PERMISSIONS);
+                throw new CommandException(MISSING_PERMISSIONS);
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -117,12 +117,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private void findAndExecuteChild(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node.getChildren().length == 0) {
             if(!node.isExecutable()) {
-                throw new CommandException(PREFIX + MALFORMED_COMMAND);
+                throw new CommandException(MALFORMED_COMMAND);
             }
         } else {
             CommandNode nextNode = findNextNode(node, args, offset);
             if(nextNode == null && !node.isExecutable()) {
-                throw new CommandException(PREFIX + MALFORMED_COMMAND);
+                throw new CommandException(MALFORMED_COMMAND);
             } else if(nextNode != null) {
                 executeNode(context, nextNode, args, offset + nextNode.getLabel().split(" ").length);
             }
@@ -144,7 +144,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 throw (CommandException) e.getCause();
             }
 
-            throw new CommandException(PREFIX + RUNTIME_ERROR, e);
+            throw new CommandException(RUNTIME_ERROR, e);
         }
     }
 
@@ -156,7 +156,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 if (parsers[i].isOptional()) {
                     arguments.put(parsers[i].getLabel(), parsers[i].parseDefaultValue());
                 } else {
-                    throw new CommandException(PREFIX + MALFORMED_COMMAND);
+                    throw new CommandException(MALFORMED_COMMAND);
                 }
             } else {
                 arguments.put( parsers[i].getLabel(), parsers[i].parse(offset, args) );

@@ -59,13 +59,13 @@ public class ColorParser extends ParameterParser<ChatColor> {
                 if(strings[offset].length() == 6) {
                     strings[offset] = "#" + strings[offset];
                 } else {
-                    throw new CommandException(" &4&l> &cThe color &e" + strings[offset] + "&c isn't valid");
+                    throw new CommandException("The color &e" + strings[offset] + "&c isn't valid");
                 }
             }
 
             return ChatColor.of(strings[offset]);
         } catch (IllegalArgumentException e) {
-            throw new CommandException(" &4&l> &cThe color &e" + strings[offset] + "&c isn't valid");
+            throw new CommandException("The color &e" + strings[offset] + "&c isn't valid");
         }
     }
 

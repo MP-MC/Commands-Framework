@@ -40,14 +40,14 @@ public class IntegerParser extends ParameterParser<Integer> {
             int result = Integer.parseInt(args[offset]);
 
             if(result < min) {
-                throw new CommandException("&4&l > &cThe value must be higher then &e" + min + "&c but it's value is &e" + result);
+                throw new CommandException("The value must be higher then &e" + min + "&c but it's value is &e" + result);
             } else if(result > max) {
-                throw new CommandException("&4&l > &cThe value must be lower then &e" + max + "&c but it's value is &e" + result);
+                throw new CommandException("The value must be lower then &e" + max + "&c but it's value is &e" + result);
             }
 
             return result;
         } catch (NumberFormatException e) {
-            throw new CommandException("&4&l > &cThe value &e" + args[offset] + "&c must be an integer");
+            throw new CommandException("The value &e" + args[offset] + "&c must be an integer");
         }
     }
 

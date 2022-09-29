@@ -41,14 +41,14 @@ public class LongParser extends ParameterParser<Long> {
             long result = Long.parseLong(args[offset]);
 
             if(result < min) {
-                throw new CommandException("&4&l > &cThe value must be higher then &e" + min + "&c but it's value is &e" + result);
+                throw new CommandException("The value must be higher then &e" + min + "&c but it's value is &e" + result);
             } else if(result > max) {
-                throw new CommandException("&4&l > &cThe value must be lower then &e" + max + "&c but it's value is &e" + result);
+                throw new CommandException("The value must be lower then &e" + max + "&c but it's value is &e" + result);
             }
 
             return result;
         } catch (NumberFormatException e) {
-            throw new CommandException(" &4&l>&c The number &e" + args[offset] + "&c isn't valid");
+            throw new CommandException("The number &e" + args[offset] + "&c isn't valid");
         }
     }
 

@@ -1,7 +1,6 @@
 package ml.empee.commandsManager.parsers.types.greedy;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserDescription;
 

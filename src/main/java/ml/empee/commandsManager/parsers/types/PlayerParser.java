@@ -42,13 +42,13 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
         OfflinePlayer player = Bukkit.getPlayer(args[offset]);
         if(player == null) {
             if(onlyOnline) {
-                throw new CommandException("&4&l > &cThe player &e" + args[offset] + "&c isn't online");
+                throw new CommandException("The player &e" + args[offset] + "&c isn't online");
             }
 
             try {
                 player = Bukkit.getOfflinePlayer(UUID.fromString(args[offset]));
             } catch (IllegalArgumentException e) {
-                throw new CommandException("&4&l > &cThe value &e" + args[offset] + "&c must be an UUID");
+                throw new CommandException("The value &e" + args[offset] + "&c must be an UUID");
             }
         }
 

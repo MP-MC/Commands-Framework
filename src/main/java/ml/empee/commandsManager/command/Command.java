@@ -13,16 +13,22 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
+    private static Logger log = JavaPlugin.getProvidingPlugin(Command.class).getLogger();
     private static String PREFIX = "&4&l > &c";
     private static String MALFORMED_COMMAND = "The command is missing arguments, check the help menu";
     private static String MISSING_PERMISSIONS = "You haven't enough permissions";
@@ -42,8 +48,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         try {
             if(args.length > 0 && sender.hasPermission(rootNode.getPermission())) {
-                //Handling of default commands
-                if(args[0].equalsIgnoreCase("help")) {
+                if(args[0].equalsIgnoreCase("help")) { //Handling of default commands
                     if(args.length > 1) {
                         helpMenuGenerator.sendHelpMenu(sender, IntegerParser.DEFAULT.parse(args[1]));
                     } else {
@@ -60,7 +65,17 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
             Throwable cause = exception.getCause();
             if(cause != null) {
-                cause.printStackTrace();
+                if(cause instanceof InvocationTargetException) {
+                    cause = cause.getCause();
+                }
+
+                log.log(
+                    Level.SEVERE,
+                    "Error while executing the command " + command.getName() +
+                    "\n\t - Arguments: " + Arrays.toString(args) +
+                    "\n\t - Cause: " + cause.getMessage(),
+                    cause
+                );
             }
         }
 

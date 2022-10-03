@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ import ml.empee.commandsManager.parsers.types.DoubleParser;
 import ml.empee.commandsManager.parsers.types.FloatParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.parsers.types.LongParser;
+import ml.empee.commandsManager.parsers.types.MaterialParser;
 import ml.empee.commandsManager.parsers.types.PlayerParser;
 import ml.empee.commandsManager.parsers.types.StringParser;
 import ml.empee.commandsManager.parsers.types.annotations.BoolParam;
@@ -33,6 +35,7 @@ import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.FloatParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
 import ml.empee.commandsManager.parsers.types.annotations.LongParam;
+import ml.empee.commandsManager.parsers.types.annotations.MaterialParam;
 import ml.empee.commandsManager.parsers.types.annotations.PlayerParam;
 import ml.empee.commandsManager.parsers.types.annotations.StringParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
@@ -114,6 +117,9 @@ public final class CommandManager {
 
         parserManager.registerParser(ColorParam.class, ColorParser.class);
         parserManager.setDefaultParserForType(ChatColor.class, ColorParser.DEFAULT);
+
+        parserManager.registerParser(MaterialParam.class, MaterialParser.class);
+        parserManager.setDefaultParserForType(Material.class, MaterialParser.DEFAULT);
     }
     private void setupCompletionService() {
         if(CommodoreProvider.isSupported()) {

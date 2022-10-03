@@ -92,10 +92,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 offset += 1;
                 if (offset == args.length) {
                     List<String> suggestions = parameterParser.getSuggestions(sender, offset-1, args);
-                    if(parameterParser.isOptional()) {
-                        suggestions.add("[" + parameterParser.getLabel() + "]");
-                    } else {
-                        suggestions.add("<" + parameterParser.getLabel() + ">");
+                    if(args[args.length - 1] == null || args[args.length - 1].isEmpty()) {
+                        if(parameterParser.isOptional()) {
+                            suggestions.add("[" + parameterParser.getLabel() + "]");
+                        } else {
+                            suggestions.add("<" + parameterParser.getLabel() + ">");
+                        }
                     }
 
                     return suggestions;

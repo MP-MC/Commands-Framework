@@ -28,11 +28,11 @@ import java.util.logging.Logger;
 
 public abstract class Command implements CommandExecutor, TabCompleter {
 
-    private static Logger log = JavaPlugin.getProvidingPlugin(Command.class).getLogger();
-    private static String PREFIX = "&4&l > &c";
-    private static String MALFORMED_COMMAND = "The command is missing arguments, check the help menu";
-    private static String MISSING_PERMISSIONS = "You haven't enough permissions";
-    private static String RUNTIME_ERROR = "Error while executing the command";
+    private static final Logger log = JavaPlugin.getProvidingPlugin(Command.class).getLogger();
+    private static String prefix = "&4&l > &c";
+    protected static String malformedCommandMSG = "The command is missing arguments, check the help menu";
+    protected static String missingPermissionsMSG = "You haven't enough permissions";
+    protected static String runtimeErrorMSG = "Error while executing the command";
 
     @Getter
     private org.bukkit.command.PluginCommand pluginCommand;
@@ -42,7 +42,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private HelpMenuGenerator helpMenuGenerator;
 
     public static void setPrefix(String prefix) {
-        PREFIX = prefix;
+        Command.prefix = prefix;
     }
 
     public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
@@ -61,7 +61,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
             executeNode(new CommandContext(sender), rootNode, args, 0);
         } catch (CommandException exception) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX + exception.getMessage()));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + exception.getMessage()));
 
             Throwable cause = exception.getCause();
             if(cause != null) {
@@ -119,10 +119,10 @@ public abstract class Command implements CommandExecutor, TabCompleter {
 
     private void executeNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node == null) {
-            throw new CommandException(MALFORMED_COMMAND);
+            throw new CommandException(malformedCommandMSG);
         } else {
             if(!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
-                throw new CommandException(MISSING_PERMISSIONS);
+                throw new CommandException(missingPermissionsMSG);
             }
 
             ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -137,12 +137,12 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     private void findAndExecuteChild(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
         if(node.getChildren().length == 0) {
             if(!node.isExecutable()) {
-                throw new CommandException(MALFORMED_COMMAND);
+                throw new CommandException(malformedCommandMSG);
             }
         } else {
             CommandNode nextNode = findNextNode(node, args, offset);
             if(nextNode == null && !node.isExecutable()) {
-                throw new CommandException(MALFORMED_COMMAND);
+                throw new CommandException(malformedCommandMSG);
             } else if(nextNode != null) {
                 executeNode(context, nextNode, args, offset + nextNode.getLabel().split(" ").length);
             }
@@ -164,7 +164,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 throw (CommandException) e.getCause();
             }
 
-            throw new CommandException(RUNTIME_ERROR, e);
+            throw new CommandException(runtimeErrorMSG, e);
         }
     }
 
@@ -176,7 +176,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
                 if (parsers[i].isOptional()) {
                     arguments.put(parsers[i].getLabel(), parsers[i].parseDefaultValue());
                 } else {
-                    throw new CommandException(MALFORMED_COMMAND);
+                    throw new CommandException(malformedCommandMSG);
                 }
             } else {
                 arguments.put( parsers[i].getLabel(), parsers[i].parse(offset, args) );

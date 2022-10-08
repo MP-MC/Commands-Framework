@@ -9,11 +9,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface CommandNode {
 
-    String parent() default "";
-    String label();
+  String parent() default "";
 
-    String permission() default "";
-    String description() default "";
-    boolean executable() default true;
+  String label();
+
+  String permission() default "";
+
+  String description() default "";
+
+  boolean executable() default true;
 
 }

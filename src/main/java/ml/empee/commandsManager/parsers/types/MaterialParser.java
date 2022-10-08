@@ -27,7 +27,7 @@ public class MaterialParser extends ParameterParser<Material> {
   protected MaterialParser(String label, String defaultValue) {
     super(label, defaultValue);
 
-    descriptor = new ParserDescription("material", "This parameter can only contain a material name", new String[]{
+    descriptor = new ParserDescription("material", "This parameter can only contain a material name", new String[] {
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
     });
   }
@@ -39,7 +39,7 @@ public class MaterialParser extends ParameterParser<Material> {
   @Override
   public Material parse(int offset, String... args) {
     Material material = Material.getMaterial(args[offset].toUpperCase(Locale.ROOT));
-    if(material == null) {
+    if (material == null) {
       throw new CommandException("The value &e" + args[offset] + "&c must be a material");
     }
 
@@ -52,7 +52,7 @@ public class MaterialParser extends ParameterParser<Material> {
   }
 
   @Override
-  public MaterialParser clone() {
+  public MaterialParser copyParser() {
     return new MaterialParser(this);
   }
 }

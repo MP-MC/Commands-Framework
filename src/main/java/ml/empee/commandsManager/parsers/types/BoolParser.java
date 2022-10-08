@@ -7,28 +7,28 @@ import ml.empee.commandsManager.parsers.ParserDescription;
 @EqualsAndHashCode(callSuper = true)
 public class BoolParser extends ParameterParser<Boolean> {
 
-    public static final BoolParser DEFAULT = new BoolParser("", "");
+  public static final BoolParser DEFAULT = new BoolParser("", "");
 
-    public BoolParser(String label, String defaultValue) {
-        super(label, defaultValue);
+  public BoolParser(String label, String defaultValue) {
+    super(label, defaultValue);
 
-        descriptor = new ParserDescription("bool", "This parameter can only contain a true or false value", new String[]{
-                "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-        });
-    }
+    descriptor = new ParserDescription("bool", "This parameter can only contain a true or false value", new String[] {
+        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
+    });
+  }
 
-    protected BoolParser(BoolParser parser) {
-        super(parser);
-    }
+  protected BoolParser(BoolParser parser) {
+    super(parser);
+  }
 
-    @Override
-    public Boolean parse(int offset, String... args) {
-        return Boolean.parseBoolean(args[offset]);
-    }
+  @Override
+  public Boolean parse(int offset, String... args) {
+    return Boolean.parseBoolean(args[offset]);
+  }
 
-    @Override
-    public ParameterParser<Boolean> clone() {
-        return new BoolParser(this);
-    }
+  @Override
+  public ParameterParser<Boolean> copyParser() {
+    return new BoolParser(this);
+  }
 
 }

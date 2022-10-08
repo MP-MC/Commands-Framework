@@ -9,7 +9,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface CommandRoot {
 
-    String value();
-    String[] aliases() default {};
+  String label();
+
+  String permission() default "";
+
+  String description() default "";
+
+  String[] aliases() default {};
 
 }

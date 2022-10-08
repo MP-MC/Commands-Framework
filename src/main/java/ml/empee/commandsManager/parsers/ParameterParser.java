@@ -5,7 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,70 +14,75 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @EqualsAndHashCode
-public abstract class ParameterParser<T> implements Cloneable {
+public abstract class ParameterParser<T> {
 
-    protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
-    private String label;
-    private T defaultValue;
+  protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
+  private String label;
+  private T defaultValue;
 
-    protected ParameterParser(String label, String defaultValue) {
-        this.label = label;
-        if(defaultValue == null || defaultValue.isEmpty()) {
-            this.defaultValue = null;
-        } else {
-            this.defaultValue = parse(defaultValue);
+  protected ParameterParser(String label, String defaultValue) {
+    this.label = label;
+    if (defaultValue == null || defaultValue.isEmpty()) {
+      this.defaultValue = null;
+    } else {
+      this.defaultValue = parse(defaultValue);
+    }
+  }
+
+  protected ParameterParser(ParameterParser<T> parser) {
+    this.descriptor = parser.descriptor;
+    this.label = parser.label;
+    this.defaultValue = parser.defaultValue;
+  }
+
+  public T parse(String... args) {
+    return parse(0, args);
+  }
+
+  public abstract T parse(int offset, String... args);
+
+  public List<String> getSuggestions(CommandSender source, int offset, String[] args) {
+    List<String> suggestions = getSuggestions(source, args[offset]);
+
+    if (suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
+      String arg = args[offset].toUpperCase(Locale.ROOT);
+      List<String> matchedSuggestions = new ArrayList<>();
+      for (String suggestion : suggestions) {
+        if (suggestion.toUpperCase(Locale.ROOT).startsWith(arg)) {
+          matchedSuggestions.add(suggestion);
         }
+      }
+
+      return matchedSuggestions;
     }
 
-    protected ParameterParser(ParameterParser<T> parser) {
-        this.descriptor = parser.descriptor;
-        this.label = parser.label;
-        this.defaultValue = parser.defaultValue;
-    }
+    return suggestions;
+  }
 
-    public T parse(String... args) {
-        return parse(0, args);
-    }
-    public abstract T parse(int offset, String... args);
+  public List<String> getSuggestions(CommandSender source, String arg) {
+    return new ArrayList<>();
+  }
 
-    public List<String> getSuggestions(CommandSender source, int offset, String[] args) {
-        List<String> suggestions = getSuggestions(source, args[offset]);
+  public final T parseDefaultValue() {
+    return defaultValue;
+  }
 
-        if(suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
-            String arg = args[offset].toUpperCase(Locale.ROOT);
-            List<String> matchedSuggestions = new ArrayList<>();
-            for (String suggestion : suggestions) {
-                if(suggestion.toUpperCase(Locale.ROOT).startsWith(arg)) {
-                    matchedSuggestions.add(suggestion);
-                }
-            }
+  public final boolean isOptional() {
+    return defaultValue != null;
+  }
 
-            return matchedSuggestions;
-        }
+  /**
+   * @return an parser deep copy
+   */
+  public abstract ParameterParser<T> copyParser();
 
-        return suggestions;
-    }
-
-    public List<String> getSuggestions(CommandSender source, String arg) {
-        return new ArrayList<>();
-    }
-
-    public final T parseDefaultValue() {
-        return defaultValue;
-    }
-
-    public final boolean isOptional() {
-        return defaultValue != null;
-    }
-
-    public abstract ParameterParser<T> clone();
-
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface Property {
-        int index();
-    }
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface Property {
+    int index();
+  }
 
 }

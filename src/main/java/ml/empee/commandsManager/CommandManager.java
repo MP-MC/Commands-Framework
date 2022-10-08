@@ -1,6 +1,7 @@
 package ml.empee.commandsManager;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,110 +49,117 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
  */
 public final class CommandManager {
 
-    private final ArrayList<Command> registeredCommands = new ArrayList<>();
-    private final Logger logger;
-    private CompletionService completionService = null;
+  private final ArrayList<Command> registeredCommands = new ArrayList<>();
+  private final Logger logger;
+  private CompletionService completionService;
 
-    @Getter final JavaPlugin plugin;
-    @Getter private final ParserManager parserManager;
-    @Getter private BukkitAudiences adventure;
+  @Getter
+  final JavaPlugin plugin;
+  @Getter
+  private final ParserManager parserManager;
+  @Getter
+  private BukkitAudiences adventure;
 
-    public CommandManager(@NonNull JavaPlugin plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+  public CommandManager(@NonNull JavaPlugin plugin) {
+    this.plugin = plugin;
+    this.logger = plugin.getLogger();
 
-        this.parserManager = new ParserManager();
-        registerDefaultParsers();
+    this.parserManager = new ParserManager();
+    registerDefaultParsers();
 
-        setupCompletionService();
-        setupCommandUnregistrationService();
-    }
+    setupCompletionService();
+    setupCommandUnregistrationService();
+  }
 
-    private void setupCommandUnregistrationService() {
-        plugin.getServer().getPluginManager().registerEvents(new Listener() {
-            @EventHandler
-            public void onDisable(PluginDisableEvent event) {
-                if (event.getPlugin().equals(plugin)) {
-                    unregisterCommands();
-                }
-            }
-        }, plugin);
-    }
-
-    public CommandManager(@NonNull JavaPlugin plugin, BukkitAudiences bukkitAudiences) {
-        this(plugin);
-        this.adventure = bukkitAudiences;
-    }
-
-    private void registerDefaultParsers() {
-        parserManager.registerParser(IntegerParam.class, IntegerParser.class);
-        parserManager.setDefaultParserForType(int.class, IntegerParser.DEFAULT);
-        parserManager.setDefaultParserForType(Integer.class, IntegerParser.DEFAULT);
-
-        parserManager.registerParser(FloatParam.class, FloatParser.class);
-        parserManager.setDefaultParserForType(float.class, FloatParser.DEFAULT);
-        parserManager.setDefaultParserForType(Float.class, FloatParser.DEFAULT);
-
-        parserManager.registerParser(DoubleParam.class, DoubleParser.class);
-        parserManager.setDefaultParserForType(double.class, DoubleParser.DEFAULT);
-        parserManager.setDefaultParserForType(Double.class, DoubleParser.DEFAULT);
-
-        parserManager.registerParser(LongParam.class, LongParser.class);
-        parserManager.setDefaultParserForType(long.class, LongParser.DEFAULT);
-        parserManager.setDefaultParserForType(Long.class, LongParser.DEFAULT);
-
-        parserManager.registerParser(BoolParam.class, BoolParser.class);
-        parserManager.setDefaultParserForType(boolean.class, BoolParser.DEFAULT);
-        parserManager.setDefaultParserForType(Boolean.class, BoolParser.DEFAULT);
-
-        parserManager.registerParser(PlayerParam.class, PlayerParser.class);
-        parserManager.setDefaultParserForType(Player.class, PlayerParser.DEFAULT);
-        parserManager.setDefaultParserForType(OfflinePlayer.class, new PlayerParser(
-                "target", false, ""
-        ));
-
-        parserManager.registerParser(StringParam.class, StringParser.class);
-        parserManager.setDefaultParserForType(String.class, StringParser.DEFAULT);
-
-        parserManager.registerParser(MsgParam.class, MsgParser.class);
-
-        parserManager.registerParser(ColorParam.class, ColorParser.class);
-        parserManager.setDefaultParserForType(ChatColor.class, ColorParser.DEFAULT);
-
-        parserManager.registerParser(MaterialParam.class, MaterialParser.class);
-        parserManager.setDefaultParserForType(Material.class, MaterialParser.DEFAULT);
-    }
-    private void setupCompletionService() {
-        if(CommodoreProvider.isSupported()) {
-            completionService = new CompletionService(CommodoreProvider.getCommodore(plugin));
-            logger.info("Hooked to brigadier NMS");
-        } else {
-            logger.warning("Your server doesn't support command completion");
+  private void setupCommandUnregistrationService() {
+    plugin.getServer().getPluginManager().registerEvents(new Listener() {
+      @EventHandler
+      public void onDisable(PluginDisableEvent event) {
+        if (event.getPlugin().equals(plugin)) {
+          unregisterCommands();
         }
+      }
+    }, plugin);
+  }
+
+  public CommandManager(@NonNull JavaPlugin plugin, BukkitAudiences bukkitAudiences) {
+    this(plugin);
+    this.adventure = bukkitAudiences;
+  }
+
+  private void registerDefaultParsers() {
+    parserManager.registerParser(IntegerParam.class, IntegerParser.class);
+    parserManager.setDefaultParserForType(int.class, IntegerParser.DEFAULT);
+    parserManager.setDefaultParserForType(Integer.class, IntegerParser.DEFAULT);
+
+    parserManager.registerParser(FloatParam.class, FloatParser.class);
+    parserManager.setDefaultParserForType(float.class, FloatParser.DEFAULT);
+    parserManager.setDefaultParserForType(Float.class, FloatParser.DEFAULT);
+
+    parserManager.registerParser(DoubleParam.class, DoubleParser.class);
+    parserManager.setDefaultParserForType(double.class, DoubleParser.DEFAULT);
+    parserManager.setDefaultParserForType(Double.class, DoubleParser.DEFAULT);
+
+    parserManager.registerParser(LongParam.class, LongParser.class);
+    parserManager.setDefaultParserForType(long.class, LongParser.DEFAULT);
+    parserManager.setDefaultParserForType(Long.class, LongParser.DEFAULT);
+
+    parserManager.registerParser(BoolParam.class, BoolParser.class);
+    parserManager.setDefaultParserForType(boolean.class, BoolParser.DEFAULT);
+    parserManager.setDefaultParserForType(Boolean.class, BoolParser.DEFAULT);
+
+    parserManager.registerParser(PlayerParam.class, PlayerParser.class);
+    parserManager.setDefaultParserForType(Player.class, PlayerParser.DEFAULT);
+    parserManager.setDefaultParserForType(OfflinePlayer.class, new PlayerParser(
+        "target", false, ""
+    ));
+
+    parserManager.registerParser(StringParam.class, StringParser.class);
+    parserManager.setDefaultParserForType(String.class, StringParser.DEFAULT);
+
+    parserManager.registerParser(MsgParam.class, MsgParser.class);
+
+    parserManager.registerParser(ColorParam.class, ColorParser.class);
+    parserManager.setDefaultParserForType(ChatColor.class, ColorParser.DEFAULT);
+
+    parserManager.registerParser(MaterialParam.class, MaterialParser.class);
+    parserManager.setDefaultParserForType(Material.class, MaterialParser.DEFAULT);
+  }
+
+  private void setupCompletionService() {
+    if (CommodoreProvider.isSupported()) {
+      completionService = new CompletionService(CommodoreProvider.getCommodore(plugin));
+      logger.info("Hooked to brigadier NMS");
+    } else {
+      logger.warning("Your server doesn't support command completion");
+    }
+  }
+
+  public void registerCommand(@NonNull Command command) {
+    PluginCommand pluginCommand = command.build(this);
+    if (!CommandMap.register(pluginCommand)) {
+      logger.log(Level.WARNING,
+          () -> "It already exists a command '" + pluginCommand.getName() +
+                "' Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ENGLISH) +
+                ":" + pluginCommand.getName() + " instead"
+      );
     }
 
-    public void registerCommand(@NonNull Command command) {
-        PluginCommand pluginCommand = command.build(this);
-        if(!CommandMap.register(pluginCommand)) {
-            logger.log(Level.WARNING,
-                () -> "It already exists a command '" + pluginCommand.getName() + "' Use /" + pluginCommand.getPlugin().getName().toLowerCase() + ":" + pluginCommand.getName() + " instead"
-            );
-        }
+    registeredCommands.add(command);
 
-        registeredCommands.add(command);
+    if (completionService != null) {
+      completionService.registerCompletions(command);
+    }
+  }
 
-        if(completionService != null) {
-            completionService.registerCompletions(command);
-        }
+  public void unregisterCommands() {
+    for (Command command : registeredCommands) {
+      unregisterCommand(command);
     }
-    public void unregisterCommands() {
-        for(Command command : registeredCommands) {
-            unregisterCommand(command);
-        }
-    }
+  }
 
-    public void unregisterCommand(@NonNull Command command) {
-        CommandMap.unregisterCommand(command.getPluginCommand());
-    }
+  public void unregisterCommand(@NonNull Command command) {
+    CommandMap.unregisterCommand(command.getPluginCommand());
+  }
 
 }

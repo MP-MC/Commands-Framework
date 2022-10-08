@@ -39,9 +39,10 @@ public final class ParserManager {
 
     if (parser == null) {
       parser = defaultParsers.get(parameter.getType().hashCode());
-      if (parser != null && parameter.isNamePresent()) {
-        parser.setLabel(parameter.getName());
-      }
+    }
+
+    if(parser != null && (parser.getLabel() == null || parser.getLabel().isEmpty()) && parameter.isNamePresent()) {
+      parser.setLabel(parameter.getName());
     }
 
     return (ParameterParser<Object>) cacheParser(parser);
@@ -102,6 +103,10 @@ public final class ParserManager {
   }
 
   private ParameterParser<?> cacheParser(ParameterParser<?> parser) {
+    if(parser == null) {
+      return null;
+    }
+
     for (ParameterParser<?> p : cachedParsers) {
 
       if (p.equals(parser)) {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Nullable;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -143,6 +144,30 @@ public final class CommandNode {
     }
 
     return parsers;
+  }
+
+  @Nullable
+  public CommandNode findNextNode(String[] args, int offset) {
+    if (offset >= args.length) {
+      return null;
+    }
+
+    for (CommandNode child : children) {
+      String[] labels = child.getLabel().split(" ");
+      boolean matchAllLabels = true;
+      for (int i = 0; i < labels.length; i++) {
+        if (offset + i >= args.length || !labels[i].equalsIgnoreCase(args[offset + i])) {
+          matchAllLabels = false;
+          break;
+        }
+      }
+
+      if (matchAllLabels) {
+        return child;
+      }
+    }
+
+    return null;
   }
 
   @SuppressWarnings("unchecked")

@@ -41,7 +41,9 @@ import ml.empee.commandsManager.parsers.types.annotations.PlayerParam;
 import ml.empee.commandsManager.parsers.types.annotations.StringParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
 import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
-import ml.empee.commandsManager.services.CompletionService;
+import ml.empee.commandsManager.services.completion.CommodoreCompletionService;
+import ml.empee.commandsManager.services.completion.CompletionService;
+import ml.empee.commandsManager.services.completion.DefaultCompletionService;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
 /**
@@ -128,10 +130,11 @@ public final class CommandManager {
 
   private void setupCompletionService() {
     if (CommodoreProvider.isSupported()) {
-      completionService = new CompletionService(CommodoreProvider.getCommodore(plugin));
+      completionService = new CommodoreCompletionService(CommodoreProvider.getCommodore(plugin));
       logger.info("Hooked to brigadier NMS");
     } else {
-      logger.warning("Your server doesn't support command completion");
+      completionService = new DefaultCompletionService();
+      logger.info("Brigadier NMS not found, using default completion service");
     }
   }
 

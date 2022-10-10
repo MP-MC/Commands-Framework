@@ -4,9 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,7 +13,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.Getter;
@@ -27,7 +24,7 @@ import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.services.helpMenu.AdventureHelpMenu;
 import ml.empee.commandsManager.services.helpMenu.HelpMenuGenerator;
 
-public abstract class Command implements CommandExecutor, TabCompleter {
+public abstract class Command implements CommandExecutor {
 
   private static final Logger logger = JavaPlugin.getProvidingPlugin(Command.class).getLogger();
   private static String prefix = "&4&l > &c";
@@ -88,45 +85,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     return true;
   }
 
-  public final List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-
-    int offset = 0;
-    CommandNode node = rootNode;
-    while (true) {
-      ParameterParser<?>[] parameterParsers = node.getParameterParsers();
-      for (ParameterParser<?> parameterParser : parameterParsers) {
-
-        offset += 1;
-        if (offset == args.length) {
-          return getSuggestions(sender, args, offset - 1, parameterParser);
-        }
-
-      }
-
-      node = findNextNode(node, args, offset);
-      if (node == null) {
-        break;
-      }
-
-      offset += node.getLabel().split(" ").length;
-    }
-
-    return Collections.emptyList();
-  }
-
-  private static List<String> getSuggestions(CommandSender sender, String[] args, int offset, ParameterParser<?> parameterParser) {
-    List<String> suggestions = parameterParser.getSuggestions(sender, offset, args);
-
-    if ( suggestions.isEmpty() && (args[args.length - 1] == null || args[args.length - 1].isEmpty())) {
-      if (parameterParser.isOptional()) {
-        suggestions.add("[" + parameterParser.getLabel() + "]");
-      } else {
-        suggestions.add("<" + parameterParser.getLabel() + ">");
-      }
-    }
-    return suggestions;
-  }
-
   private void parseParametersAndExecuteNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
     if (node == null) {
       throw new CommandException(malformedCommandMSG);
@@ -151,7 +109,7 @@ public abstract class Command implements CommandExecutor, TabCompleter {
         throw new CommandException(malformedCommandMSG);
       }
     } else {
-      CommandNode nextNode = findNextNode(node, args, offset);
+      CommandNode nextNode = node.findNextNode(args, offset);
       if (nextNode == null && !node.isExecutable()) {
         throw new CommandException(malformedCommandMSG);
       } else if (nextNode != null) {
@@ -200,29 +158,6 @@ public abstract class Command implements CommandExecutor, TabCompleter {
     }
 
     return arguments;
-  }
-
-  private CommandNode findNextNode(CommandNode node, String[] args, int offset) {
-    if (offset >= args.length) {
-      return null;
-    }
-
-    for (CommandNode child : node.getChildren()) {
-      String[] labels = child.getLabel().split(" ");
-      boolean matchAllLabels = true;
-      for (int i = 0; i < labels.length; i++) {
-        if (offset + i >= args.length || !labels[i].equalsIgnoreCase(args[offset + i])) {
-          matchAllLabels = false;
-          break;
-        }
-      }
-
-      if (matchAllLabels) {
-        return child;
-      }
-    }
-
-    return null;
   }
 
   public final org.bukkit.command.PluginCommand build(CommandManager commandManager) {

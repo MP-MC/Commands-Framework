@@ -44,6 +44,10 @@ public final class CommandMap {
     try {
       Map<String, Command> map = (Map<String, Command>) commandMapField.get(internalCommandMap);
       map.remove(command.getName().toLowerCase(Locale.ENGLISH).trim());
+
+      for(String alias : command.getAliases()) {
+        map.remove(alias.toLowerCase(Locale.ENGLISH).trim());
+      }
     } catch (IllegalAccessException e) {
       throw new CommandManagerException("Error while unregistering the command '" + command.getName() + "'", e);
     }

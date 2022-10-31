@@ -50,6 +50,12 @@ public abstract class Command implements CommandExecutor {
 
   protected final void registerListeners(Listener... listeners) {
     this.listeners = listeners;
+
+    JavaPlugin plugin = JavaPlugin.getProvidingPlugin(getClass());
+    for(Listener listener : listeners) {
+      plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+    }
+
   }
 
   public final void unregister() {

@@ -2,6 +2,7 @@ package ml.empee.commandsManager.command;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -13,11 +14,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.Getter;
 import ml.empee.commandsManager.CommandManager;
 import ml.empee.commandsManager.command.annotations.CommandRoot;
+import ml.empee.commandsManager.helpers.CommandMap;
 import ml.empee.commandsManager.helpers.PluginCommand;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
@@ -38,9 +42,22 @@ public abstract class Command implements CommandExecutor {
   private CommandNode rootNode;
 
   private HelpMenuGenerator helpMenuGenerator;
+  private Listener[] listeners = new Listener[0];
 
   public static void setPrefix(String prefix) {
     Command.prefix = prefix;
+  }
+
+  protected final void registerListeners(Listener... listeners) {
+    this.listeners = listeners;
+  }
+
+  public final void unregister() {
+    for (Listener listener : listeners) {
+      HandlerList.unregisterAll(listener);
+    }
+
+    CommandMap.unregisterCommand(pluginCommand);
   }
 
   protected boolean executeDefaultCommands(String[] args, CommandSender sender) {

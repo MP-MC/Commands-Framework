@@ -157,12 +157,8 @@ public final class CommandManager {
 
   public void unregisterCommands() {
     for (Command command : registeredCommands) {
-      unregisterCommand(command);
+      command.unregister();
     }
-  }
-
-  public void unregisterCommand(@NonNull Command command) {
-    CommandMap.unregisterCommand(command.getPluginCommand());
   }
 
 }

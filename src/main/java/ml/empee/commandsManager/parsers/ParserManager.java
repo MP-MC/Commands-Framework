@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import lombok.SneakyThrows;
+import ml.empee.commandsManager.parsers.types.EnumParser;
 
 public final class ParserManager {
 
@@ -39,6 +40,11 @@ public final class ParserManager {
 
     if (parser == null) {
       parser = defaultParsers.get(parameter.getType().hashCode());
+    }
+
+
+    if(parser == null && parameter.getType().isEnum()) {
+      parser = new EnumParser<>((Class<Enum>) parameter.getType());
     }
 
     if(parser != null && (parser.getLabel() == null || parser.getLabel().isEmpty()) && parameter.isNamePresent()) {

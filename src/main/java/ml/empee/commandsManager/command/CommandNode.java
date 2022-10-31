@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import lombok.AccessLevel;
@@ -22,6 +23,7 @@ public final class CommandNode {
 
   private final String permission;
   private final String description;
+  private final Class<? extends CommandSender> senderType;
   private final ParameterParser<?>[] parameterParsers;
   private final CommandNode[] children;
   private final boolean executable;
@@ -40,6 +42,7 @@ public final class CommandNode {
     this.permission = commandRoot.permission();
     this.description = commandRoot.description();
     this.executable = false;
+    this.senderType = CommandSender.class;
     this.parameterParsers = new ParameterParser<?>[0];
 
     this.children = getChildren(target, parserManager);
@@ -64,6 +67,7 @@ public final class CommandNode {
     this.permission = annotation.permission();
     this.description = buildDescription(annotation.description());
     this.executable = annotation.executable();
+    this.senderType = findSenderType();
     this.parameterParsers = getParameterParsers(parserManager);
 
     this.children = getChildren(target, parserManager);
@@ -117,18 +121,23 @@ public final class CommandNode {
     return result.toString();
   }
 
-  private ParameterParser<?>[] getParameterParsers(ParserManager parserManager) {
+  @SuppressWarnings("unchecked")
+  private Class<? extends CommandSender> findSenderType() {
     java.lang.reflect.Parameter[] rawParameters = executor.getParameters();
-    if (rawParameters.length == 0 || rawParameters[0].getType() != CommandContext.class) {
-      throw new IllegalArgumentException("Missing command context parameter from " + label);
+    if (rawParameters.length == 0 || !CommandSender.class.isAssignableFrom(rawParameters[0].getType())) {
+      throw new IllegalArgumentException("Missing command sender parameter from " + label);
     }
 
+    return (Class<? extends CommandSender>) rawParameters[0].getType();
+  }
+
+  private ParameterParser<?>[] getParameterParsers(ParserManager parserManager) {
+    java.lang.reflect.Parameter[] rawParameters = executor.getParameters();
     ParameterParser<?>[] parsers = new ParameterParser<?>[rawParameters.length - 1];
 
     for (int i = 1; i < rawParameters.length; i++) {
       ParameterParser<?> type = parserManager.getParameterParser(rawParameters[i]);
-      Objects.requireNonNull(type,
-          "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
+      Objects.requireNonNull(type, "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
 
       if (i != 1 && parsers[i - 2] instanceof GreedyParser) {
         throw new IllegalArgumentException(

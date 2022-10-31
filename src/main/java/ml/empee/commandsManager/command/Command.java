@@ -2,9 +2,9 @@ package ml.empee.commandsManager.command;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -35,12 +35,14 @@ public abstract class Command implements CommandExecutor {
   protected static String malformedCommandMSG = "The command is missing arguments, check the help menu";
   protected static String missingPermissionsMSG = "You haven't enough permissions";
   protected static String runtimeErrorMSG = "Error while executing the command";
+  protected static String invalidSenderMSG = "You aren't an allowed sender type of this command";
 
   @Getter
   private org.bukkit.command.PluginCommand pluginCommand;
   @Getter
   private CommandNode rootNode;
 
+  private final HashMap<CommandSender, CommandContext> contextHashMap = new HashMap<>();
   private HelpMenuGenerator helpMenuGenerator;
   private Listener[] listeners = new Listener[0];
 
@@ -52,10 +54,14 @@ public abstract class Command implements CommandExecutor {
     this.listeners = listeners;
 
     JavaPlugin plugin = JavaPlugin.getProvidingPlugin(getClass());
-    for(Listener listener : listeners) {
+    for (Listener listener : listeners) {
       plugin.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 
+  }
+
+  protected final CommandContext getContext(CommandSender sender) {
+    return contextHashMap.get(sender);
   }
 
   public final void unregister() {
@@ -108,11 +114,12 @@ public abstract class Command implements CommandExecutor {
     return true;
   }
 
-  private void parseParametersAndExecuteNode(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
+  private void parseParametersAndExecuteNode(CommandContext context, CommandNode node, String[] args, int offset)
+      throws CommandException {
     if (node == null) {
       throw new CommandException(malformedCommandMSG);
     } else {
-      if (!context.getSource(CommandSender.class).hasPermission(node.getPermission())) {
+      if (!context.getSource().hasPermission(node.getPermission())) {
         throw new CommandException(missingPermissionsMSG);
       }
 
@@ -143,7 +150,10 @@ public abstract class Command implements CommandExecutor {
 
   private void executeNode(CommandNode node, CommandContext context, Collection<Object> arguments) throws CommandException {
     Object[] args = new Object[arguments.size() + 1];
-    args[0] = context;
+    args[0] = context.getSource();
+    if (!node.getSenderType().isInstance(args[0])) {
+      throw new CommandException(invalidSenderMSG);
+    }
 
     int i = 1;
     for (Object arg : arguments) {
@@ -152,8 +162,10 @@ public abstract class Command implements CommandExecutor {
     }
 
     try {
-      if(node.executor != null) {
+      if (node.executor != null) {
+        contextHashMap.put(context.getSource(), context);
         node.executor.invoke(this, args);
+        contextHashMap.remove(context.getSource());
       }
     } catch (Exception e) {
       if (e.getCause() instanceof CommandException) {
@@ -167,15 +179,15 @@ public abstract class Command implements CommandExecutor {
   private Map<String, Object> parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
     LinkedHashMap<String, Object> arguments = new LinkedHashMap<>();
 
-    for (int i = 0; i < parsers.length; i++) {
+    for (ParameterParser<?> parser : parsers) {
       if (offset >= args.length) {
-        if (parsers[i].isOptional()) {
-          arguments.put(parsers[i].getLabel(), parsers[i].parseDefaultValue());
+        if (parser.isOptional()) {
+          arguments.put(parser.getLabel(), parser.parseDefaultValue());
         } else {
           throw new CommandException(malformedCommandMSG);
         }
       } else {
-        arguments.put(parsers[i].getLabel(), parsers[i].parse(offset, args));
+        arguments.put(parser.getLabel(), parser.parse(offset, args));
       }
       offset += 1;
     }

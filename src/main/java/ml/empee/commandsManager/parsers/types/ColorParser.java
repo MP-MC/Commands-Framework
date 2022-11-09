@@ -64,7 +64,7 @@ public class ColorParser extends ParameterParser<ChatColor> {
         }
       }
 
-      return ChatColor.of(strings[offset]);
+      return ChatColor.valueOf(strings[offset]);
     } catch (IllegalArgumentException e) {
       throw new CommandException("The color &e" + strings[offset] + "&c isn't valid");
     }

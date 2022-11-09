@@ -1,9 +1,11 @@
 package ml.empee.commandsManager.command;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.bukkit.command.CommandSender;
+
+import ml.empee.commandsManager.utils.Tuple;
 
 @SuppressWarnings("unchecked")
 public final class CommandContext {
@@ -23,11 +25,11 @@ public final class CommandContext {
     return (T) arguments.get(id);
   }
 
-  void addArguments(Map<String, Object> arguments) {
-    for (Map.Entry<String, Object> arg : arguments.entrySet()) {
-      String key = arg.getKey();
+  void addArguments(List<Tuple<String, Object>> arguments) {
+    for (Tuple<String, Object> arg : arguments) {
+      String key = arg.getFirst();
       if (key != null && !key.isEmpty()) {
-        this.arguments.put(key, arg.getValue());
+        this.arguments.put(key, arg.getSecond());
       }
     }
   }

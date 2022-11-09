@@ -2,11 +2,10 @@ package ml.empee.commandsManager.command;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,10 +26,10 @@ import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.services.helpMenu.AdventureHelpMenu;
 import ml.empee.commandsManager.services.helpMenu.HelpMenuGenerator;
+import ml.empee.commandsManager.utils.Tuple;
 
 public abstract class Command implements CommandExecutor {
 
-  private static final Logger logger = JavaPlugin.getProvidingPlugin(Command.class).getLogger();
   private static String prefix = "&4&l > &c";
   protected static String malformedCommandMSG = "The command is missing arguments, check the help menu";
   protected static String missingPermissionsMSG = "You haven't enough permissions";
@@ -41,6 +40,7 @@ public abstract class Command implements CommandExecutor {
   private org.bukkit.command.PluginCommand pluginCommand;
   @Getter
   private CommandNode rootNode;
+  private Logger logger;
 
   private final HashMap<CommandSender, CommandContext> contextHashMap = new HashMap<>();
   private HelpMenuGenerator helpMenuGenerator;
@@ -124,8 +124,8 @@ public abstract class Command implements CommandExecutor {
       }
 
       ParameterParser<?>[] parsers = node.getParameterParsers();
-      Map<String, Object> arguments = parseArguments(parsers, args, offset);
-      executeNode(node, context, arguments.values());
+      List<Tuple<String, Object>> arguments = parseArguments(parsers, args, offset);
+      executeNode(node, context, arguments);
       context.addArguments(arguments);
       offset += parsers.length;
 
@@ -148,7 +148,7 @@ public abstract class Command implements CommandExecutor {
     }
   }
 
-  private void executeNode(CommandNode node, CommandContext context, Collection<Object> arguments) throws CommandException {
+  private void executeNode(CommandNode node, CommandContext context, List<Tuple<String, Object>> arguments) throws CommandException {
     Object[] args = new Object[arguments.size() + 1];
     args[0] = context.getSource();
     if (!node.getSenderType().isInstance(args[0])) {
@@ -156,8 +156,8 @@ public abstract class Command implements CommandExecutor {
     }
 
     int i = 1;
-    for (Object arg : arguments) {
-      args[i] = arg;
+    for (Tuple<String, Object> arg : arguments) {
+      args[i] = arg.getSecond();
       i += 1;
     }
 
@@ -176,18 +176,18 @@ public abstract class Command implements CommandExecutor {
     }
   }
 
-  private Map<String, Object> parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
-    LinkedHashMap<String, Object> arguments = new LinkedHashMap<>();
+  private List<Tuple<String, Object>> parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
+    List<Tuple<String, Object>> arguments = new ArrayList<>();
 
     for (ParameterParser<?> parser : parsers) {
       if (offset >= args.length) {
         if (parser.isOptional()) {
-          arguments.put(parser.getLabel(), parser.parseDefaultValue());
+          arguments.add(new Tuple<>(parser.getLabel(), parser.parseDefaultValue()));
         } else {
           throw new CommandException(malformedCommandMSG);
         }
       } else {
-        arguments.put(parser.getLabel(), parser.parse(offset, args));
+        arguments.add(new Tuple<>(parser.getLabel(), parser.parse(offset, args)));
       }
       offset += 1;
     }
@@ -200,6 +200,8 @@ public abstract class Command implements CommandExecutor {
     if (rootAnnotation == null) {
       throw new IllegalStateException("The class " + getClass().getName() + " is not annotated with @CommandRoot");
     }
+
+    logger = commandManager.getPlugin().getLogger();
 
     Method rootMethod = getRootMethod(rootAnnotation);
     if (rootMethod != null) {
@@ -223,7 +225,9 @@ public abstract class Command implements CommandExecutor {
     for (Method method : getClass().getDeclaredMethods()) {
 
       ml.empee.commandsManager.command.annotations.CommandNode commandNode = method.getAnnotation(
-          ml.empee.commandsManager.command.annotations.CommandNode.class);
+          ml.empee.commandsManager.command.annotations.CommandNode.class
+      );
+
       if (commandNode != null && commandNode.parent().isEmpty() && commandRoot.label().equals(commandNode.label())) {
         return method;
       }

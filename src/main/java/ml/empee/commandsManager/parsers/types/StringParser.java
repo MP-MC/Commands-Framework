@@ -1,8 +1,8 @@
 package ml.empee.commandsManager.parsers.types;
 
 import lombok.EqualsAndHashCode;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 @EqualsAndHashCode(callSuper = true)
 public class StringParser extends ParameterParser<String> {
@@ -12,7 +12,7 @@ public class StringParser extends ParameterParser<String> {
   public StringParser(String label, String defaultValue) {
     super(label, defaultValue);
 
-    descriptor = new ParserDescription("string", "This parameter can only contain string value", new String[] {
+    descriptionBuilder = new DescriptionBuilder("string", "This parameter can only contain string value", new String[] {
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
     });
   }

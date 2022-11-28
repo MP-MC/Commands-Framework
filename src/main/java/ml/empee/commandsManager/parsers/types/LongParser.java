@@ -4,8 +4,8 @@ import org.bukkit.command.CommandException;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -22,7 +22,7 @@ public class LongParser extends ParameterParser<Long> {
     this.min = min;
     this.max = max;
 
-    descriptor = new ParserDescription("long", "This parameter can only contain an integer", new String[] {
+    descriptionBuilder = new DescriptionBuilder("long", "This parameter can only contain an integer", new String[] {
         "Min: ", (min != Long.MIN_VALUE ? min + "" : "-∞"),
         "Max: ", (max != Long.MAX_VALUE ? max + "" : "+∞"),
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)

@@ -9,8 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 public class MaterialParser extends ParameterParser<Material> {
 
@@ -27,7 +27,7 @@ public class MaterialParser extends ParameterParser<Material> {
   protected MaterialParser(String label, String defaultValue) {
     super(label, defaultValue);
 
-    descriptor = new ParserDescription("material", "This parameter can only contain a material name", new String[] {
+    descriptionBuilder = new DescriptionBuilder("material", "This parameter can only contain a material name", new String[] {
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
     });
   }

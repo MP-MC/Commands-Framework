@@ -9,8 +9,8 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 
 import lombok.EqualsAndHashCode;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 import net.md_5.bungee.api.ChatColor;
 
 @EqualsAndHashCode(callSuper = true)
@@ -43,7 +43,7 @@ public class ColorParser extends ParameterParser<ChatColor> {
   public ColorParser(String label, String defaultValue) {
     super(label, defaultValue);
 
-    descriptor = new ParserDescription("color", "This parameter can only contain a valid color", new String[] {
+    descriptionBuilder = new DescriptionBuilder("color", "This parameter can only contain a valid color", new String[] {
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
     });
   }

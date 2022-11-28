@@ -19,7 +19,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 public abstract class ParameterParser<T> {
 
-  protected ParserDescription descriptor = new ParserDescription("value", "This is a default description message", null);
+  protected DescriptionBuilder descriptionBuilder = new DescriptionBuilder("value", "This is a default description message", null);
   private String label;
   private T defaultValue;
 
@@ -33,7 +33,7 @@ public abstract class ParameterParser<T> {
   }
 
   protected ParameterParser(ParameterParser<T> parser) {
-    this.descriptor = parser.descriptor;
+    this.descriptionBuilder = parser.descriptionBuilder;
     this.label = parser.label;
     this.defaultValue = parser.defaultValue;
   }

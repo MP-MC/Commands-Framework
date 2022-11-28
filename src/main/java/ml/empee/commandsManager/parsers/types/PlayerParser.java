@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -28,7 +28,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     super(label, defaultValue);
 
     this.onlyOnline = onlyOnline;
-    descriptor = new ParserDescription("player", "This parameter can only contain a player's name or his UUID",
+    descriptionBuilder = new DescriptionBuilder("player", "This parameter can only contain a player's name or his UUID",
         new String[] {
             "Requires online: ", onlyOnline.toString(),
             "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)

@@ -9,8 +9,8 @@ import org.bukkit.command.CommandSender;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -35,7 +35,7 @@ public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
       i+=2;
     }
 
-    descriptor = new ParserDescription("enum", "This parameter can only contains these values", values);
+    descriptionBuilder = new DescriptionBuilder("enum", "This parameter can only contains these values", values);
   }
 
   public EnumParser(EnumParser<T> parser) {

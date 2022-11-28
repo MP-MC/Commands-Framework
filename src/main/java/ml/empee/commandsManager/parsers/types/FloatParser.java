@@ -4,8 +4,8 @@ import org.bukkit.command.CommandException;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.parsers.ParserDescription;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -24,7 +24,7 @@ public class FloatParser extends ParameterParser<Float> {
     this.min = min;
     this.max = max;
 
-    descriptor = new ParserDescription("float", "This parameter can only contain a decimal number", new String[] {
+    descriptionBuilder = new DescriptionBuilder("float", "This parameter can only contain a decimal number", new String[] {
         "Min: ", (min <= -Float.MAX_VALUE ? min + "" : "-∞"),
         "Max: ", (max >= Float.MAX_VALUE ? max + "" : "+∞"),
         "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)

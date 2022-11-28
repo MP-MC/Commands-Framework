@@ -24,26 +24,30 @@ public class IntractableHelpMenu implements HelpMenu {
   private final BaseComponent[] body;
   private final String[] legacyBody;
 
-  private final String legacyFooter;
+  private final String footerTemplate;
 
 
   private static BaseComponent[] fromLegacy(String legacy) {
     return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', legacy));
   }
 
+  private static String toLegacy(BaseComponent... components) {
+    return ChatColor.stripColor(BaseComponent.toLegacyText(components));
+  }
+
   public IntractableHelpMenu(String title, CommandNode root) {
     header = fromLegacy(" &eInteractive Menu  &7-  &6" + title + "\n");
-    legacyHeader = BaseComponent.toLegacyText(header);
+    legacyHeader = toLegacy(header);
 
     body = buildNodeEntries(root);
     totalPages = (int) Math.ceil((double) body.length / HELP_PAGE_ROWS);
 
     legacyBody = new String[body.length];
     for (int i = 0; i < body.length; i++) {
-      legacyBody[i] = BaseComponent.toLegacyText(body[i]);
+      legacyBody[i] = toLegacy(body[i]);
     }
 
-    legacyFooter = ChatColor.translateAlternateColorCodes('&', "\n &7Page &e%page_number% &7of &e" + totalPages);
+    footerTemplate = ChatColor.translateAlternateColorCodes('&', "\n &7Page &e%page_number% &7of &e" + totalPages);
   }
 
   private BaseComponent[] buildNodeEntries(CommandNode root) {
@@ -116,7 +120,7 @@ public class IntractableHelpMenu implements HelpMenu {
         player.spigot().sendMessage(body[i]);
       }
 
-      player.spigot().sendMessage(fromLegacy(legacyFooter.replace("%page_number%", page.toString())));
+      player.spigot().sendMessage(fromLegacy(footerTemplate.replace("%page_number%", page.toString())));
     } else {
       target.sendMessage(legacyHeader);
 

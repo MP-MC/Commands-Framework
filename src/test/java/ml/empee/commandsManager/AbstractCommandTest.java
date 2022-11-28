@@ -20,22 +20,27 @@ public abstract class AbstractCommandTest {
   protected CommandManager commandManager;
   protected Queue<String> senderReceivedMessage = new LinkedList<>();
   protected CommandSender sender = Mockito.mock(Player.class);
+  protected CommandSender consoleSender = Mockito.mock(CommandSender.class);
 
   @BeforeEach
   public void setUp() {
-    Mockito.when(plugin.getLogger()).thenReturn(log);
-
     senderReceivedMessage.clear();
-    commandManager = new CommandManager(plugin);
+    commandManager = new CommandManager(plugin, log);
 
     sender = Mockito.mock(Player.class);
     when(sender.getName()).thenReturn("MockedPlayer");
     when(sender.hasPermission(Mockito.anyString())).thenReturn(true);
+    when(consoleSender.hasPermission(Mockito.anyString())).thenReturn(true);
 
     doAnswer((invocation) -> {
       log.info(invocation.getArguments()[0].toString());
       return senderReceivedMessage.add(invocation.getArguments()[0].toString());
     }).when(sender).sendMessage(Mockito.anyString());
+
+    doAnswer((invocation) -> {
+      log.info(invocation.getArguments()[0].toString());
+      return senderReceivedMessage.add(invocation.getArguments()[0].toString());
+    }).when(consoleSender).sendMessage(Mockito.anyString());
   }
 
 }

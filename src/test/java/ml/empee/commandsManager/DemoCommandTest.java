@@ -31,8 +31,12 @@ class DemoCommandTest extends AbstractCommandTest {
     pluginCommand = demoCommand.build(commandManager);
   }
 
-  private void executeCommand(String... args) {
+  private void executeCommand(CommandSender sender, String... args) {
     demoCommand.onCommand(sender, pluginCommand, "demo", args);
+  }
+
+  private void executeCommand(String... args) {
+    executeCommand(sender, args);
   }
 
   @Test
@@ -71,7 +75,7 @@ class DemoCommandTest extends AbstractCommandTest {
         senderReceivedMessage.poll()
     );
 
-    executeCommand("teleport", "10", "260", "10" );
+    executeCommand("teleport", "10", "260", "10");
     assertEquals(
         "§4§l > §cThe value must be lower then §e255.0§c but it's value is §e260.0",
         senderReceivedMessage.poll()
@@ -86,6 +90,11 @@ class DemoCommandTest extends AbstractCommandTest {
 
     executeCommand("world", "label2", "test");
     assertEquals("Second space label, with arg: test", senderReceivedMessage.poll());
+  }
+
+  @Test
+  void testHelpMenu() {
+    executeCommand(consoleSender, "help");
   }
 
   @CommandRoot(label = "demo")

@@ -24,8 +24,8 @@ import ml.empee.commandsManager.helpers.CommandMap;
 import ml.empee.commandsManager.helpers.PluginCommand;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
-import ml.empee.commandsManager.services.helpMenu.AdventureHelpMenu;
-import ml.empee.commandsManager.services.helpMenu.HelpMenuGenerator;
+import ml.empee.commandsManager.services.generators.HelpMenu;
+import ml.empee.commandsManager.services.generators.IntractableHelpMenu;
 import ml.empee.commandsManager.utils.Tuple;
 
 public abstract class Command implements CommandExecutor {
@@ -43,7 +43,7 @@ public abstract class Command implements CommandExecutor {
   private Logger logger;
 
   private final HashMap<CommandSender, CommandContext> contextHashMap = new HashMap<>();
-  private HelpMenuGenerator helpMenuGenerator;
+  private HelpMenu helpMenu;
   private Listener[] listeners = new Listener[0];
 
   public static void setPrefix(String prefix) {
@@ -77,9 +77,9 @@ public abstract class Command implements CommandExecutor {
 
       if ("help".equalsIgnoreCase(args[0])) {
         if (args.length > 1) {
-          helpMenuGenerator.sendHelpMenu(sender, IntegerParser.DEFAULT.parse(args[1]));
+          helpMenu.sendHelpMenu(sender, IntegerParser.DEFAULT.parse(args[1]));
         } else {
-          helpMenuGenerator.sendHelpMenu(sender, 0);
+          helpMenu.sendHelpMenu(sender, 1);
         }
         return true;
       }
@@ -214,11 +214,13 @@ public abstract class Command implements CommandExecutor {
     pluginCommand = PluginCommand.buildFromCommandRoot(rootAnnotation, commandManager.getPlugin());
     pluginCommand.setExecutor(this);
 
-    if (commandManager.getAdventure() != null) {
-      helpMenuGenerator = new AdventureHelpMenu(commandManager.getAdventure(), rootNode);
-    }
+    helpMenu = getHelpMenu();
 
     return pluginCommand;
+  }
+
+  protected HelpMenu getHelpMenu() {
+    return new IntractableHelpMenu(pluginCommand.getPlugin().getName(), rootNode);
   }
 
   private Method getRootMethod(CommandRoot commandRoot) {

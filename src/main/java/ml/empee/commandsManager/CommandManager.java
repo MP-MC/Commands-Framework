@@ -41,7 +41,6 @@ import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
 import ml.empee.commandsManager.services.completion.CommodoreCompletionService;
 import ml.empee.commandsManager.services.completion.CompletionService;
 import ml.empee.commandsManager.services.completion.DefaultCompletionService;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
 /**
  * This class provides an entry point for accessing the framework
@@ -56,12 +55,10 @@ public final class CommandManager {
   final JavaPlugin plugin;
   @Getter
   private final ParserManager parserManager;
-  @Getter
-  private BukkitAudiences adventure;
 
-  public CommandManager(@NonNull JavaPlugin plugin) {
+  public CommandManager(@NonNull JavaPlugin plugin, Logger logger) {
     this.plugin = plugin;
-    this.logger = plugin.getLogger();
+    this.logger = logger;
 
     this.parserManager = new ParserManager();
     registerDefaultParsers();
@@ -69,9 +66,8 @@ public final class CommandManager {
     setupCompletionService();
   }
 
-  public CommandManager(@NonNull JavaPlugin plugin, BukkitAudiences bukkitAudiences) {
-    this(plugin);
-    this.adventure = bukkitAudiences;
+  public CommandManager(@NonNull JavaPlugin plugin) {
+    this(plugin, plugin.getLogger());
   }
 
   private void registerDefaultParsers() {

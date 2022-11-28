@@ -1,8 +1,8 @@
-package ml.empee.commandsManager.services.helpMenu;
+package ml.empee.commandsManager.services.generators;
 
 import org.bukkit.command.CommandSender;
 
-public interface HelpMenuGenerator {
+public interface HelpMenu {
   String INVALID_PAGE_ERROR = "The page number is invalid";
   int HELP_PAGE_ROWS = 5;
 

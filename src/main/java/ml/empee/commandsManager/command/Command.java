@@ -30,7 +30,7 @@ import ml.empee.commandsManager.utils.Tuple;
 
 public abstract class Command implements CommandExecutor {
 
-  private static String prefix = "&4&l > &c";
+  private static String prefix = "&4&l > ";
   protected static String malformedCommandMSG = "The command is missing arguments, check the help menu";
   protected static String missingPermissionsMSG = "You haven't enough permissions";
   protected static String runtimeErrorMSG = "Error while executing the command";
@@ -95,7 +95,7 @@ public abstract class Command implements CommandExecutor {
         parseParametersAndExecuteNode(new CommandContext(sender), rootNode, args, 0);
       }
     } catch (CommandException exception) {
-      sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + exception.getMessage()));
+      sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&c" + exception.getMessage()));
 
       Throwable cause = exception.getCause();
       if (cause != null) {

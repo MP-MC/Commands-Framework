@@ -1,8 +1,8 @@
 package ml.empee.commandsManager.parsers;
 
-import org.bukkit.ChatColor;
-
 import lombok.Getter;
+import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.ChatColor;
 
 /**
  * The description of a parser <br><br>
@@ -16,19 +16,18 @@ public class DescriptionBuilder {
   @Getter
   protected String description;
 
-  public DescriptionBuilder(String fallbackLabel, String rawDesc, String[] requirements) {
+  @SafeVarargs
+  public DescriptionBuilder(String fallbackLabel, String rawDesc, Tuple<String, String>... requirements) {
     this.fallbackLabel = fallbackLabel;
 
     StringBuilder description = new StringBuilder("\n&3" + rawDesc + "\n");
 
     if (requirements != null) {
       description.append("\n");
-      if (requirements.length % 2 != 0) {
-        throw new IllegalArgumentException("The requirements array must be even");
-      }
 
-      for (int i = 0; i < requirements.length; i += 2) {
-        description.append("&e").append(requirements[i]).append("&d").append(requirements[i + 1]).append("\n");
+      for (Tuple<String, String> requirement : requirements) {
+        description.append("&e").append(requirement.getFirst()).append("&d")
+            .append(requirement.getSecond()).append("\n");
       }
     }
 

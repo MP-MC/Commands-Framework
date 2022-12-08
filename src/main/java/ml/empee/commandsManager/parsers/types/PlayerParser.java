@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
+import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import ml.empee.commandsManager.parsers.DescriptionBuilder;
-import ml.empee.commandsManager.parsers.ParameterParser;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -28,17 +27,21 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     super(label, defaultValue);
 
     this.onlyOnline = onlyOnline;
-    descriptionBuilder = new DescriptionBuilder("player", "This parameter can only contain a player's name or his UUID",
-        new String[] {
-            "Requires online: ", onlyOnline.toString(),
-            "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-        });
   }
 
   protected PlayerParser(PlayerParser parser) {
     super(parser);
 
     this.onlyOnline = parser.onlyOnline;
+  }
+
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("player",
+        "This parameter can only contain a player's name or his UUID",
+        Tuple.of("Requires online: ", onlyOnline ? "yes" : "no"),
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().getName()))
+    );
   }
 
   @Override
@@ -61,7 +64,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
   }
 
   @Override
-  public List<String> getSuggestions(CommandSender source, String arg) {
+  public List<String> buildSuggestions(CommandSender source, String arg) {
     List<String> suggestions;
 
     if (source instanceof Player) {

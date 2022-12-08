@@ -7,21 +7,19 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.bukkit.command.CommandSender;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.command.CommandSender;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 public abstract class ParameterParser<T> {
 
-  protected DescriptionBuilder descriptionBuilder = new DescriptionBuilder("value", "This is a default description message", null);
+  private final T defaultValue;
+
+  @Setter
   private String label;
-  private T defaultValue;
 
   protected ParameterParser(String label, String defaultValue) {
     this.label = label;
@@ -33,25 +31,30 @@ public abstract class ParameterParser<T> {
   }
 
   protected ParameterParser(ParameterParser<T> parser) {
-    this.descriptionBuilder = parser.descriptionBuilder;
     this.label = parser.label;
     this.defaultValue = parser.defaultValue;
   }
 
-  public T parse(String... args) {
+  protected Class<?>[] getNeededParsers() {
+    return new Class[0];
+  }
+
+  public abstract DescriptionBuilder getDescriptionBuilder();
+
+  public final T parse(String... args) {
     return parse(0, args);
   }
 
   public abstract T parse(int offset, String... args);
 
-  public List<String> getSuggestions(CommandSender source, int offset, String[] args) {
-    List<String> suggestions = getSuggestions(source, args[offset]);
+  public final List<String> getSuggestions(CommandSender source, int offset, String[] args) {
+    List<String> suggestions = buildSuggestions(source, offset, args);
 
     if (suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
       String arg = args[offset].toUpperCase(Locale.ROOT);
       List<String> matchedSuggestions = new ArrayList<>();
       for (String suggestion : suggestions) {
-        if (suggestion.toUpperCase(Locale.ROOT).startsWith(arg)) {
+        if (suggestion.toUpperCase().startsWith(arg)) {
           matchedSuggestions.add(suggestion);
         }
       }
@@ -62,12 +65,12 @@ public abstract class ParameterParser<T> {
     return suggestions;
   }
 
-  public List<String> getSuggestions(CommandSender source, String arg) {
-    return new ArrayList<>();
+  protected List<String> buildSuggestions(CommandSender source, int offset, String[] args) {
+    return buildSuggestions(source, args[offset]);
   }
 
-  public final T parseDefaultValue() {
-    return defaultValue;
+  protected List<String> buildSuggestions(CommandSender source, String arg) {
+    return new ArrayList<>();
   }
 
   public final boolean isOptional() {
@@ -75,7 +78,7 @@ public abstract class ParameterParser<T> {
   }
 
   /**
-   * @return an parser deep copy
+   * @return a parser deep copy
    */
   public abstract ParameterParser<T> copyParser();
 

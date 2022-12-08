@@ -1,11 +1,11 @@
 package ml.empee.commandsManager.parsers.types;
 
-import org.bukkit.command.CommandException;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.command.CommandException;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -23,18 +23,21 @@ public class FloatParser extends ParameterParser<Float> {
 
     this.min = min;
     this.max = max;
-
-    descriptionBuilder = new DescriptionBuilder("float", "This parameter can only contain a decimal number", new String[] {
-        "Min: ", (min <= -Float.MAX_VALUE ? min + "" : "-∞"),
-        "Max: ", (max >= Float.MAX_VALUE ? max + "" : "+∞"),
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
   }
 
   protected FloatParser(FloatParser parser) {
     super(parser);
     this.min = parser.min;
     this.max = parser.max;
+  }
+
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("float", "This parameter can only contain a decimal number",
+        Tuple.of("Min: ", (min <= -Float.MAX_VALUE ? min + "" : "-∞")),
+        Tuple.of("Max: ", (max >= Float.MAX_VALUE ? max + "" : "+∞")),
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+    );
   }
 
   @Override

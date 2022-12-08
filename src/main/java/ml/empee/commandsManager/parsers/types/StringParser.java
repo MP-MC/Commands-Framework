@@ -3,6 +3,7 @@ package ml.empee.commandsManager.parsers.types;
 import lombok.EqualsAndHashCode;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
 
 @EqualsAndHashCode(callSuper = true)
 public class StringParser extends ParameterParser<String> {
@@ -11,10 +12,13 @@ public class StringParser extends ParameterParser<String> {
 
   public StringParser(String label, String defaultValue) {
     super(label, defaultValue);
+  }
 
-    descriptionBuilder = new DescriptionBuilder("string", "This parameter can only contain string value", new String[] {
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("string", "This parameter can only contain string value",
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue()))
+    );
   }
 
   protected StringParser(StringParser parser) {

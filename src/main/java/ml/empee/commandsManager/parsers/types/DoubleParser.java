@@ -1,11 +1,11 @@
 package ml.empee.commandsManager.parsers.types;
 
-import org.bukkit.command.CommandException;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.command.CommandException;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -23,18 +23,21 @@ public class DoubleParser extends ParameterParser<Double> {
 
     this.min = min;
     this.max = max;
-
-    descriptionBuilder = new DescriptionBuilder("double", "This parameter can only contain a decimal number", new String[] {
-        "Min: ", (min <= -Double.MAX_VALUE ? min + "" : "-∞"),
-        "Max: ", (max >= Double.MAX_VALUE ? max + "" : "+∞"),
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
   }
 
   protected DoubleParser(DoubleParser parser) {
     super(parser);
     this.min = parser.min;
     this.max = parser.max;
+  }
+
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("double", "This parameter can only contain a decimal number",
+        Tuple.of("Min: ", (min <= -Double.MAX_VALUE ? min + "" : "-∞")),
+        Tuple.of("Max: ", (max >= Double.MAX_VALUE ? max + "" : "+∞")),
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+    );
   }
 
   @Override

@@ -3,18 +3,17 @@ package ml.empee.commandsManager.services.generators;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import ml.empee.commandsManager.command.CommandNode;
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class IntractableHelpMenu implements HelpMenu {
 
@@ -89,8 +88,10 @@ public class IntractableHelpMenu implements HelpMenu {
   private void addParameters(BaseComponent entry, CommandNode node) {
     for (ParameterParser<?> parameterParser : node.getParameterParsers()) {
       String parameterLabel = parameterParser.getLabel();
+      DescriptionBuilder descriptionBuilder = parameterParser.getDescriptionBuilder();
+
       if (parameterLabel.isEmpty()) {
-        parameterLabel = parameterParser.getDescriptionBuilder().getFallbackLabel();
+        parameterLabel = descriptionBuilder.getFallbackLabel();
       }
 
       TextComponent parameterLabelComponent = new TextComponent("<" + parameterLabel + "> ");
@@ -98,7 +99,7 @@ public class IntractableHelpMenu implements HelpMenu {
       parameterLabelComponent.setHoverEvent(
           new HoverEvent(
               HoverEvent.Action.SHOW_TEXT,
-              fromLegacy(parameterParser.getDescriptionBuilder().getDescription())
+              fromLegacy(descriptionBuilder.getDescription())
           )
       );
 

@@ -3,17 +3,20 @@ package ml.empee.commandsManager.parsers.types.greedy;
 import lombok.EqualsAndHashCode;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
 
 @EqualsAndHashCode(callSuper = true)
 public class MsgParser extends ParameterParser<String> implements GreedyParser {
 
   public MsgParser(String label, String defaultValue) {
     super(label, defaultValue);
+  }
 
-    descriptionBuilder = new DescriptionBuilder("message", "This parameter can only contain a string value with spaces",
-        new String[] {
-            "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-        });
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return  new DescriptionBuilder("message", "This parameter can only contain a string value with spaces",
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue()))
+    );
   }
 
   protected MsgParser(MsgParser parser) {

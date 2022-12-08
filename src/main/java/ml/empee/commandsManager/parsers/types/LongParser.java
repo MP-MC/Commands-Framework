@@ -1,11 +1,11 @@
 package ml.empee.commandsManager.parsers.types;
 
-import org.bukkit.command.CommandException;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.command.CommandException;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -21,18 +21,21 @@ public class LongParser extends ParameterParser<Long> {
 
     this.min = min;
     this.max = max;
-
-    descriptionBuilder = new DescriptionBuilder("long", "This parameter can only contain an integer", new String[] {
-        "Min: ", (min != Long.MIN_VALUE ? min + "" : "-∞"),
-        "Max: ", (max != Long.MAX_VALUE ? max + "" : "+∞"),
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
   }
 
   protected LongParser(LongParser parser) {
     super(parser);
     this.min = parser.min;
     this.max = parser.max;
+  }
+
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("long", "This parameter can only contain an integer",
+        Tuple.of("Min: ", (min != Long.MIN_VALUE ? min + "" : "-∞")),
+        Tuple.of("Max: ", (max != Long.MAX_VALUE ? max + "" : "+∞")),
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+    );
   }
 
   @Override

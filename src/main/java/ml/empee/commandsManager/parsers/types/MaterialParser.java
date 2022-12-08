@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
+import ml.empee.commandsManager.parsers.DescriptionBuilder;
+import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.Material;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
-
-import ml.empee.commandsManager.parsers.DescriptionBuilder;
-import ml.empee.commandsManager.parsers.ParameterParser;
 
 public class MaterialParser extends ParameterParser<Material> {
 
@@ -26,10 +25,13 @@ public class MaterialParser extends ParameterParser<Material> {
 
   protected MaterialParser(String label, String defaultValue) {
     super(label, defaultValue);
+  }
 
-    descriptionBuilder = new DescriptionBuilder("material", "This parameter can only contain a material name", new String[] {
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder("material", "This parameter can only contain a material name",
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().name()))
+    );
   }
 
   protected MaterialParser(MaterialParser parser) {
@@ -47,7 +49,7 @@ public class MaterialParser extends ParameterParser<Material> {
   }
 
   @Override
-  public List<String> getSuggestions(CommandSender source, String arg) {
+  public List<String> buildSuggestions(CommandSender source, String arg) {
     return MATERIALS;
   }
 

@@ -4,14 +4,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-
 import lombok.EqualsAndHashCode;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
 
 @EqualsAndHashCode(callSuper = true)
 public class ColorParser extends ParameterParser<ChatColor> {
@@ -42,14 +41,18 @@ public class ColorParser extends ParameterParser<ChatColor> {
 
   public ColorParser(String label, String defaultValue) {
     super(label, defaultValue);
-
-    descriptionBuilder = new DescriptionBuilder("color", "This parameter can only contain a valid color", new String[] {
-        "Default value: ", (defaultValue.isEmpty() ? "none" : defaultValue)
-    });
   }
 
   protected ColorParser(ColorParser parser) {
     super(parser);
+  }
+
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    return new DescriptionBuilder(
+        "color", "This parameter can only contain a valid color",
+        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().getName()))
+    );
   }
 
   @Override
@@ -71,7 +74,7 @@ public class ColorParser extends ParameterParser<ChatColor> {
   }
 
   @Override
-  public List<String> getSuggestions(CommandSender source, String arg) {
+  public List<String> buildSuggestions(CommandSender source, String arg) {
     return COLORS;
   }
 

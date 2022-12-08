@@ -8,15 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import lombok.Getter;
 import ml.empee.commandsManager.CommandManager;
 import ml.empee.commandsManager.command.annotations.CommandRoot;
@@ -27,6 +18,13 @@ import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.services.generators.HelpMenu;
 import ml.empee.commandsManager.services.generators.IntractableHelpMenu;
 import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Command implements CommandExecutor {
 
@@ -114,8 +112,9 @@ public abstract class Command implements CommandExecutor {
     return true;
   }
 
-  private void parseParametersAndExecuteNode(CommandContext context, CommandNode node, String[] args, int offset)
-      throws CommandException {
+  private void parseParametersAndExecuteNode(
+      CommandContext context, CommandNode node, String[] args, int offset
+  ) throws CommandException {
     if (node == null) {
       throw new CommandException(malformedCommandMSG);
     } else {
@@ -182,12 +181,12 @@ public abstract class Command implements CommandExecutor {
     for (ParameterParser<?> parser : parsers) {
       if (offset >= args.length) {
         if (parser.isOptional()) {
-          arguments.add(new Tuple<>(parser.getLabel(), parser.parseDefaultValue()));
+          arguments.add(Tuple.of(parser.getLabel(), parser.getDefaultValue()));
         } else {
           throw new CommandException(malformedCommandMSG);
         }
       } else {
-        arguments.add(new Tuple<>(parser.getLabel(), parser.parse(offset, args)));
+        arguments.add(Tuple.of(parser.getLabel(), parser.parse(offset, args)));
       }
       offset += 1;
     }

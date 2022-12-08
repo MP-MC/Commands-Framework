@@ -2,18 +2,17 @@ package ml.empee.commandsManager.command;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Nullable;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import ml.empee.commandsManager.command.annotations.CommandRoot;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public final class CommandNode {
@@ -139,20 +138,39 @@ public final class CommandNode {
       ParameterParser<?> type = parserManager.getParameterParser(rawParameters[i]);
       Objects.requireNonNull(type, "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
 
+      if(parsers[i - 1].getNeededParsers().length != 0) {
+        checkNeededParsers(i, parsers);
+      }
+
       if (i != 1 && parsers[i - 2] instanceof GreedyParser) {
-        throw new IllegalArgumentException(
-            "You can't have a parameter after a greedy parameter inside the node " + label);
+        throw new IllegalArgumentException("You can't have a parameter after a greedy parameter inside the node " + label);
       }
 
       if (i != 1 && !type.isOptional() && parsers[i - 2].isOptional()) {
-        throw new IllegalArgumentException(
-            "You can't have a required argument after a optional one inside the node " + label);
+        throw new IllegalArgumentException("You can't have a required argument after a optional one inside the node " + label);
       }
 
       parsers[i - 1] = type;
     }
 
     return parsers;
+  }
+
+  private void checkNeededParsers(int offset, ParameterParser<?>[] parsers) {
+    int k = 0;
+    boolean hasAllNeededParsers = true;
+    Class<?>[] neededParsers = parsers[offset - 1].getNeededParsers();
+    for(int j=offset-1; j>1; j--) {
+      if(parsers[j].getClass() != neededParsers[k]) {
+        hasAllNeededParsers = false;
+        break;
+      }
+      k++;
+    }
+
+    if(offset == 1 || !hasAllNeededParsers) {
+      throw new IllegalArgumentException("The parser " + parsers[offset].getLabel() + " of the method " + executor.getName() + " needs the following parsers: " + Arrays.toString(neededParsers));
+    }
   }
 
   @Nullable

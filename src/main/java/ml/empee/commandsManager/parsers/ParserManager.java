@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import lombok.SneakyThrows;
 import ml.empee.commandsManager.parsers.types.EnumParser;
+import ml.empee.commandsManager.parsers.types.annotations.EnumParam;
 
 public final class ParserManager {
 
@@ -32,7 +32,7 @@ public final class ParserManager {
   public ParameterParser<Object> getParameterParser(Parameter parameter) {
     ParameterParser<?> parser = null;
     for (Annotation annotation : parameter.getAnnotations()) {
-      parser = buildParameterParser(annotation);
+      parser = buildParameterParser(parameter, annotation);
       if (parser != null) {
         break;
       }
@@ -44,7 +44,7 @@ public final class ParserManager {
 
 
     if(parser == null && parameter.getType().isEnum()) {
-      parser = new EnumParser<>((Class<Enum>) parameter.getType());
+      parser = new EnumParser<>("", "", (Class<Enum>) parameter.getType());
     }
 
     if(parser != null && (parser.getLabel() == null || parser.getLabel().isEmpty()) && parameter.isNamePresent()) {
@@ -55,7 +55,7 @@ public final class ParserManager {
   }
 
   @SneakyThrows
-  private Object[] extractParserConstructorArguments(Annotation annotation) {
+  private ArrayList<Object> extractParserConstructorArguments(Annotation annotation) {
     ArrayList<Object> params = new ArrayList<>();
     for (Method method : annotation.annotationType().getMethods()) {
       ParameterParser.Property property = method.getAnnotation(ParameterParser.Property.class);
@@ -72,24 +72,27 @@ public final class ParserManager {
       }
     }
 
-    return params.toArray();
+    return params;
   }
 
-  private ParameterParser<?> buildParameterParser(Annotation annotation) {
+  private ParameterParser<?> buildParameterParser(Parameter parameter, Annotation annotation) {
     if (!isParserRegistered(annotation.annotationType())) {
       return null;
     }
 
     Class<? extends Annotation> identifier = annotation.annotationType();
-    Object[] params = extractParserConstructorArguments(annotation);
+    ArrayList<Object> params = extractParserConstructorArguments(annotation);
+    if(annotation.annotationType().equals(EnumParam.class)) {
+        params.add(parameter.getType());
+    }
 
     try {
-      Class<?>[] paramsType = new Class<?>[params.length];
+      Class<?>[] paramsType = new Class<?>[params.size()];
       for (int i = 0; i < paramsType.length; i++) {
-        paramsType[i] = params[i].getClass();
+        paramsType[i] = params.get(i).getClass();
       }
 
-      return getParserClass(identifier).getConstructor(paramsType).newInstance(params);
+      return getParserClass(identifier).getConstructor(paramsType).newInstance(params.toArray());
     } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
       throw new IllegalStateException("The parameter " + identifier.getName() + " is missing the default constructor", e);
     }

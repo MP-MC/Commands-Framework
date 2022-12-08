@@ -35,7 +35,7 @@ public abstract class ParameterParser<T> {
     this.defaultValue = parser.defaultValue;
   }
 
-  protected Class<?>[] getNeededParsers() {
+  public Class<?>[] getNeededParsers() {
     return new Class[0];
   }
 

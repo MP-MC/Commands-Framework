@@ -1,16 +1,17 @@
 package ml.empee.commandsManager.parsers.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
+import ml.empee.commandsManager.utils.Tuple;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -19,23 +20,11 @@ public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
   private final Class<T> enumType;
   private final List<String> suggestions;
 
-  //TODO Annotation constructor
-  public EnumParser(Class<T> enumType) {
-    super("", "");
+  public EnumParser(String label, String defaultValue, Class<T> enumType) {
+    super(label, defaultValue);
 
+    this.suggestions = Arrays.stream(enumType.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
     this.enumType = enumType;
-
-    int i = 0;
-    suggestions = new ArrayList<>();
-    String[] values = new String[enumType.getEnumConstants().length * 2];
-    for(T value : enumType.getEnumConstants()) {
-      values[i] = "- ";
-      values[i+1] = value.name();
-      suggestions.add(value.name());
-      i+=2;
-    }
-
-    descriptionBuilder = new DescriptionBuilder("enum", "This parameter can only contains these values", values);
   }
 
   public EnumParser(EnumParser<T> parser) {
@@ -46,10 +35,21 @@ public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
   }
 
   @Override
-  public List<String> getSuggestions(CommandSender source, String arg) {
+  public List<String> buildSuggestions(CommandSender source, String arg) {
     return suggestions;
   }
 
+  @Override
+  public DescriptionBuilder getDescriptionBuilder() {
+    ArrayList<Tuple<String, String>> tuples = new ArrayList<>();
+    for(T value : enumType.getEnumConstants()) {
+      tuples.add(Tuple.of("- ", value.name()));
+    }
+
+    return new DescriptionBuilder(
+        "enum", "This parameter can only contains these values", tuples.toArray(new Tuple[0])
+    );
+  }
 
   @Override
   public T parse(int offset, String... args) {

@@ -138,10 +138,6 @@ public final class CommandNode {
       ParameterParser<?> type = parserManager.getParameterParser(rawParameters[i]);
       Objects.requireNonNull(type, "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
 
-      if(parsers[i - 1].getNeededParsers().length != 0) {
-        checkNeededParsers(i, parsers);
-      }
-
       if (i != 1 && parsers[i - 2] instanceof GreedyParser) {
         throw new IllegalArgumentException("You can't have a parameter after a greedy parameter inside the node " + label);
       }
@@ -151,6 +147,10 @@ public final class CommandNode {
       }
 
       parsers[i - 1] = type;
+
+      if(parsers[i - 1].getNeededParsers().length != 0) {
+        checkNeededParsers(i, parsers);
+      }
     }
 
     return parsers;
@@ -169,7 +169,7 @@ public final class CommandNode {
     }
 
     if(offset == 1 || !hasAllNeededParsers) {
-      throw new IllegalArgumentException("The parser " + parsers[offset].getLabel() + " of the method " + executor.getName() + " needs the following parsers: " + Arrays.toString(neededParsers));
+      throw new IllegalArgumentException("The parser " + parsers[offset-1].getLabel() + " of the method " + executor.getName() + " needs the following parsers: " + Arrays.toString(neededParsers));
     }
   }
 

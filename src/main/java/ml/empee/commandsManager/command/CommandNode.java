@@ -1,12 +1,14 @@
 package ml.empee.commandsManager.command;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
-import ml.empee.commandsManager.command.annotations.CommandRoot;
+import ml.empee.commandsManager.command.annotations.CmdNode;
+import ml.empee.commandsManager.command.annotations.CmdRoot;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
@@ -34,12 +36,12 @@ public final class CommandNode {
     this(null, executor, target, parserManager);
   }
 
-  CommandNode(CommandRoot commandRoot, Class<? extends Command> target, ParserManager parserManager) {
+  CommandNode(CmdRoot cmdRoot, Class<? extends Command> target, ParserManager parserManager) {
     this.executor = null;
-    this.label = commandRoot.label();
-    this.id = commandRoot.label();
-    this.permission = commandRoot.permission();
-    this.description = commandRoot.description();
+    this.label = cmdRoot.label();
+    this.id = cmdRoot.label();
+    this.permission = cmdRoot.permission();
+    this.description = cmdRoot.description();
     this.executable = false;
     this.senderType = CommandSender.class;
     this.parameterParsers = new ParameterParser<?>[0];
@@ -52,9 +54,10 @@ public final class CommandNode {
   CommandNode(CommandNode parent, Method executor, Class<? extends Command> target, ParserManager parserManager) {
     this.executor = executor;
 
-    ml.empee.commandsManager.command.annotations.CommandNode annotation = executor.getAnnotation(
-        ml.empee.commandsManager.command.annotations.CommandNode.class);
-    Objects.requireNonNull(annotation, "Can't find the commandNode annotation of " + executor.getName());
+    CmdNode annotation = executor.getAnnotation(
+        CmdNode.class);
+    Objects.requireNonNull(annotation,
+        "Can't find the commandNode annotation of " + executor.getName());
 
     this.label = annotation.label();
     if (parent == null) {
@@ -80,14 +83,14 @@ public final class CommandNode {
 
       if (lastParser instanceof GreedyParser) {
         throw new IllegalArgumentException(
-            "You can't have children inside the node " + label + ", his last parameter is a greedy one!");
+            "You can't have children inside the node " + label +
+                ", his last parameter is a greedy one!");
       } else if (lastParser.isOptional()) {
         throw new IllegalArgumentException(
             "You can't have a children after a optional argument inside the node " + label);
       }
     }
   }
-
   private void checkForChildrenConflicts() {
 
     for (CommandNode child : children) {
@@ -96,14 +99,33 @@ public final class CommandNode {
 
         if (
             child != comparison
-            &&
-            ( childLabel.equals(comparison.getLabel()) || child.getLabel().equals(comparison.getLabel()) )
+                &&
+                (childLabel.equals(comparison.getLabel()) ||
+                    child.getLabel().equals(comparison.getLabel()))
         ) {
           throw new IllegalArgumentException(
               "You can't have two children with the same label inside the node " + this.label);
         }
 
       }
+    }
+  }
+  private void checkNeededParsers(int offset, ParameterParser<?>[] parsers) {
+    int k = 0;
+    boolean hasAllNeededParsers = true;
+    Class<?>[] neededParsers = parsers[offset - 1].getNeededParsers();
+    for (int j = offset - 1; j > 1; j--) {
+      if (parsers[j].getClass() != neededParsers[k]) {
+        hasAllNeededParsers = false;
+        break;
+      }
+      k++;
+    }
+
+    if (offset == 1 || !hasAllNeededParsers) {
+      throw new IllegalArgumentException(
+          "The parser " + parsers[offset - 1].getLabel() + " of the method " + executor.getName() +
+              " needs the following parsers: " + Arrays.toString(neededParsers));
     }
   }
 
@@ -118,59 +140,6 @@ public final class CommandNode {
         .append("\n");
 
     return result.toString();
-  }
-
-  @SuppressWarnings("unchecked")
-  private Class<? extends CommandSender> findSenderType() {
-    java.lang.reflect.Parameter[] rawParameters = executor.getParameters();
-    if (rawParameters.length == 0 || !CommandSender.class.isAssignableFrom(rawParameters[0].getType())) {
-      throw new IllegalArgumentException("Missing command sender parameter from " + label);
-    }
-
-    return (Class<? extends CommandSender>) rawParameters[0].getType();
-  }
-
-  private ParameterParser<?>[] getParameterParsers(ParserManager parserManager) {
-    java.lang.reflect.Parameter[] rawParameters = executor.getParameters();
-    ParameterParser<?>[] parsers = new ParameterParser<?>[rawParameters.length - 1];
-
-    for (int i = 1; i < rawParameters.length; i++) {
-      ParameterParser<?> type = parserManager.getParameterParser(rawParameters[i]);
-      Objects.requireNonNull(type, "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
-
-      if (i != 1 && parsers[i - 2] instanceof GreedyParser) {
-        throw new IllegalArgumentException("You can't have a parameter after a greedy parameter inside the node " + label);
-      }
-
-      if (i != 1 && !type.isOptional() && parsers[i - 2].isOptional()) {
-        throw new IllegalArgumentException("You can't have a required argument after a optional one inside the node " + label);
-      }
-
-      parsers[i - 1] = type;
-
-      if(parsers[i - 1].getNeededParsers().length != 0) {
-        checkNeededParsers(i, parsers);
-      }
-    }
-
-    return parsers;
-  }
-
-  private void checkNeededParsers(int offset, ParameterParser<?>[] parsers) {
-    int k = 0;
-    boolean hasAllNeededParsers = true;
-    Class<?>[] neededParsers = parsers[offset - 1].getNeededParsers();
-    for(int j=offset-1; j>1; j--) {
-      if(parsers[j].getClass() != neededParsers[k]) {
-        hasAllNeededParsers = false;
-        break;
-      }
-      k++;
-    }
-
-    if(offset == 1 || !hasAllNeededParsers) {
-      throw new IllegalArgumentException("The parser " + parsers[offset-1].getLabel() + " of the method " + executor.getName() + " needs the following parsers: " + Arrays.toString(neededParsers));
-    }
   }
 
   @Nullable
@@ -196,27 +165,56 @@ public final class CommandNode {
 
     return null;
   }
+  private Class<? extends CommandSender> findSenderType() {
+    Parameter[] rawParameters = executor.getParameters();
+    if (rawParameters.length == 0 || !CommandSender.class.isAssignableFrom(rawParameters[0].getType())) {
+      throw new IllegalArgumentException("Missing command sender parameter from " + label);
+    }
 
-  @SuppressWarnings("unchecked")
+    return (Class<? extends CommandSender>) rawParameters[0].getType();
+  }
+
+  private ParameterParser<?>[] getParameterParsers(ParserManager parserManager) {
+    java.lang.reflect.Parameter[] rawParameters = executor.getParameters();
+    ParameterParser<?>[] parsers = new ParameterParser<?>[rawParameters.length - 1];
+
+    for (int i = 1; i < rawParameters.length; i++) {
+      ParameterParser<?> type = parserManager.getParameterParser(rawParameters[i]);
+      Objects.requireNonNull(type,
+          "Can't find a parser for the parameter type " + rawParameters[i].getType().getName());
+
+      if (i != 1 && parsers[i - 2] instanceof GreedyParser) {
+        throw new IllegalArgumentException(
+            "You can't have a parameter after a greedy parameter inside the node " + label);
+      }
+
+      if (i != 1 && !type.isOptional() && parsers[i - 2].isOptional()) {
+        throw new IllegalArgumentException(
+            "You can't have a required argument after a optional one inside the node " + label);
+      }
+
+      parsers[i - 1] = type;
+
+      if (parsers[i - 1].getNeededParsers().length != 0) {
+        checkNeededParsers(i, parsers);
+      }
+    }
+
+    return parsers;
+  }
   private CommandNode[] getChildren(Class<? extends Command> target, ParserManager parserManager) {
     ArrayList<CommandNode> result = new ArrayList<>();
 
-    while (target != null) {
-      Method[] methods = target.getDeclaredMethods();
-      for (Method m : methods) {
-        if (m.equals(executor))
-          continue;
+    Method[] methods = target.getDeclaredMethods();
+    for (Method m : methods) {
+      if (m.equals(executor))
+        continue;
 
-        ml.empee.commandsManager.command.annotations.CommandNode annotation = m.getAnnotation(
-            ml.empee.commandsManager.command.annotations.CommandNode.class);
-        if (annotation != null && !annotation.parent().isEmpty() && id.endsWith(annotation.parent())) {
-          m.setAccessible(true);
-          result.add(new CommandNode(m, target, parserManager));
-        }
+      CmdNode annotation = m.getAnnotation(CmdNode.class);
+      if (annotation != null && !annotation.parent().isEmpty() && id.endsWith(annotation.parent())) {
+        m.setAccessible(true);
+        result.add(new CommandNode(m, target, parserManager));
       }
-
-      //The command class doesn't extends another class so I can cast it to Command
-      target = (Class<? extends Command>) target.getSuperclass();
     }
 
     return result.toArray(new CommandNode[0]);

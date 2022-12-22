@@ -3,8 +3,8 @@ package ml.empee.commandsManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.command.annotations.CommandNode;
-import ml.empee.commandsManager.command.annotations.CommandRoot;
+import ml.empee.commandsManager.command.annotations.CmdNode;
+import ml.empee.commandsManager.command.annotations.CmdRoot;
 import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
@@ -72,13 +72,13 @@ class DemoCommandTest extends AbstractCommandTest {
   void testArgumentsConstraints() {
     executeCommand("teleport", "10", "-10", "10");
     assertEquals(
-        "§4§l > §cThe value must be higher then §e0.0§c but it's value is §e-10.0",
+        "§4§l > §c§e-10.0§c must be equal or greater then §e0.0",
         senderReceivedMessage.poll()
     );
 
     executeCommand("teleport", "10", "260", "10");
     assertEquals(
-        "§4§l > §cThe value must be lower then §e255.0§c but it's value is §e260.0",
+        "§4§l > §c§e260.0§c must be equal or lower then §e0.0",
         senderReceivedMessage.poll()
     );
 
@@ -100,15 +100,15 @@ class DemoCommandTest extends AbstractCommandTest {
 
   private static class TestCommand extends Command {
     @Override
-    protected HelpMenu getHelpMenu() {
+    protected HelpMenu buildHelpMenu() {
       return new IntractableHelpMenu("lol", getRootNode());
     }
   }
 
-  @CommandRoot(label = "demo")
+  @CmdRoot(label = "demo")
   private final class DemoCommand extends TestCommand {
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "help"
     )
@@ -116,7 +116,7 @@ class DemoCommandTest extends AbstractCommandTest {
       getHelpMenu().sendHelpMenu(sender, page);
     }
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "world label1"
     )
@@ -124,7 +124,7 @@ class DemoCommandTest extends AbstractCommandTest {
       sender.sendMessage("First space label");
     }
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "world label2"
     )
@@ -132,7 +132,7 @@ class DemoCommandTest extends AbstractCommandTest {
       sender.sendMessage("Second space label, with arg: " + arg);
     }
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "hello",
         description = "Greets the world",
@@ -142,7 +142,7 @@ class DemoCommandTest extends AbstractCommandTest {
       sender.sendMessage(" World! ");
     }
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "teleport",
         description = "Teleports you to the given coordinates"
@@ -152,7 +152,7 @@ class DemoCommandTest extends AbstractCommandTest {
       sendMessage(sender, "&bWoosh!");
     }
 
-    @CommandNode(
+    @CmdNode(
         parent = "demo",
         label = "player",
         executable = false,
@@ -170,7 +170,7 @@ class DemoCommandTest extends AbstractCommandTest {
       sendMessage(sender, "&cCompound effect! :D");
     }
 
-    @CommandNode(parent = "player", label = "8ball")
+    @CmdNode(parent = "player", label = "8ball")
     private void ask8ball(CommandSender sender) {
 
       int value = getContext(sender).getArgument("magicV");
@@ -182,7 +182,7 @@ class DemoCommandTest extends AbstractCommandTest {
 
     }
 
-    @CommandNode(parent = "player", label = "echo")
+    @CmdNode(parent = "player", label = "echo")
     private void makeEcho(CommandSender sender, @MsgParam(defaultValue = "this is a default message") String message) {
       sendMessage(sender, getContext(sender).getArgument("color") + message);
     }

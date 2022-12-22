@@ -2,10 +2,8 @@ package ml.empee.commandsManager.command;
 
 import java.util.HashMap;
 import java.util.List;
-
+import ml.empee.commandsManager.utils.helpers.Tuple;
 import org.bukkit.command.CommandSender;
-
-import ml.empee.commandsManager.utils.Tuple;
 
 @SuppressWarnings("unchecked")
 public final class CommandContext {

@@ -1,22 +1,20 @@
-package ml.empee.commandsManager.helpers;
+package ml.empee.commandsManager.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.Map;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import ml.empee.commandsManager.exceptions.CommandManagerException;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import ml.empee.commandsManager.exceptions.CommandManagerException;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CommandMap {
+public final class CommandMapUtils {
 
   private static final SimpleCommandMap internalCommandMap;
   private static final Field commandMapField;

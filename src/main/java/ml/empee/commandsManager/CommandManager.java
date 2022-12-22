@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import me.lucko.commodore.CommodoreProvider;
 import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.helpers.CommandMap;
 import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.BoolParser;
 import ml.empee.commandsManager.parsers.types.ColorParser;
@@ -33,6 +32,7 @@ import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
 import ml.empee.commandsManager.services.completion.CommodoreCompletionService;
 import ml.empee.commandsManager.services.completion.CompletionService;
 import ml.empee.commandsManager.services.completion.DefaultCompletionService;
+import ml.empee.commandsManager.utils.CommandMapUtils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -136,7 +136,7 @@ public final class CommandManager {
 
   public void registerCommand(@NonNull Command command) {
     PluginCommand pluginCommand = command.build(this);
-    if (!CommandMap.register(pluginCommand)) {
+    if (!CommandMapUtils.register(pluginCommand)) {
       logger.log(Level.WARNING,
           () -> "It already exists a command '" + pluginCommand.getName() +
               "' Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ENGLISH) +

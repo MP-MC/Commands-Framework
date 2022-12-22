@@ -1,24 +1,23 @@
-package ml.empee.commandsManager.helpers;
+package ml.empee.commandsManager.utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
-import org.bukkit.plugin.Plugin;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ml.empee.commandsManager.command.annotations.CommandRoot;
+import ml.empee.commandsManager.command.annotations.CmdRoot;
 import ml.empee.commandsManager.exceptions.CommandManagerException;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.Plugin;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PluginCommand {
+public final class PluginCommandUtils {
 
-  private static final Constructor<org.bukkit.command.PluginCommand> pluginCommandConstructor;
+  private static final Constructor<PluginCommand> pluginCommandConstructor;
 
   static {
     try {
-      Class<org.bukkit.command.PluginCommand> pluginCommandClazz = org.bukkit.command.PluginCommand.class;
+      Class<PluginCommand> pluginCommandClazz = PluginCommand.class;
       pluginCommandConstructor = pluginCommandClazz.getDeclaredConstructor(String.class, Plugin.class);
       pluginCommandConstructor.setAccessible(true);
     } catch (NoSuchMethodException e) {
@@ -26,9 +25,9 @@ public final class PluginCommand {
     }
   }
 
-  public static org.bukkit.command.PluginCommand buildFromCommandRoot(CommandRoot rootNode, Plugin plugin) {
+  public static PluginCommand buildFromCommandRoot(CmdRoot rootNode, Plugin plugin) {
     try {
-      org.bukkit.command.PluginCommand command = pluginCommandConstructor.newInstance(rootNode.label(), plugin);
+      PluginCommand command = pluginCommandConstructor.newInstance(rootNode.label(), plugin);
 
       command.setAliases(Arrays.asList(rootNode.aliases()));
       command.setDescription(rootNode.description());

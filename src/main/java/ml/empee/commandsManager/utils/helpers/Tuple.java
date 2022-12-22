@@ -1,4 +1,4 @@
-package ml.empee.commandsManager.utils;
+package ml.empee.commandsManager.utils.helpers;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

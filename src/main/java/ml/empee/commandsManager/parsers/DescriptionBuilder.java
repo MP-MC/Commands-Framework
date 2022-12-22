@@ -1,7 +1,7 @@
 package ml.empee.commandsManager.parsers;
 
 import lombok.Getter;
-import ml.empee.commandsManager.utils.Tuple;
+import ml.empee.commandsManager.utils.helpers.Tuple;
 import org.bukkit.ChatColor;
 
 /**

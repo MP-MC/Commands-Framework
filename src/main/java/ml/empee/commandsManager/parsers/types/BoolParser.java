@@ -1,23 +1,16 @@
 package ml.empee.commandsManager.parsers.types;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
 
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class BoolParser extends ParameterParser<Boolean> {
-
-  public static final BoolParser DEFAULT = new BoolParser("", "");
-
-  public BoolParser(String label, String defaultValue) {
-    super(label, defaultValue);
-  }
-
-  protected BoolParser(BoolParser parser) {
-    super(parser);
-  }
-
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -34,7 +27,10 @@ public class BoolParser extends ParameterParser<Boolean> {
 
   @Override
   public ParameterParser<Boolean> copyParser() {
-    return new BoolParser(this);
+    BoolParser parser = new BoolParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    return parser;
   }
 
 }

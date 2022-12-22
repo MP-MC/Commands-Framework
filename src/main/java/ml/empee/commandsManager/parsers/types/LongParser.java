@@ -2,32 +2,24 @@ package ml.empee.commandsManager.parsers.types;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.command.CommandException;
 
+@SuperBuilder
 @Getter
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class LongParser extends ParameterParser<Long> {
 
-  public static final LongParser DEFAULT = new LongParser("", "", Long.MIN_VALUE, Long.MAX_VALUE);
-
-  private final long min;
-  private final long max;
-
-  public LongParser(String label, String defaultValue, Long min, Long max) {
-    super(label, defaultValue);
-
-    this.min = min;
-    this.max = max;
-  }
-
-  protected LongParser(LongParser parser) {
-    super(parser);
-    this.min = parser.min;
-    this.max = parser.max;
-  }
+  @Setter
+  private long min;
+  @Setter
+  private long max;
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -44,19 +36,24 @@ public class LongParser extends ParameterParser<Long> {
       long result = Long.parseLong(args[offset]);
 
       if (result < min) {
-        throw new CommandException("The value must be higher then &e" + min + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
       } else if (result > max) {
-        throw new CommandException("The value must be lower then &e" + max + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
     } catch (NumberFormatException e) {
-      throw new CommandException("The number &e" + args[offset] + "&c isn't valid");
+      throw new CommandException("The number &e" + args[offset] + "&r isn't valid");
     }
   }
 
   @Override
   public ParameterParser<Long> copyParser() {
-    return new LongParser(this);
+    LongParser parser = new LongParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.min = min;
+    parser.max = max;
+    return parser;
   }
 }

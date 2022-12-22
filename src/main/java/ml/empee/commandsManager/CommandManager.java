@@ -4,14 +4,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import lombok.Getter;
 import lombok.NonNull;
 import me.lucko.commodore.CommodoreProvider;
@@ -21,7 +13,7 @@ import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.BoolParser;
 import ml.empee.commandsManager.parsers.types.ColorParser;
 import ml.empee.commandsManager.parsers.types.DoubleParser;
-import ml.empee.commandsManager.parsers.types.FloatParser;
+import ml.empee.commandsManager.parsers.types.EnumParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.parsers.types.LongParser;
 import ml.empee.commandsManager.parsers.types.MaterialParser;
@@ -30,7 +22,7 @@ import ml.empee.commandsManager.parsers.types.StringParser;
 import ml.empee.commandsManager.parsers.types.annotations.BoolParam;
 import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
-import ml.empee.commandsManager.parsers.types.annotations.FloatParam;
+import ml.empee.commandsManager.parsers.types.annotations.EnumParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
 import ml.empee.commandsManager.parsers.types.annotations.LongParam;
 import ml.empee.commandsManager.parsers.types.annotations.MaterialParam;
@@ -41,6 +33,12 @@ import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
 import ml.empee.commandsManager.services.completion.CommodoreCompletionService;
 import ml.empee.commandsManager.services.completion.CompletionService;
 import ml.empee.commandsManager.services.completion.DefaultCompletionService;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * This class provides an entry point for accessing the framework
@@ -71,42 +69,59 @@ public final class CommandManager {
   }
 
   private void registerDefaultParsers() {
-    parserManager.registerParser(IntegerParam.class, IntegerParser.class);
-    parserManager.setDefaultParserForType(int.class, IntegerParser.DEFAULT);
-    parserManager.setDefaultParserForType(Integer.class, IntegerParser.DEFAULT);
+    parserManager.registerParser(
+        IntegerParser.builder().label("number").min(-Integer.MAX_VALUE).max(Integer.MAX_VALUE)
+            .build(),
+        IntegerParam.class, int.class, Integer.class
+    );
 
-    parserManager.registerParser(FloatParam.class, FloatParser.class);
-    parserManager.setDefaultParserForType(float.class, FloatParser.DEFAULT);
-    parserManager.setDefaultParserForType(Float.class, FloatParser.DEFAULT);
+    parserManager.registerParser(
+        DoubleParser.builder().label("number").min(-Double.MAX_VALUE).max(Double.MAX_VALUE).build(),
+        DoubleParam.class, double.class, Double.class
+    );
 
-    parserManager.registerParser(DoubleParam.class, DoubleParser.class);
-    parserManager.setDefaultParserForType(double.class, DoubleParser.DEFAULT);
-    parserManager.setDefaultParserForType(Double.class, DoubleParser.DEFAULT);
+    parserManager.registerParser(
+        LongParser.builder().label("number").min(-Long.MAX_VALUE).max(Long.MAX_VALUE).build(),
+        LongParam.class, long.class, Long.class
+    );
 
-    parserManager.registerParser(LongParam.class, LongParser.class);
-    parserManager.setDefaultParserForType(long.class, LongParser.DEFAULT);
-    parserManager.setDefaultParserForType(Long.class, LongParser.DEFAULT);
+    parserManager.registerParser(
+        BoolParser.builder().label("bool").build(),
+        BoolParam.class, boolean.class, Boolean.class
+    );
 
-    parserManager.registerParser(BoolParam.class, BoolParser.class);
-    parserManager.setDefaultParserForType(boolean.class, BoolParser.DEFAULT);
-    parserManager.setDefaultParserForType(Boolean.class, BoolParser.DEFAULT);
+    parserManager.registerParser(
+        PlayerParser.builder().label("player").onlyOnline(true).build(),
+        PlayerParam.class, Player.class
+    );
 
-    parserManager.registerParser(PlayerParam.class, PlayerParser.class);
-    parserManager.setDefaultParserForType(Player.class, PlayerParser.DEFAULT);
-    parserManager.setDefaultParserForType(OfflinePlayer.class, new PlayerParser(
-        "target", false, ""
-    ));
+    parserManager.registerParser(
+        PlayerParser.builder().label("offlinePlayer").onlyOnline(false).build(),
+        PlayerParam.class, OfflinePlayer.class
+    );
 
-    parserManager.registerParser(StringParam.class, StringParser.class);
-    parserManager.setDefaultParserForType(String.class, StringParser.DEFAULT);
+    parserManager.registerParser(
+        StringParser.builder().label("string").build(),
+        StringParam.class, String.class
+    );
 
-    parserManager.registerParser(MsgParam.class, MsgParser.class);
+    parserManager.registerParser(
+        MsgParser.builder().label("message").build(), MsgParam.class
+    );
 
-    parserManager.registerParser(ColorParam.class, ColorParser.class);
-    parserManager.setDefaultParserForType(ChatColor.class, ColorParser.DEFAULT);
+    parserManager.registerParser(
+        ColorParser.builder().label("color").build(),
+        ColorParam.class, ChatColor.class
+    );
 
-    parserManager.registerParser(MaterialParam.class, MaterialParser.class);
-    parserManager.setDefaultParserForType(Material.class, MaterialParser.DEFAULT);
+    parserManager.registerParser(
+        EnumParser.builder().label("values").build(), EnumParam.class
+    );
+
+    parserManager.registerParser(
+        MaterialParser.builder().label("material").build(),
+        MaterialParam.class, Material.class
+    );
   }
 
   private void setupCompletionService() {
@@ -124,8 +139,8 @@ public final class CommandManager {
     if (!CommandMap.register(pluginCommand)) {
       logger.log(Level.WARNING,
           () -> "It already exists a command '" + pluginCommand.getName() +
-                "' Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ENGLISH) +
-                ":" + pluginCommand.getName() + " instead"
+              "' Use /" + pluginCommand.getPlugin().getName().toLowerCase(Locale.ENGLISH) +
+              ":" + pluginCommand.getName() + " instead"
       );
     }
 

@@ -1,22 +1,16 @@
 package ml.empee.commandsManager.services.completion;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.lucko.commodore.Commodore;
 import ml.empee.commandsManager.command.Command;
@@ -24,10 +18,11 @@ import ml.empee.commandsManager.command.CommandNode;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.BoolParser;
 import ml.empee.commandsManager.parsers.types.DoubleParser;
-import ml.empee.commandsManager.parsers.types.FloatParser;
 import ml.empee.commandsManager.parsers.types.IntegerParser;
 import ml.empee.commandsManager.parsers.types.LongParser;
 import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 
 public final class CommodoreCompletionService implements CompletionService {
 
@@ -42,12 +37,7 @@ public final class CommodoreCompletionService implements CompletionService {
 
     pluginCommand.setTabCompleter(new TabCompleter(command.getRootNode()));
 
-    LiteralArgumentBuilder<Object> rootNode = convertNodeToBrigadier(command.getRootNode());
-    //Registering completion for default commandNode "help"
-    rootNode.then(LiteralArgumentBuilder.literal("help")
-        .then(RequiredArgumentBuilder.argument("page", IntegerArgumentType.integer())));
-
-    commodore.register(pluginCommand, rootNode);
+    commodore.register(pluginCommand, convertNodeToBrigadier(command.getRootNode()));
   }
 
   private LiteralArgumentBuilder<Object> convertNodeToBrigadier(CommandNode node) {
@@ -92,8 +82,6 @@ public final class CommodoreCompletionService implements CompletionService {
       return StringArgumentType.greedyString();
     } else if (rawType instanceof IntegerParser) {
       return IntegerArgumentType.integer();
-    } else if (rawType instanceof FloatParser) {
-      return FloatArgumentType.floatArg();
     } else if (rawType instanceof DoubleParser) {
       return DoubleArgumentType.doubleArg();
     } else if (rawType instanceof LongParser) {

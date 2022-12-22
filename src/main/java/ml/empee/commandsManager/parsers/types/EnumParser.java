@@ -7,31 +7,24 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 
-@Getter
+@Getter @SuperBuilder @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
 
-  private final Class<T> enumType;
-  private final List<String> suggestions;
+  private Class<T> enumType;
+  private List<String> suggestions;
 
-  public EnumParser(String label, String defaultValue, Class<T> enumType) {
-    super(label, defaultValue);
-
-    this.suggestions = Arrays.stream(enumType.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+  public void setEnumType(Class<T> enumType) {
     this.enumType = enumType;
-  }
-
-  public EnumParser(EnumParser<T> parser) {
-    super(parser);
-
-    this.suggestions = parser.suggestions;
-    this.enumType = parser.enumType;
+    this.suggestions = Arrays.stream(enumType.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
   }
 
   @Override
@@ -56,12 +49,16 @@ public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
     try {
       return Enum.valueOf(enumType, args[offset].toUpperCase(Locale.ENGLISH));
     } catch (IllegalArgumentException e) {
-      throw new CommandException("The value &e" + args[offset] + "&c isn't valid");
+      throw new CommandException("The value &e" + args[offset] + "&r isn't valid");
     }
   }
 
   @Override
   public ParameterParser<T> copyParser() {
-    return new EnumParser<>(this);
+    EnumParser<T> parser = new EnumParser<>();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.setEnumType(enumType);
+    return parser;
   }
 }

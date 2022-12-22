@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
@@ -12,10 +14,10 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ColorParser extends ParameterParser<ChatColor> {
-
-  public static final ColorParser DEFAULT = new ColorParser("color", "");
   private static final List<String> COLORS;
 
   static {
@@ -39,14 +41,6 @@ public class ColorParser extends ParameterParser<ChatColor> {
     ));
   }
 
-  public ColorParser(String label, String defaultValue) {
-    super(label, defaultValue);
-  }
-
-  protected ColorParser(ColorParser parser) {
-    super(parser);
-  }
-
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder(
@@ -63,13 +57,13 @@ public class ColorParser extends ParameterParser<ChatColor> {
         if (strings[offset].length() == 6) {
           strings[offset] = "#" + strings[offset];
         } else {
-          throw new CommandException("The color &e" + strings[offset] + "&c isn't valid");
+          throw new CommandException("The color &e" + strings[offset] + "&r isn't valid");
         }
       }
 
       return ChatColor.valueOf(strings[offset]);
     } catch (IllegalArgumentException e) {
-      throw new CommandException("The color &e" + strings[offset] + "&c isn't valid");
+      throw new CommandException("The color &e" + strings[offset] + "&r isn't valid");
     }
   }
 
@@ -80,7 +74,10 @@ public class ColorParser extends ParameterParser<ChatColor> {
 
   @Override
   public ParameterParser<ChatColor> copyParser() {
-    return new ColorParser(this);
+    ColorParser parser = new ColorParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    return parser;
   }
 
 }

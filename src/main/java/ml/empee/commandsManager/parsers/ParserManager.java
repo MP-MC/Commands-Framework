@@ -1,131 +1,122 @@
 package ml.empee.commandsManager.parsers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import ml.empee.commandsManager.parsers.types.EnumParser;
-import ml.empee.commandsManager.parsers.types.annotations.EnumParam;
+import org.jetbrains.annotations.Nullable;
 
 public final class ParserManager {
 
-  private final HashMap<Integer, ParameterParser<?>> defaultParsers = new HashMap<>();
-  private final HashMap<Integer, Class<? extends ParameterParser<?>>> registeredParsers = new HashMap<>();
-  private final ArrayList<ParameterParser<?>> cachedParsers = new ArrayList<>();
+  private final Map<Class<? extends Annotation>, ParameterParser<?>> parsersIdentifiers = new HashMap<>();
+  private final Map<Class<?>, ParameterParser<?>> defaultParsers = new HashMap<>();
+  private final HashSet<ParameterParser<?>> parsersCache = new HashSet<>();
 
-  public void registerParser(Class<? extends Annotation> identifier, Class<? extends ParameterParser<?>> parser) {
-    registeredParsers.put(identifier.hashCode(), parser);
+  public void registerParser(ParameterParser<?> parser, @Nullable Class<? extends Annotation> identifier, Class<?>... defaultTypes) {
+    parsersCache.add(parser);
+
+    if(identifier != null) {
+      parsersIdentifiers.put(identifier, parser);
+    }
+
+    for(Class<?> clazz : defaultTypes) {
+      defaultParsers.put(clazz, parser);
+    }
   }
 
-  public void setDefaultParserForType(Class<?> targetType, ParameterParser<?> parser) {
-    defaultParsers.put(targetType.hashCode(), cacheParser(parser));
-  }
-
-  public boolean isParserRegistered(Class<? extends Annotation> identifier) {
-    return registeredParsers.get(identifier.hashCode()) != null;
-  }
-
-  @SuppressWarnings("unchecked")
-  public ParameterParser<Object> getParameterParser(Parameter parameter) {
-    ParameterParser<?> parser = null;
-    for (Annotation annotation : parameter.getAnnotations()) {
-      parser = buildParameterParser(parameter, annotation);
-      if (parser != null) {
-        break;
+  @Nullable
+  public ParameterParser<?> getParameterParser(Parameter parameter) {
+    Annotation identifier = findIdentifier(parameter.getAnnotations());
+    ParameterParser<?> parser;
+    if(identifier != null) {
+      parser = buildParser(identifier);
+    } else if(parameter.getType().isEnum()) {
+      parser = EnumParser.builder().label("values").build();
+    } else {
+      parser = defaultParsers.get(parameter.getType());
+      if(parser == null) {
+        return null;
+      } else {
+        parser = parser.copyParser();
       }
     }
 
-    if (parser == null) {
-      parser = defaultParsers.get(parameter.getType().hashCode());
-    }
-
-
-    if(parser == null && parameter.getType().isEnum()) {
-      parser = new EnumParser<>("", "", (Class<Enum>) parameter.getType());
-    }
-
-    if(parser != null && (parser.getLabel() == null || parser.getLabel().isEmpty()) && parameter.isNamePresent()) {
+    if(parameter.isNamePresent()) {
       parser.setLabel(parameter.getName());
     }
 
-    return (ParameterParser<Object>) cacheParser(parser);
+    if(parser instanceof EnumParser) {
+      ((EnumParser) parser).setEnumType(parameter.getType());
+    }
+
+    return cacheParser(parser);
+  }
+
+  public ParameterParser<?> cacheParser(ParameterParser<?> parser) {
+    if(parsersCache.add(parser)) {
+      return parser;
+    } else {
+      return parsersCache.stream().filter(p -> p.equals(parser)).findFirst().orElse(parser);
+    }
   }
 
   @SneakyThrows
-  private ArrayList<Object> extractParserConstructorArguments(Annotation annotation) {
-    ArrayList<Object> params = new ArrayList<>();
-    for (Method method : annotation.annotationType().getMethods()) {
-      ParameterParser.Property property = method.getAnnotation(ParameterParser.Property.class);
-      if (property != null) {
+  public ParameterParser<?> buildParser(Annotation annotation) {
+    Class<? extends Annotation> annotationClazz = annotation.annotationType();
+    ParameterParser<?> originalParser = parsersIdentifiers.get(annotationClazz);
+    Objects.requireNonNull(
+        originalParser,
+        "The annotation " + annotationClazz.getName() + " isn't an parser identifier"
+    );
 
-        int index = property.index();
+    ParameterParser<?> clonedParser = originalParser.copyParser();
+    List<Method> annotationFields = Arrays.asList(annotationClazz.getMethods());
+    List<Method> parserMethods = getAllMethods(clonedParser.getClass()).stream()
+        .filter(m -> m.getReturnType() == void.class)
+        .filter(m -> m.getParameterCount() == 1)
+        .filter(m -> annotationFields.stream().anyMatch(
+            f -> m.getName().equalsIgnoreCase("set" + f.getName()) && m.getParameters()[0].getType() == f.getReturnType()
+        )).collect(Collectors.toList());
 
-        //Fill ArrayList to prevent OutOfBoundsException
-        while (index >= params.size()) {
-          params.add(null);
+    for(Method parserMethod : parserMethods) {
+      for(Method annotationField : annotationFields) {
+        if(parserMethod.getName().equalsIgnoreCase("set" + annotationField.getName())) {
+          parserMethod.setAccessible(true);
+          parserMethod.invoke(clonedParser, annotationField.invoke(annotation));
         }
-
-        params.set(index, method.invoke(annotation));
       }
     }
 
-    return params;
+    return clonedParser;
   }
 
-  private ParameterParser<?> buildParameterParser(Parameter parameter, Annotation annotation) {
-    if (!isParserRegistered(annotation.annotationType())) {
-      return null;
-    }
-
-    Class<? extends Annotation> identifier = annotation.annotationType();
-    ArrayList<Object> params = extractParserConstructorArguments(annotation);
-    if(annotation.annotationType().equals(EnumParam.class)) {
-        params.add(parameter.getType());
-    }
-
-    try {
-      Class<?>[] paramsType = new Class<?>[params.size()];
-      for (int i = 0; i < paramsType.length; i++) {
-        paramsType[i] = params.get(i).getClass();
+  private Annotation findIdentifier(Annotation... annotations) {
+    for(Annotation annotation : annotations) {
+      if(parsersIdentifiers.containsKey(annotation.annotationType())) {
+        return annotation;
       }
-
-      return getParserClass(identifier).getConstructor(paramsType).newInstance(params.toArray());
-    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      throw new IllegalStateException("The parameter " + identifier.getName() + " is missing the default constructor", e);
     }
 
+    return null;
   }
 
-  private Class<? extends ParameterParser<?>> getParserClass(Class<? extends Annotation> identifier) {
-
-    Class<? extends ParameterParser<?>> parameterClazz = registeredParsers.get(identifier.hashCode());
-
-    if (parameterClazz == null) {
-      throw new IllegalArgumentException("The parser linked to " + identifier.getName() + " isn't registered");
+  private static List<Method> getAllMethods(Class<?> clazz) {
+    List<Method> methods = new ArrayList<>();
+    while (clazz != null) {
+      methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+      clazz = clazz.getSuperclass();
     }
 
-    return parameterClazz;
-
-  }
-
-  private ParameterParser<?> cacheParser(ParameterParser<?> parser) {
-    if(parser == null) {
-      return null;
-    }
-
-    for (ParameterParser<?> p : cachedParsers) {
-
-      if (p.equals(parser)) {
-        return p;
-      }
-
-    }
-
-    cachedParsers.add(parser);
-    return parser;
+    return methods;
   }
 
 }

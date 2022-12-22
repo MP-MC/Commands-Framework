@@ -6,6 +6,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
@@ -15,25 +18,13 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Getter
+@Getter @SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
-  public static final PlayerParser DEFAULT = new PlayerParser("target", true, "");
-
-  private final boolean onlyOnline;
-
-  public PlayerParser(String label, Boolean onlyOnline, String defaultValue) {
-    super(label, defaultValue);
-
-    this.onlyOnline = onlyOnline;
-  }
-
-  protected PlayerParser(PlayerParser parser) {
-    super(parser);
-
-    this.onlyOnline = parser.onlyOnline;
-  }
+  @Setter
+  private boolean onlyOnline;
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -50,13 +41,13 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
     OfflinePlayer player = Bukkit.getPlayer(args[offset]);
     if (player == null) {
       if (onlyOnline) {
-        throw new CommandException("The player &e" + args[offset] + "&c isn't online");
+        throw new CommandException("The player &e" + args[offset] + "&r isn't online");
       }
 
       try {
         player = Bukkit.getOfflinePlayer(UUID.fromString(args[offset]));
       } catch (IllegalArgumentException e) {
-        throw new CommandException("The value &e" + args[offset] + "&c must be an UUID");
+        throw new CommandException("The value &e" + args[offset] + "&r must be an UUID");
       }
     }
 
@@ -85,7 +76,10 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
   @Override
   public ParameterParser<OfflinePlayer> copyParser() {
-    return new PlayerParser(this);
+    PlayerParser parser = new PlayerParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.onlyOnline = onlyOnline;
+    return parser;
   }
-
 }

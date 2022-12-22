@@ -1,11 +1,6 @@
 package ml.empee.commandsManager;
 
-import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ml.empee.commandsManager.command.Command;
 import ml.empee.commandsManager.command.annotations.CommandNode;
@@ -14,9 +9,15 @@ import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
+import ml.empee.commandsManager.services.generators.HelpMenu;
+import ml.empee.commandsManager.services.generators.IntractableHelpMenu;
 import net.md_5.bungee.api.ChatColor;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class DemoCommandTest extends AbstractCommandTest {
 
@@ -94,11 +95,26 @@ class DemoCommandTest extends AbstractCommandTest {
 
   @Test
   void testHelpMenu() {
-    executeCommand(consoleSender, "help");
+    executeCommand(consoleSender, "help", "1");
+  }
+
+  private static class TestCommand extends Command {
+    @Override
+    protected HelpMenu getHelpMenu() {
+      return new IntractableHelpMenu("lol", getRootNode());
+    }
   }
 
   @CommandRoot(label = "demo")
-  private final class DemoCommand extends Command {
+  private final class DemoCommand extends TestCommand {
+
+    @CommandNode(
+        parent = "demo",
+        label = "help"
+    )
+    private void help(CommandSender sender, @IntegerParam(min = 1, defaultValue = "1") Integer page) {
+      getHelpMenu().sendHelpMenu(sender, page);
+    }
 
     @CommandNode(
         parent = "demo",

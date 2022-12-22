@@ -2,34 +2,23 @@ package ml.empee.commandsManager.parsers.types;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.command.CommandException;
 
+@SuperBuilder
 @Getter
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DoubleParser extends ParameterParser<Double> {
-
-  public static final DoubleParser DEFAULT = new DoubleParser("", "", -Double.MAX_VALUE, Double.MAX_VALUE);
-
-  @Getter
-  private final double min;
-  @Getter
-  private final double max;
-
-  public DoubleParser(String label, String defaultValue, Double min, Double max) {
-    super(label, defaultValue);
-
-    this.min = min;
-    this.max = max;
-  }
-
-  protected DoubleParser(DoubleParser parser) {
-    super(parser);
-    this.min = parser.min;
-    this.max = parser.max;
-  }
+  @Setter
+  private double min;
+  @Setter
+  private double max;
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -46,20 +35,25 @@ public class DoubleParser extends ParameterParser<Double> {
       double result = Double.parseDouble(args[offset]);
 
       if (result < min) {
-        throw new CommandException("The value must be higher then &e" + min + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
       } else if (result > max) {
-        throw new CommandException("The value must be lower then &e" + max + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
     } catch (NumberFormatException e) {
-      throw new CommandException("The number &e" + args[offset] + "&c isn't valid");
+      throw new CommandException("The number &e" + args[offset] + "&r isn't valid");
     }
   }
 
   @Override
   public ParameterParser<Double> copyParser() {
-    return new DoubleParser(this);
+    DoubleParser parser = new DoubleParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.min = min;
+    parser.max = max;
+    return parser;
   }
 
 }

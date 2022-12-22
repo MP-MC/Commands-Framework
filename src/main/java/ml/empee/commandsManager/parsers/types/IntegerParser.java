@@ -2,34 +2,24 @@ package ml.empee.commandsManager.parsers.types;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.utils.Tuple;
 import org.bukkit.command.CommandException;
 
+@SuperBuilder
 @Getter
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class IntegerParser extends ParameterParser<Integer> {
 
-  public static final IntegerParser DEFAULT = new IntegerParser("", "", Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-  @Getter
-  private final int min;
-  @Getter
-  private final int max;
-
-  public IntegerParser(String label, String defaultValue, Integer min, Integer max) {
-    super(label, defaultValue);
-
-    this.min = min;
-    this.max = max;
-  }
-
-  protected IntegerParser(IntegerParser parser) {
-    super(parser);
-    this.min = parser.min;
-    this.max = parser.max;
-  }
+  @Setter
+  private int min;
+  @Setter
+  private int max;
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -46,20 +36,24 @@ public class IntegerParser extends ParameterParser<Integer> {
       int result = Integer.parseInt(args[offset]);
 
       if (result < min) {
-        throw new CommandException("The value must be higher then &e" + min + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
       } else if (result > max) {
-        throw new CommandException("The value must be lower then &e" + max + "&c but it's value is &e" + result);
+        throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
     } catch (NumberFormatException e) {
-      throw new CommandException("The value &e" + args[offset] + "&c must be an integer");
+      throw new CommandException("The value &e" + args[offset] + "&r must be an integer");
     }
   }
 
   @Override
   public ParameterParser<Integer> copyParser() {
-    return new IntegerParser(this);
+    IntegerParser parser = new IntegerParser();
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.min = min;
+    parser.max = max;
+    return parser;
   }
-
 }

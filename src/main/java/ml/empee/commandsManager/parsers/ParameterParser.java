@@ -1,38 +1,38 @@
 package ml.empee.commandsManager.parsers;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.bukkit.command.CommandSender;
 
 @Getter
 @EqualsAndHashCode
+@SuperBuilder
+@NoArgsConstructor
 public abstract class ParameterParser<T> {
 
-  private final T defaultValue;
+  protected T defaultValue;
 
-  @Setter
-  private String label;
+  protected String label;
 
-  protected ParameterParser(String label, String defaultValue) {
-    this.label = label;
-    if (defaultValue == null || defaultValue.isEmpty()) {
-      this.defaultValue = null;
-    } else {
-      this.defaultValue = parse(defaultValue);
+  public void setLabel(String label) {
+    if(label.trim().isEmpty()) {
+      return;
     }
+
+    this.label = label;
   }
 
-  protected ParameterParser(ParameterParser<T> parser) {
-    this.label = parser.label;
-    this.defaultValue = parser.defaultValue;
+  public void setDefaultValue(String value) {
+    if(value.trim().isEmpty()) {
+      return;
+    }
+
+    defaultValue = parse(value);
   }
 
   public Class<?>[] getNeededParsers() {
@@ -81,11 +81,5 @@ public abstract class ParameterParser<T> {
    * @return a parser deep copy
    */
   public abstract ParameterParser<T> copyParser();
-
-  @Target(ElementType.METHOD)
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface Property {
-    int index();
-  }
 
 }

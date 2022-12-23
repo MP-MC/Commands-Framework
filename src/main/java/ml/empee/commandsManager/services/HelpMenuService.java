@@ -1,9 +1,9 @@
-package ml.empee.commandsManager.services.generators;
+package ml.empee.commandsManager.services;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import ml.empee.commandsManager.command.CommandNode;
+import ml.empee.commandsManager.command.Node;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import net.md_5.bungee.api.ChatColor;
@@ -15,7 +15,10 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class IntractableHelpMenu implements HelpMenu {
+public class HelpMenuService {
+
+  public static final String INVALID_PAGE_ERROR = "The page number is invalid";
+  public static final int HELP_PAGE_ROWS = 5;
 
   private final int totalPages;
   private final BaseComponent[] header;
@@ -34,7 +37,7 @@ public class IntractableHelpMenu implements HelpMenu {
     return ChatColor.stripColor(BaseComponent.toLegacyText(components));
   }
 
-  public IntractableHelpMenu(String title, CommandNode root) {
+  public HelpMenuService(String title, Node root) {
     header = fromLegacy(" &eInteractive Menu  &7-  &6" + title + "\n");
     legacyHeader = toLegacy(header);
 
@@ -49,7 +52,7 @@ public class IntractableHelpMenu implements HelpMenu {
     footerTemplate = ChatColor.translateAlternateColorCodes('&', "\n &7Page &e%page_number% &7of &e" + totalPages);
   }
 
-  private BaseComponent[] buildNodeEntries(CommandNode root) {
+  private BaseComponent[] buildNodeEntries(Node root) {
     ArrayList<BaseComponent> entries = new ArrayList<>();
 
     TextComponent baseEntry = new TextComponent(" /");
@@ -61,16 +64,16 @@ public class IntractableHelpMenu implements HelpMenu {
 
     return entries.toArray(new BaseComponent[0]);
   }
-  private void buildNodeEntries(List<BaseComponent> entries, BaseComponent entry, CommandNode node) {
+  private void buildNodeEntries(List<BaseComponent> entries, BaseComponent entry, Node node) {
 
-    TextComponent nodeLabel = new TextComponent(node.getLabel() + " ");
+    TextComponent nodeLabel = new TextComponent(node.getData().label() + " ");
     nodeLabel.setColor(ChatColor.GRAY);
     entry.addExtra(nodeLabel);
 
     addParameters(entry, node);
-    CommandNode[] children = node.getChildren();
+    Node[] children = node.getChildren();
     if(children.length == 0) {
-      if(!node.isExecutable()) {
+      if(!node.getData().executable()) {
         return;
       }
 
@@ -78,14 +81,14 @@ public class IntractableHelpMenu implements HelpMenu {
       entry.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ChatColor.stripColor(entry.toPlainText().trim())));
       entries.add(entry);
     } else {
-      for(CommandNode child : children) {
+      for(Node child : children) {
         buildNodeEntries(entries, entry.duplicate(), child);
       }
     }
 
   }
 
-  private void addParameters(BaseComponent entry, CommandNode node) {
+  private void addParameters(BaseComponent entry, Node node) {
     for (ParameterParser<?> parameterParser : node.getParameterParsers()) {
       String parameterLabel = parameterParser.getLabel();
       DescriptionBuilder descriptionBuilder = parameterParser.getDescriptionBuilder();
@@ -107,10 +110,9 @@ public class IntractableHelpMenu implements HelpMenu {
     }
   }
 
-  @Override
   public void sendHelpMenu(CommandSender target, Integer page) {
     if(page < 1 || page > totalPages) {
-      throw new CommandException("Invalid page number");
+      throw new CommandException(INVALID_PAGE_ERROR);
     }
 
     if (target instanceof Player) {

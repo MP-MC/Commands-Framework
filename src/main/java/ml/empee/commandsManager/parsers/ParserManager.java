@@ -61,7 +61,7 @@ public final class ParserManager {
     return cacheParser(parser);
   }
 
-  public ParameterParser<?> cacheParser(ParameterParser<?> parser) {
+  private ParameterParser<?> cacheParser(ParameterParser<?> parser) {
     if(parsersCache.add(parser)) {
       return parser;
     } else {

@@ -1,34 +1,25 @@
 package ml.empee.commandsManager.command;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import ml.empee.commandsManager.CommandManager;
-import ml.empee.commandsManager.command.annotations.CmdNode;
-import ml.empee.commandsManager.command.annotations.CmdRoot;
 import ml.empee.commandsManager.parsers.ParameterParser;
-import ml.empee.commandsManager.services.generators.HelpMenu;
-import ml.empee.commandsManager.services.generators.IntractableHelpMenu;
+import ml.empee.commandsManager.services.HelpMenuService;
 import ml.empee.commandsManager.utils.CommandMapUtils;
 import ml.empee.commandsManager.utils.PluginCommandUtils;
 import ml.empee.commandsManager.utils.helpers.Tuple;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class Command implements CommandExecutor {
+public abstract class CommandExecutor extends Controller implements org.bukkit.command.CommandExecutor {
 
   @Setter
   private static String prefix = "&4&l > ";
@@ -37,15 +28,13 @@ public abstract class Command implements CommandExecutor {
   protected static String runtimeErrorMSG = "Error while executing the command";
   protected static String invalidSenderMSG = "You aren't an allowed sender type of this command";
 
-  private final HashMap<CommandSender, CommandContext> contexts = new HashMap<>();
-  private ArrayList<Listener> listeners = new ArrayList<>();
   @Getter
-  private PluginCommand pluginCommand;
+  protected PluginCommand pluginCommand;
   @Getter
-  private CommandNode rootNode;
+  protected Node rootNode;
   @Getter
-  private HelpMenu helpMenu;
-  private Logger logger;
+  protected HelpMenuService helpMenu;
+  protected Logger logger;
 
   public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
     try {
@@ -72,18 +61,18 @@ public abstract class Command implements CommandExecutor {
   }
 
   private void parseParametersAndExecuteNode(
-      CommandContext context, CommandNode node, String[] args, int offset
+      CommandContext context, Node node, String[] args, int offset
   ) throws CommandException {
     if (node == null) {
       throw new CommandException(malformedCommandMSG);
     } else {
-      if (!context.getSource().hasPermission(node.getPermission())) {
+      if (!context.getSource().hasPermission(node.getData().permission())) {
         throw new CommandException(missingPermissionsMSG);
       }
 
       ParameterParser<?>[] parsers = node.getParameterParsers();
       List<Tuple<String, Object>> arguments = parseArguments(parsers, args, offset);
-      executeNode(node, context, arguments);
+      executeNode(context, node, arguments);
       context.addArguments(arguments);
       offset += parsers.length;
 
@@ -91,23 +80,22 @@ public abstract class Command implements CommandExecutor {
     }
   }
 
-  private void findAndExecuteChild(CommandContext context, CommandNode node, String[] args, int offset) throws CommandException {
+  private void findAndExecuteChild(CommandContext context, Node node, String[] args, int offset) throws CommandException {
     if (node.getChildren().length == 0) {
-      if (!node.isExecutable()) {
+      if (!node.getData().executable()) {
         throw new CommandException(malformedCommandMSG);
       }
     } else {
-      CommandNode nextNode = node.findNextNode(args, offset);
-      if (nextNode == null && !node.isExecutable()) {
+      Node nextNode = node.findNextNode(args, offset);
+      if (nextNode == null && !node.getData().executable()) {
         throw new CommandException(malformedCommandMSG);
       } else if (nextNode != null) {
-        parseParametersAndExecuteNode(context, nextNode, args,
-            offset + nextNode.getLabel().split(" ").length);
+        parseParametersAndExecuteNode(context, nextNode, args, offset + nextNode.getData().label().split(" ").length);
       }
     }
   }
 
-  private void executeNode(CommandNode node, CommandContext context, List<Tuple<String, Object>> arguments) throws CommandException {
+  private void executeNode(CommandContext context, Node node, List<Tuple<String, Object>> arguments) throws CommandException {
     Object[] args = new Object[arguments.size() + 1];
     args[0] = context.getSource();
     if (!node.getSenderType().isInstance(args[0])) {
@@ -121,11 +109,7 @@ public abstract class Command implements CommandExecutor {
     }
 
     try {
-      if (node.executor != null) {
-        contexts.put(context.getSource(), context);
-        node.executor.invoke(this, args);
-        contexts.remove(context.getSource());
-      }
+      executeNode(context, node, args);
     } catch (Exception e) {
       if (e.getCause() instanceof CommandException) {
         throw (CommandException) e.getCause();
@@ -154,68 +138,19 @@ public abstract class Command implements CommandExecutor {
     return arguments;
   }
 
-  public final PluginCommand build(CommandManager commandManager) {
-    CmdRoot rootAnnotation = getClass().getAnnotation(CmdRoot.class);
-    if (rootAnnotation == null) {
-      throw new IllegalStateException("The class " + getClass().getName() + " is not annotated with @CommandRoot");
-    }
-
+  public PluginCommand build(CommandManager commandManager) {
     logger = commandManager.getPlugin().getLogger();
-
-    Method rootMethod = getRootMethod(rootAnnotation);
-    if (rootMethod != null) {
-      rootMethod.setAccessible(true);
-      rootNode = new CommandNode(rootMethod, getClass(), commandManager.getParserManager());
-    } else {
-      rootNode = new CommandNode(rootAnnotation, getClass(), commandManager.getParserManager());
-    }
-
-    pluginCommand = PluginCommandUtils.buildFromCommandRoot(rootAnnotation, commandManager.getPlugin());
+    rootNode = Node.buildCommandTree(commandManager, this);
+    //No need to check existence of the annotation, it's already done in the CommandNode
+    pluginCommand = PluginCommandUtils.of(getClass().getAnnotation(CommandNode.class));
     pluginCommand.setExecutor(this);
-
-    helpMenu = buildHelpMenu();
-
+    helpMenu = new HelpMenuService(pluginCommand.getPlugin().getName(), rootNode);
     return pluginCommand;
   }
 
-  protected HelpMenu buildHelpMenu() {
-    return new IntractableHelpMenu(pluginCommand.getPlugin().getName(), rootNode);
-  }
-
-  private Method getRootMethod(CmdRoot cmdRoot) {
-    for (Method method : getClass().getDeclaredMethods()) {
-
-      CmdNode cmdNode = method.getAnnotation(
-          CmdNode.class
-      );
-
-      if (cmdNode != null && cmdNode.parent().isEmpty() && cmdRoot.label().equals(cmdNode.label())) {
-        return method;
-      }
-
-    }
-
-    return null;
-  }
-
-  protected final void registerListeners(Listener... listeners) {
-    this.listeners.addAll(Arrays.asList(listeners));
-
-    JavaPlugin plugin = JavaPlugin.getProvidingPlugin(getClass());
-    for (Listener listener : listeners) {
-      plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-    }
-  }
-
+  @Override
   public void unregister() {
-    for (Listener listener : listeners) {
-      HandlerList.unregisterAll(listener);
-    }
-
+    super.unregister();
     CommandMapUtils.unregisterCommand(pluginCommand);
-  }
-
-  protected final CommandContext getContext(CommandSender sender) {
-    return contexts.get(sender);
   }
 }

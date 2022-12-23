@@ -5,10 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ml.empee.commandsManager.command.annotations.CmdRoot;
+import ml.empee.commandsManager.command.CommandNode;
 import ml.empee.commandsManager.exceptions.CommandManagerException;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PluginCommandUtils {
@@ -25,13 +26,17 @@ public final class PluginCommandUtils {
     }
   }
 
-  public static PluginCommand buildFromCommandRoot(CmdRoot rootNode, Plugin plugin) {
-    try {
-      PluginCommand command = pluginCommandConstructor.newInstance(rootNode.label(), plugin);
+  public static PluginCommand of(CommandNode cmdRoot) {
+    return of(cmdRoot, JavaPlugin.getProvidingPlugin(PluginCommandUtils.class));
+  }
 
-      command.setAliases(Arrays.asList(rootNode.aliases()));
-      command.setDescription(rootNode.description());
-      command.setPermission(rootNode.permission());
+  public static PluginCommand of(CommandNode cmdRoot, JavaPlugin plugin) {
+    try {
+      PluginCommand command = pluginCommandConstructor.newInstance(cmdRoot.label(), plugin);
+
+      command.setAliases(Arrays.asList(cmdRoot.aliases()));
+      command.setDescription(cmdRoot.description());
+      command.setPermission(cmdRoot.permission());
 
       return command;
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {

@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.lucko.commodore.Commodore;
-import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.command.CommandNode;
+import ml.empee.commandsManager.command.CommandExecutor;
+import ml.empee.commandsManager.command.Node;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.BoolParser;
 import ml.empee.commandsManager.parsers.types.DoubleParser;
@@ -32,7 +32,7 @@ public final class CommodoreCompletionService implements CompletionService {
     this.commodore = commodore;
   }
 
-  public void registerCompletions(Command command) {
+  public void registerCompletions(CommandExecutor command) {
     PluginCommand pluginCommand = command.getPluginCommand();
 
     pluginCommand.setTabCompleter(new TabCompleter(command.getRootNode()));
@@ -40,9 +40,9 @@ public final class CommodoreCompletionService implements CompletionService {
     commodore.register(pluginCommand, convertNodeToBrigadier(command.getRootNode()));
   }
 
-  private LiteralArgumentBuilder<Object> convertNodeToBrigadier(CommandNode node) {
+  private LiteralArgumentBuilder<Object> convertNodeToBrigadier(Node node) {
 
-    String[] labels = node.getLabel().split(" ");
+    String[] labels = node.getData().label().split(" ");
     LiteralArgumentBuilder<Object> rootNode = LiteralArgumentBuilder.literal(labels[labels.length - 1]);
 
     ParameterParser<?>[] parsers = node.getParameterParsers();
@@ -55,7 +55,7 @@ public final class CommodoreCompletionService implements CompletionService {
       lastArg = rootNode;
     }
 
-    for (CommandNode child : node.getChildren()) {
+    for (Node child : node.getChildren()) {
       lastArg.then(convertNodeToBrigadier(child));
     }
 
@@ -97,13 +97,13 @@ public final class CommodoreCompletionService implements CompletionService {
   @RequiredArgsConstructor
   private static class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final CommandNode rootNode;
+    private final Node rootNode;
 
     @Override
     public final List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
 
       int offset = 0;
-      CommandNode node = rootNode;
+      Node node = rootNode;
       while (true) {
         ParameterParser<?>[] parameterParsers = node.getParameterParsers();
         for (ParameterParser<?> parameterParser : parameterParsers) {
@@ -120,7 +120,7 @@ public final class CommodoreCompletionService implements CompletionService {
           break;
         }
 
-        offset += node.getLabel().split(" ").length;
+        offset += node.getData().label().split(" ").length;
       }
 
       return Collections.emptyList();

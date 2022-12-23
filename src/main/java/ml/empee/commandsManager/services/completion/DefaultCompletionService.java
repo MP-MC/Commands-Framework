@@ -1,6 +1,5 @@
 package ml.empee.commandsManager.services.completion;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,18 +7,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
+import ml.empee.commandsManager.command.CommandExecutor;
+import ml.empee.commandsManager.command.Node;
+import ml.empee.commandsManager.parsers.ParameterParser;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
-import lombok.RequiredArgsConstructor;
-import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.command.CommandNode;
-import ml.empee.commandsManager.parsers.ParameterParser;
-
 public final class DefaultCompletionService implements CompletionService {
   @Override
-  public void registerCompletions(Command command) {
+  public void registerCompletions(CommandExecutor command) {
     PluginCommand pluginCommand = command.getPluginCommand();
     pluginCommand.setTabCompleter(new TabCompleter(command.getRootNode()));
   }
@@ -27,7 +24,7 @@ public final class DefaultCompletionService implements CompletionService {
   @RequiredArgsConstructor
   private static class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final CommandNode rootNode;
+    private final Node rootNode;
 
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
@@ -42,7 +39,7 @@ public final class DefaultCompletionService implements CompletionService {
 
     private Collection<String> getCompletions(CommandSender sender, String[] args) {
       int offset = 0;
-      CommandNode node = rootNode;
+      Node node = rootNode;
       while (true) {
         ParameterParser<?>[] parameterParsers = node.getParameterParsers();
         for (ParameterParser<?> parameterParser : parameterParsers) {
@@ -64,16 +61,16 @@ public final class DefaultCompletionService implements CompletionService {
           break;
         }
 
-        offset += node.getLabel().split(" ").length;
+        offset += node.getData().label().split(" ").length;
       }
 
       return Collections.emptyList();
     }
 
-    private static Set<String> matchChildren(CommandNode node, String[] args, int offset) {
+    private static Set<String> matchChildren(Node node, String[] args, int offset) {
       HashSet<String> matchingChildren = new HashSet<>();
-      for (CommandNode child : node.getChildren()) {
-        String[] childLabels = child.getLabel().split(" ");
+      for (Node child : node.getChildren()) {
+        String[] childLabels = child.getData().label().split(" ");
         int suggestionChildIndex = args.length - offset - 1;
         if (suggestionChildIndex < childLabels.length) {
           if (matchAllLabels(args, offset, childLabels, suggestionChildIndex)) {

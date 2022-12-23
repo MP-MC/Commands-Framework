@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.NonNull;
 import me.lucko.commodore.CommodoreProvider;
-import ml.empee.commandsManager.command.Command;
+import ml.empee.commandsManager.command.CommandExecutor;
 import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.BoolParser;
 import ml.empee.commandsManager.parsers.types.ColorParser;
@@ -45,7 +45,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public final class CommandManager {
 
-  private final ArrayList<Command> registeredCommands = new ArrayList<>();
+  private final ArrayList<CommandExecutor> registeredCommands = new ArrayList<>();
   private final Logger logger;
   private CompletionService completionService;
 
@@ -134,7 +134,7 @@ public final class CommandManager {
     }
   }
 
-  public void registerCommand(@NonNull Command command) {
+  public void registerCommand(@NonNull CommandExecutor command) {
     PluginCommand pluginCommand = command.build(this);
     if (!CommandMapUtils.register(pluginCommand)) {
       logger.log(Level.WARNING,
@@ -152,7 +152,7 @@ public final class CommandManager {
   }
 
   public void unregisterCommands() {
-    for (Command command : registeredCommands) {
+    for (CommandExecutor command : registeredCommands) {
       command.unregister();
     }
   }

@@ -2,15 +2,16 @@ package ml.empee.commandsManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import ml.empee.commandsManager.command.Command;
-import ml.empee.commandsManager.command.annotations.CmdNode;
-import ml.empee.commandsManager.command.annotations.CmdRoot;
+import java.util.logging.Logger;
+import ml.empee.commandsManager.command.CommandExecutor;
+import ml.empee.commandsManager.command.CommandNode;
+import ml.empee.commandsManager.command.Node;
 import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
-import ml.empee.commandsManager.services.generators.HelpMenu;
-import ml.empee.commandsManager.services.generators.IntractableHelpMenu;
+import ml.empee.commandsManager.services.HelpMenuService;
+import ml.empee.commandsManager.utils.PluginCommandUtils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -98,67 +99,73 @@ class DemoCommandTest extends AbstractCommandTest {
     executeCommand(consoleSender, "help", "1");
   }
 
-  private static class TestCommand extends Command {
+  public static class TestCommand extends CommandExecutor {
     @Override
-    protected HelpMenu buildHelpMenu() {
-      return new IntractableHelpMenu("lol", getRootNode());
+    public PluginCommand build(CommandManager commandManager) {
+      logger = Logger.getLogger("TestCommand");
+      rootNode = Node.buildCommandTree(commandManager, this);
+      //No need to check existence of the annotation, it's already done in the CommandNode
+      pluginCommand = PluginCommandUtils.of(getClass().getAnnotation(CommandNode.class), null);
+      pluginCommand.setExecutor(this);
+      helpMenu = new HelpMenuService("TestMenu", rootNode);
+      return pluginCommand;
     }
   }
 
-  @CmdRoot(label = "demo")
-  private final class DemoCommand extends TestCommand {
+  @CommandNode(label = "demo", description = "Demo command")
+  public final class DemoCommand extends TestCommand {
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "help"
     )
-    private void help(CommandSender sender, @IntegerParam(min = 1, defaultValue = "1") Integer page) {
+    public void help(CommandSender sender, @IntegerParam(min = 1, defaultValue = "1") Integer page) {
       getHelpMenu().sendHelpMenu(sender, page);
     }
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "world label1"
     )
-    private void spaceLabel(CommandSender sender) {
+    public void spaceLabel(CommandSender sender) {
       sender.sendMessage("First space label");
     }
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "world label2"
     )
-    private void spaceLabel2(CommandSender sender, String arg) {
+    public void spaceLabel2(CommandSender sender, String arg) {
       sender.sendMessage("Second space label, with arg: " + arg);
     }
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "hello",
         description = "Greets the world",
         permission = "demo.hello"
     )
-    private void greetsWorld(CommandSender sender) {
+    public void greetsWorld(CommandSender sender) {
       sender.sendMessage(" World! ");
     }
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "teleport",
         description = "Teleports you to the given coordinates"
     )
-    private void teleport(Player sender, double x, @DoubleParam(min = 0, max = 255) double y, double z) {
+    public void teleport(Player sender, double x, @DoubleParam(min = 0, max = 255) double y, double z) {
       sender.teleport(new Location(sender.getWorld(), x, y, z));
       sendMessage(sender, "&bWoosh!");
     }
 
-    @CmdNode(
+    @CommandNode(
         parent = "demo",
         label = "player",
         executable = false,
         permission = "demo.admin"
     )
-    private void compound(
+    public void compound(
         Player sender,
 
         @IntegerParam(label = "magicV")
@@ -170,8 +177,8 @@ class DemoCommandTest extends AbstractCommandTest {
       sendMessage(sender, "&cCompound effect! :D");
     }
 
-    @CmdNode(parent = "player", label = "8ball")
-    private void ask8ball(CommandSender sender) {
+    @CommandNode(parent = "player", label = "8ball")
+    public void ask8ball(CommandSender sender) {
 
       int value = getContext(sender).getArgument("magicV");
       if (value > 0) {
@@ -182,8 +189,8 @@ class DemoCommandTest extends AbstractCommandTest {
 
     }
 
-    @CmdNode(parent = "player", label = "echo")
-    private void makeEcho(CommandSender sender, @MsgParam(defaultValue = "this is a default message") String message) {
+    @CommandNode(parent = "player", label = "echo")
+    public void makeEcho(CommandSender sender, @MsgParam(defaultValue = "this is a default message") String message) {
       sendMessage(sender, getContext(sender).getArgument("color") + message);
     }
 

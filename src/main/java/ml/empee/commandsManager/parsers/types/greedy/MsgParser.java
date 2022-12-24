@@ -31,9 +31,6 @@ public class MsgParser extends ParameterParser<String> implements GreedyParser {
 
   @Override
   public ParameterParser<String> copyParser() {
-    MsgParser parser = new MsgParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
-    return parser;
+    return copyParser(new MsgParser());
   }
 }

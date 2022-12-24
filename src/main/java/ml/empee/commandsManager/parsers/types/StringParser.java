@@ -26,9 +26,6 @@ public class StringParser extends ParameterParser<String> {
 
   @Override
   public ParameterParser<String> copyParser() {
-    StringParser parser = new StringParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
-    return parser;
+    return copyParser(new StringParser());
   }
 }

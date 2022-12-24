@@ -49,9 +49,7 @@ public class LongParser extends ParameterParser<Long> {
 
   @Override
   public ParameterParser<Long> copyParser() {
-    LongParser parser = new LongParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
+    LongParser parser = copyParser(new LongParser());
     parser.min = min;
     parser.max = max;
     return parser;

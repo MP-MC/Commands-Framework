@@ -48,9 +48,7 @@ public class DoubleParser extends ParameterParser<Double> {
 
   @Override
   public ParameterParser<Double> copyParser() {
-    DoubleParser parser = new DoubleParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
+    DoubleParser parser = copyParser(new DoubleParser());
     parser.min = min;
     parser.max = max;
     return parser;

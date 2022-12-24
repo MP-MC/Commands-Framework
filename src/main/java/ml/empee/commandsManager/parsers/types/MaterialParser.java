@@ -48,9 +48,6 @@ public class MaterialParser extends ParameterParser<Material> {
 
   @Override
   public ParameterParser<Material> copyParser() {
-    MaterialParser parser = new MaterialParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
-    return parser;
+    return copyParser(new MaterialParser());
   }
 }

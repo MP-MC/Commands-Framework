@@ -6,6 +6,7 @@ import java.util.Locale;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bukkit.command.CommandSender;
 
@@ -18,6 +19,9 @@ public abstract class ParameterParser<T> {
   protected T defaultValue;
 
   protected String label;
+
+  @Setter
+  protected boolean optional;
 
   public void setLabel(String label) {
     if(label.trim().isEmpty()) {
@@ -74,12 +78,19 @@ public abstract class ParameterParser<T> {
   }
 
   public final boolean isOptional() {
-    return defaultValue != null;
+    return optional || defaultValue != null;
   }
 
   /**
    * @return a parser deep copy
    */
   public abstract ParameterParser<T> copyParser();
+
+  protected <K extends ParameterParser<T>> K copyParser(K parser) {
+    parser.label = label;
+    parser.defaultValue = defaultValue;
+    parser.optional = optional;
+    return parser;
+  }
 
 }

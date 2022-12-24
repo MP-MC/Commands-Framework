@@ -27,10 +27,7 @@ public class BoolParser extends ParameterParser<Boolean> {
 
   @Override
   public ParameterParser<Boolean> copyParser() {
-    BoolParser parser = new BoolParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
-    return parser;
+    return copyParser(new BoolParser());
   }
 
 }

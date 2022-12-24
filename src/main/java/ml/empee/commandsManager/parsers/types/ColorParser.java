@@ -74,10 +74,7 @@ public class ColorParser extends ParameterParser<ChatColor> {
 
   @Override
   public ParameterParser<ChatColor> copyParser() {
-    ColorParser parser = new ColorParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
-    return parser;
+    return copyParser(new ColorParser());
   }
 
 }

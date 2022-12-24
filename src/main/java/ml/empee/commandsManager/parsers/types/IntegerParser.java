@@ -49,9 +49,7 @@ public class IntegerParser extends ParameterParser<Integer> {
 
   @Override
   public ParameterParser<Integer> copyParser() {
-    IntegerParser parser = new IntegerParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
+    IntegerParser parser = copyParser(new IntegerParser());
     parser.min = min;
     parser.max = max;
     return parser;

@@ -55,9 +55,7 @@ public class EnumParser<T extends Enum<T>> extends ParameterParser<T> {
 
   @Override
   public ParameterParser<T> copyParser() {
-    EnumParser<T> parser = new EnumParser<>();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
+    EnumParser<T> parser = copyParser(new EnumParser<>());
     parser.setEnumType(enumType);
     return parser;
   }

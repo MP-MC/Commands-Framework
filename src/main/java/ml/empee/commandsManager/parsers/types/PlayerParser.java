@@ -76,9 +76,7 @@ public class PlayerParser extends ParameterParser<OfflinePlayer> {
 
   @Override
   public ParameterParser<OfflinePlayer> copyParser() {
-    PlayerParser parser = new PlayerParser();
-    parser.label = label;
-    parser.defaultValue = defaultValue;
+    PlayerParser parser = copyParser(new PlayerParser());
     parser.onlyOnline = onlyOnline;
     return parser;
   }

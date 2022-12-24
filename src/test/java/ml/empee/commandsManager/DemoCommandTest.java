@@ -115,6 +115,11 @@ class DemoCommandTest extends AbstractCommandTest {
   @CommandNode(label = "demo", description = "Demo command")
   public final class DemoCommand extends TestCommand {
 
+    @CommandNode(label = "demo")
+    public void onCommand(CommandSender sender) {
+
+    }
+
     @CommandNode(
         parent = "demo",
         label = "help"

@@ -40,7 +40,6 @@ public final class Node {
     Node root = findRootNode(nodes).orElse(
         new Node(controller, commandManager)
     );
-
     linkNodes(root, nodes);
     nodes.forEach(
         Node::validateNode
@@ -55,6 +54,7 @@ public final class Node {
   }
   private static void linkNodes(Node root, List<Node> nodes) {
     root.children = nodes.stream()
+        .filter(n -> n != root && !n.data.parent().isEmpty())
         .filter(n -> root.id.endsWith(n.data.parent().toLowerCase()))
         .toArray(Node[]::new);
 
@@ -103,6 +103,7 @@ public final class Node {
     this.executor = executor;
 
     data = executor.getAnnotation(CommandNode.class);
+    id = data.label().toLowerCase();
     senderType = buildSenderType();
     parameterParsers = buildParameterParsers();
     description = buildDescription();

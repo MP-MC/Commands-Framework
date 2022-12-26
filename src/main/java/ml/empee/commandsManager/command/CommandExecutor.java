@@ -42,6 +42,10 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
       CommandContext context = new CommandContext(sender);
       Node node = rootNode;
       while (node != null) {
+        if(!node.getData().permission().isEmpty() && !sender.hasPermission(node.getData().permission())) {
+          throw new CommandException(missingPermissionsMSG);
+        }
+
         ParameterParser<?>[] parsers = node.getParameterParsers();
         List<Tuple<String, Object>> arguments = parseArguments(parsers, args, offset);
 
@@ -89,10 +93,6 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     args[0] = context.getSource();
     if (!node.getSenderType().isInstance(args[0])) {
       throw new CommandException(invalidSenderMSG);
-    }
-
-    if (!context.getSource().hasPermission(node.getData().permission())) {
-      throw new CommandException(missingPermissionsMSG);
     }
 
     int i = 1;

@@ -38,60 +38,49 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
 
   public final boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
     try {
-      parseParametersAndExecuteNode(new CommandContext(sender), rootNode, args, 0);
-    } catch (CommandException exception) {
-      String message = exception.getMessage().replace("&r", "&c");
-      sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&c" + message));
+      int offset = 0;
+      CommandContext context = new CommandContext(sender);
+      Node node = rootNode;
+      while (node != null) {
+        ParameterParser<?>[] parsers = node.getParameterParsers();
+        List<Tuple<String, Object>> arguments = parseArguments(parsers, args, offset);
 
-      Throwable cause = exception.getCause();
-      if (cause != null) {
-        if (cause instanceof InvocationTargetException) {
-          cause = cause.getCause();
+        offset += parsers.length;
+        Node nextNode = node.findNextNode(args, offset);
+        if(nextNode == null) {
+          if(node.getData().exitNode()) {
+            executeNode(context, node, arguments);
+            return true;
+          } else {
+            throw new CommandException(malformedCommandMSG);
+          }
+        } else if(!node.getData().exitNode()) {
+          executeNode(context, node, arguments);
         }
 
-        logger.log(Level.SEVERE, "Error while executing the command {0} \n\t - Arguments: {1}",
-            new Object[] {command.getName(), Arrays.toString(args)}
-        );
-
-        logger.log(Level.SEVERE, "Stacktrace:", cause);
+        context.addArguments(arguments);
+        node = nextNode;
+        offset += node.getData().label().split(" ").length;
       }
+    } catch (CommandException exception) {
+      handleException(sender, args, exception);
     }
 
     return true;
   }
 
-  private void parseParametersAndExecuteNode(
-      CommandContext context, Node node, String[] args, int offset
-  ) throws CommandException {
-    if (node == null) {
-      throw new CommandException(malformedCommandMSG);
-    } else {
-      if (!context.getSource().hasPermission(node.getData().permission())) {
-        throw new CommandException(missingPermissionsMSG);
+  protected void handleException(CommandSender sender, String[] args, CommandException exception) {
+    String message = exception.getMessage().replace("&r", "&c");
+    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&c" + message));
+
+    Throwable cause = exception.getCause();
+    if (cause != null) {
+      if (cause instanceof InvocationTargetException) {
+        cause = cause.getCause();
       }
 
-      ParameterParser<?>[] parsers = node.getParameterParsers();
-      List<Tuple<String, Object>> arguments = parseArguments(parsers, args, offset);
-      executeNode(context, node, arguments);
-      context.addArguments(arguments);
-      offset += parsers.length;
-
-      findAndExecuteChild(context, node, args, offset);
-    }
-  }
-
-  private void findAndExecuteChild(CommandContext context, Node node, String[] args, int offset) throws CommandException {
-    if (node.getChildren().length == 0) {
-      if (!node.getData().executable()) {
-        throw new CommandException(malformedCommandMSG);
-      }
-    } else {
-      Node nextNode = node.findNextNode(args, offset);
-      if (nextNode == null && !node.getData().executable()) {
-        throw new CommandException(malformedCommandMSG);
-      } else if (nextNode != null) {
-        parseParametersAndExecuteNode(context, nextNode, args, offset + nextNode.getData().label().split(" ").length);
-      }
+      logger.log(Level.SEVERE, "Error while executing the command \n\t - Arguments: {0}", Arrays.toString(args));
+      logger.log(Level.SEVERE, "Stacktrace:", cause);
     }
   }
 
@@ -100,6 +89,10 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     args[0] = context.getSource();
     if (!node.getSenderType().isInstance(args[0])) {
       throw new CommandException(invalidSenderMSG);
+    }
+
+    if (!context.getSource().hasPermission(node.getData().permission())) {
+      throw new CommandException(missingPermissionsMSG);
     }
 
     int i = 1;

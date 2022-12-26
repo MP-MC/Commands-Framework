@@ -47,7 +47,7 @@ public abstract class Controller {
       CommandContext context, Node node, Object... args
   ) throws InvocationTargetException, IllegalAccessException {
     contexts.put(context.getSource(), context);
-    node.executeNode( args);
+    node.executeNode(args);
     contexts.remove(context.getSource());
   }
 

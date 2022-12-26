@@ -167,7 +167,7 @@ class DemoCommandTest extends AbstractCommandTest {
     @CommandNode(
         parent = "demo",
         label = "player",
-        executable = false,
+        exitNode = false,
         permission = "demo.admin"
     )
     public void compound(

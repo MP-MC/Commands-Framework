@@ -19,6 +19,10 @@ public @interface CommandNode {
 
   String description() default "";
 
-  boolean executable() default true;
+  /**
+   * If the node is marked as an exit node it means that that node should be executed only if
+   * there isn't any subcommand to execute.
+   */
+  boolean exitNode() default true;
 
 }

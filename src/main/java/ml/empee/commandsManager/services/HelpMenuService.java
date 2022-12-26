@@ -73,7 +73,7 @@ public class HelpMenuService {
     addParameters(entry, node);
     Node[] children = node.getChildren();
     if(children.length == 0) {
-      if(!node.getData().executable()) {
+      if(!node.getData().exitNode()) {
         return;
       }
 

@@ -22,7 +22,7 @@ public class DescriptionBuilder {
 
     StringBuilder description = new StringBuilder("\n&3" + rawDesc + "\n");
 
-    if (requirements != null) {
+    if (requirements != null && requirements.length > 0) {
       description.append("\n");
 
       for (Tuple<String, String> requirement : requirements) {

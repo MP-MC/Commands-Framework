@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.NonNull;
-import me.lucko.commodore.CommodoreProvider;
 import ml.empee.commandsManager.command.CommandExecutor;
 import ml.empee.commandsManager.parsers.ParserManager;
 import ml.empee.commandsManager.parsers.types.BoolParser;
@@ -29,9 +28,7 @@ import ml.empee.commandsManager.parsers.types.annotations.PlayerParam;
 import ml.empee.commandsManager.parsers.types.annotations.StringParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
 import ml.empee.commandsManager.parsers.types.greedy.MsgParser;
-import ml.empee.commandsManager.services.completion.CommodoreCompletionService;
-import ml.empee.commandsManager.services.completion.CompletionService;
-import ml.empee.commandsManager.services.completion.DefaultCompletionService;
+import ml.empee.commandsManager.services.CompletionService;
 import ml.empee.commandsManager.utils.CommandMapUtils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
@@ -61,7 +58,7 @@ public final class CommandManager {
     this.parserManager = new ParserManager();
     registerDefaultParsers();
 
-    setupCompletionService();
+    completionService = new CompletionService();
   }
 
   public CommandManager(@NonNull JavaPlugin plugin) {
@@ -122,16 +119,6 @@ public final class CommandManager {
         MaterialParser.builder().label("material").build(),
         MaterialParam.class, Material.class
     );
-  }
-
-  private void setupCompletionService() {
-    if (CommodoreProvider.isSupported()) {
-      completionService = new CommodoreCompletionService(CommodoreProvider.getCommodore(plugin));
-      logger.info("Hooked to brigadier NMS");
-    } else {
-      completionService = new DefaultCompletionService();
-      logger.info("Brigadier NMS not found, using default completion service");
-    }
   }
 
   public void registerCommand(@NonNull CommandExecutor command) {

@@ -13,14 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class Controller {
   private static final HashMap<CommandSender, CommandContext> contexts = new HashMap<>();
-  private ArrayList<Listener> listeners = new ArrayList<>();
+  private final ArrayList<Listener> listeners = new ArrayList<>();
   private final List<Controller> subControllers = new ArrayList<>();
 
-  protected final void addSubController(Controller controller) {
+  public final void addSubController(Controller controller) {
     subControllers.add(controller);
   }
 
-  protected final List<Controller> getSubControllers() {
+  public final List<Controller> getSubControllers() {
     return Collections.unmodifiableList(subControllers);
   }
 

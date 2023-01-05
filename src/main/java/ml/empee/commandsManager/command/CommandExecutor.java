@@ -141,9 +141,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     return pluginCommand;
   }
 
-  @Override
   public void unregister() {
-    super.unregister();
     CommandMapUtils.unregisterCommand(pluginCommand);
   }
 }

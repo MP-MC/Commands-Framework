@@ -102,7 +102,9 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     }
 
     try {
-      executeNode(context, node, args);
+      addContext(context.getSource(), context);
+      node.executeNode(args);
+      removeContext(context.getSource());
     } catch (Exception e) {
       if (e.getCause() instanceof CommandException) {
         throw (CommandException) e.getCause();

@@ -2,6 +2,7 @@ package ml.empee.commandsManager.command;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import ml.empee.commandsManager.CommandManager;
+import ml.empee.commandsManager.command.annotations.CommandNode;
+import ml.empee.commandsManager.command.annotations.Context;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.parsers.types.greedy.GreedyParser;
 import org.bukkit.ChatColor;
@@ -33,6 +36,7 @@ public final class Node {
   @Getter(AccessLevel.PRIVATE)
   private final Method executor;
   private final ParameterParser<?>[] parameterParsers;
+  private final Parameter[] parameters;
   private Node[] children;
 
   public static Node buildCommandTree(CommandManager commandManager, Controller controller) {
@@ -47,11 +51,13 @@ public final class Node {
 
     return root;
   }
+
   private static Optional<Node> findRootNode(List<Node> nodes) {
     return nodes.stream()
         .filter(node -> node.getData().parent().isEmpty())
         .findFirst();
   }
+
   private static void linkNodes(Node root, List<Node> nodes) {
     root.children = nodes.stream()
         .filter(n -> n != root && !n.data.parent().isEmpty())
@@ -88,15 +94,17 @@ public final class Node {
     this.executor = null;
 
     data = controller.getClass().getAnnotation(CommandNode.class);
-    if(data == null) {
+    if (data == null) {
       throw new IllegalStateException("The class " + controller.getClass().getName() + " is not annotated with @CmdNode");
     }
 
     id = data.label().toLowerCase();
     senderType = CommandSender.class;
     parameterParsers = new ParameterParser[0];
+    parameters = new Parameter[0];
     description = buildDescription();
   }
+
   private Node(Controller controller, CommandManager commandManager, Method executor) {
     this.controller = controller;
     this.commandManager = commandManager;
@@ -105,6 +113,7 @@ public final class Node {
     data = executor.getAnnotation(CommandNode.class);
     id = data.label().toLowerCase();
     senderType = buildSenderType();
+    parameters = executor.getParameters();
     parameterParsers = buildParameterParsers();
     description = buildDescription();
   }
@@ -121,11 +130,14 @@ public final class Node {
 
     return result.toString();
   }
+
   private Class<? extends CommandSender> buildSenderType() {
     return (Class<? extends CommandSender>) executor.getParameters()[0].getType();
   }
+
   private ParameterParser<?>[] buildParameterParsers() {
-    return Arrays.stream(executor.getParameters()).skip(1)
+    return Arrays.stream(parameters).skip(1)
+        .filter(p -> !p.isAnnotationPresent(Context.class))
         .map(p -> commandManager.getParserManager().getParameterParser(p))
         .toArray(ParameterParser[]::new);
   }
@@ -134,6 +146,7 @@ public final class Node {
     validateParsersConstrains();
     validateChildren();
   }
+
   private void validateParsersConstrains() {
     List<ParameterParser<?>> parsers = Arrays.asList(parameterParsers);
     if (parsers.stream().anyMatch(Objects::isNull)) {
@@ -146,6 +159,7 @@ public final class Node {
     validateOptionalParsers();
     validateRequiredParsers();
   }
+
   private void validateRequiredParsers() {
     for (int i = 0; i < parameterParsers.length; i++) {
       ParameterParser<?> parser = parameterParsers[i];
@@ -156,7 +170,7 @@ public final class Node {
 
       int j = -1;
       for (Class<?> neededParser : neededParsers) {
-        if (i + j < 0 || !parameterParsers[i+j].getClass().equals(neededParser)) {
+        if (i + j < 0 || !parameterParsers[i + j].getClass().equals(neededParser)) {
           throw new IllegalArgumentException(
               "The parser " + parser.getClass().getSimpleName() + " needs the parser "
                   + neededParser.getSimpleName() + " to be before it"
@@ -167,6 +181,7 @@ public final class Node {
       }
     }
   }
+
   private void validateGreedyParsers() {
     for (int i = 0; i < parameterParsers.length; i++) {
       if (parameterParsers[i] instanceof GreedyParser) {
@@ -182,6 +197,7 @@ public final class Node {
       }
     }
   }
+
   private void validateOptionalParsers() {
     for (int i = 0; i < parameterParsers.length; i++) {
       if (parameterParsers[i].isOptional()) {
@@ -198,6 +214,7 @@ public final class Node {
 
     }
   }
+
   private void validateChildren() {
     for (Node c : children) {
       for (Node k : children) {
@@ -210,9 +227,30 @@ public final class Node {
     }
   }
 
-  public void executeNode(Object... args) throws InvocationTargetException, IllegalAccessException {
-    if(executor != null) {
-      executor.invoke(controller, args);
+  public void executeNode(CommandContext context, Object... args) throws InvocationTargetException, IllegalAccessException {
+    if (executor != null) {
+      if (parameters.length == args.length) {
+        executor.invoke(controller, args);
+        return;
+      }
+
+      Object[] arguments = new Object[parameters.length];
+      int parsedArgIndex = 0;
+      for (int i= 0; i < arguments.length; i++) {
+        Context contextId = parameters[i].getAnnotation(Context.class);
+        if (contextId != null) {
+          if(contextId.value().isEmpty()) {
+            arguments[i] = context.getArgument(parameters[i].getName());
+          } else {
+            arguments[i] = context.getArgument(contextId.value());
+          }
+        } else {
+          arguments[i] = args[parsedArgIndex];
+          parsedArgIndex++;
+        }
+      }
+
+      executor.invoke(controller, arguments);
     }
   }
 

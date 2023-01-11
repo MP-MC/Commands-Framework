@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import ml.empee.commandsManager.CommandManager;
+import ml.empee.commandsManager.command.annotations.CommandNode;
 import ml.empee.commandsManager.parsers.ParameterParser;
 import ml.empee.commandsManager.services.HelpMenuService;
 import ml.empee.commandsManager.utils.CommandMapUtils;
@@ -90,7 +91,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
 
   private void executeNode(CommandContext context, Node node, List<Tuple<String, Object>> arguments) throws CommandException {
     Object[] args = new Object[arguments.size() + 1];
-    args[0] = context.getSource();
+    args[0] = context.getSource(); //TODO: Move the sender into node execute method
     if (!node.getSenderType().isInstance(args[0])) {
       throw new CommandException(invalidSenderMSG);
     }
@@ -103,7 +104,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
 
     try {
       addContext(context.getSource(), context);
-      node.executeNode(args);
+      node.executeNode(context, args);
       removeContext(context.getSource());
     } catch (Exception e) {
       if (e.getCause() instanceof CommandException) {

@@ -1,4 +1,4 @@
-package ml.empee.commandsManager.command;
+package ml.empee.commandsManager.command.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

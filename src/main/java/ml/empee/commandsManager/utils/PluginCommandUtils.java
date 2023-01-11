@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ml.empee.commandsManager.command.CommandNode;
+import ml.empee.commandsManager.command.annotations.CommandNode;
 import ml.empee.commandsManager.exceptions.CommandManagerException;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;

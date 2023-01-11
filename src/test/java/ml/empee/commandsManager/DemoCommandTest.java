@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.logging.Logger;
 import ml.empee.commandsManager.command.CommandExecutor;
-import ml.empee.commandsManager.command.CommandNode;
 import ml.empee.commandsManager.command.Node;
+import ml.empee.commandsManager.command.annotations.CommandNode;
+import ml.empee.commandsManager.command.annotations.Context;
 import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
@@ -195,8 +196,10 @@ class DemoCommandTest extends AbstractCommandTest {
     }
 
     @CommandNode(parent = "player", label = "echo")
-    public void makeEcho(CommandSender sender, @MsgParam(defaultValue = "this is a default message") String message) {
-      sendMessage(sender, getContext(sender).getArgument("color") + message);
+    public void makeEcho(
+        CommandSender sender, @Context("color") ChatColor color, @MsgParam(defaultValue = "this is a default message") String message
+    ) {
+      sendMessage(sender, color + message);
     }
 
     private void sendMessage(CommandSender sender, String message) {

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
@@ -15,15 +16,11 @@ import org.bukkit.command.CommandSender;
 
 @SuperBuilder
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class MaterialParser extends ParameterParser<Material> {
 
-  private static final List<String> MATERIALS;
-
-  static {
-    MATERIALS = Arrays.stream(Material.values()).map(
-        Material::name
-    ).collect(Collectors.toList());
-  }
+  private boolean onlyBlocks;
+  private List<String> materials;
 
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
@@ -31,11 +28,18 @@ public class MaterialParser extends ParameterParser<Material> {
         Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().name()))
     );
   }
+
+  public void setOnlyBlocks(boolean onlyBlocks) {
+    this.onlyBlocks = onlyBlocks;
+  }
+
   @Override
   public Material parse(int offset, String... args) {
     Material material = Material.getMaterial(args[offset].toUpperCase(Locale.ROOT));
     if (material == null) {
       throw new CommandException("The value &e" + args[offset] + "&r must be a material");
+    } else if(onlyBlocks && !material.isBlock()) {
+      throw new CommandException("The value &e" + args[offset] + "&r must be a block");
     }
 
     return material;
@@ -43,11 +47,20 @@ public class MaterialParser extends ParameterParser<Material> {
 
   @Override
   public List<String> buildSuggestions(CommandSender source, String arg) {
-    return MATERIALS;
+    if(materials == null) {
+      materials = Arrays.stream(Material.values())
+          .filter(m -> !onlyBlocks || m.isBlock())
+          .map(Material::name)
+          .collect(Collectors.toList());
+    }
+
+    return materials;
   }
 
   @Override
   public ParameterParser<Material> copyParser() {
-    return copyParser(new MaterialParser());
+    MaterialParser parser = new MaterialParser();
+    parser.onlyBlocks = this.onlyBlocks;
+    return copyParser(parser);
   }
 }

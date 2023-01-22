@@ -1,9 +1,10 @@
 package ml.empee.commandsManager.command;
 
-import java.util.HashMap;
-import java.util.List;
 import ml.empee.commandsManager.utils.helpers.Tuple;
 import org.bukkit.command.CommandSender;
+
+import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public final class CommandContext {
@@ -24,9 +25,9 @@ public final class CommandContext {
   }
 
   void addArguments(List<Tuple<String, Object>> arguments) {
-    for (Tuple<String, Object> arg : arguments) {
+    for(Tuple<String, Object> arg : arguments) {
       String key = arg.getFirst();
-      if (key != null && !key.isEmpty()) {
+      if(key != null && !key.isEmpty()) {
         this.arguments.put(key, arg.getSecond());
       }
     }

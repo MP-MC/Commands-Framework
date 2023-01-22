@@ -1,25 +1,30 @@
 package ml.empee.commandsManager.parsers;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import ml.empee.commandsManager.parsers.types.EnumParser;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class ParserManager {
 
   private final Map<Class<? extends Annotation>, ParameterParser<?>> parsersIdentifiers = new HashMap<>();
   private final Map<Class<?>, ParameterParser<?>> defaultParsers = new HashMap<>();
   private final HashSet<ParameterParser<?>> parsersCache = new HashSet<>();
+
+  private static List<Method> getAllMethods(Class<?> clazz) {
+    List<Method> methods = new ArrayList<>();
+    while(clazz != null) {
+      methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+      clazz = clazz.getSuperclass();
+    }
+
+    return methods;
+  }
 
   public void registerParser(ParameterParser<?> parser, @Nullable Class<? extends Annotation> identifier, Class<?>... defaultTypes) {
     parsersCache.add(parser);
@@ -74,18 +79,18 @@ public final class ParserManager {
     Class<? extends Annotation> annotationClazz = annotation.annotationType();
     ParameterParser<?> originalParser = parsersIdentifiers.get(annotationClazz);
     Objects.requireNonNull(
-        originalParser,
-        "The annotation " + annotationClazz.getName() + " isn't an parser identifier"
+            originalParser,
+            "The annotation " + annotationClazz.getName() + " isn't an parser identifier"
     );
 
     ParameterParser<?> clonedParser = originalParser.copyParser();
     List<Method> annotationFields = Arrays.asList(annotationClazz.getMethods());
     List<Method> parserMethods = getAllMethods(clonedParser.getClass()).stream()
-        .filter(m -> m.getReturnType() == void.class)
-        .filter(m -> m.getParameterCount() == 1)
-        .filter(m -> annotationFields.stream().anyMatch(
-            f -> m.getName().equalsIgnoreCase("set" + f.getName()) && m.getParameters()[0].getType() == f.getReturnType()
-        )).collect(Collectors.toList());
+            .filter(m -> m.getReturnType() == void.class)
+            .filter(m -> m.getParameterCount() == 1)
+            .filter(m -> annotationFields.stream().anyMatch(
+                    f -> m.getName().equalsIgnoreCase("set" + f.getName()) && m.getParameters()[0].getType() == f.getReturnType()
+            )).collect(Collectors.toList());
 
     for(Method parserMethod : parserMethods) {
       for(Method annotationField : annotationFields) {
@@ -107,16 +112,6 @@ public final class ParserManager {
     }
 
     return null;
-  }
-
-  private static List<Method> getAllMethods(Class<?> clazz) {
-    List<Method> methods = new ArrayList<>();
-    while (clazz != null) {
-      methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
-      clazz = clazz.getSuperclass();
-    }
-
-    return methods;
   }
 
 }

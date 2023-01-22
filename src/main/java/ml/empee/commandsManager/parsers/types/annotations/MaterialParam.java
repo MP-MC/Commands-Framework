@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MaterialParam {
   String label() default "";
+
   String defaultValue() default "";
+
   boolean onlyBlocks() default false;
 }

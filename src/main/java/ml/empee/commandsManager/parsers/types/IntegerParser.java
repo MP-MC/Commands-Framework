@@ -24,9 +24,9 @@ public class IntegerParser extends ParameterParser<Integer> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder("integer", "This parameter can only contain an integer",
-        Tuple.of("Min: ", (min != Integer.MIN_VALUE ? min + "" : "-∞")),
-        Tuple.of("Max: ", (max != Integer.MAX_VALUE ? max + "" : "+∞")),
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+            Tuple.of("Min: ", (min != Integer.MIN_VALUE ? min + "" : "-∞")),
+            Tuple.of("Max: ", (max != Integer.MAX_VALUE ? max + "" : "+∞")),
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
     );
   }
 
@@ -35,14 +35,14 @@ public class IntegerParser extends ParameterParser<Integer> {
     try {
       int result = Integer.parseInt(args[offset]);
 
-      if (result < min) {
+      if(result < min) {
         throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
-      } else if (result > max) {
+      } else if(result > max) {
         throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
-    } catch (NumberFormatException e) {
+    } catch(NumberFormatException e) {
       throw new CommandException("The value &e" + args[offset] + "&r must be an integer");
     }
   }

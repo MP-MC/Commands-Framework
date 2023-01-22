@@ -23,9 +23,9 @@ public class DoubleParser extends ParameterParser<Double> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder("double", "This parameter can only contain a decimal number",
-        Tuple.of("Min: ", (min <= -Double.MAX_VALUE ? min + "" : "-∞")),
-        Tuple.of("Max: ", (max >= Double.MAX_VALUE ? max + "" : "+∞")),
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+            Tuple.of("Min: ", (min <= -Double.MAX_VALUE ? min + "" : "-∞")),
+            Tuple.of("Max: ", (max >= Double.MAX_VALUE ? max + "" : "+∞")),
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
     );
   }
 
@@ -34,14 +34,14 @@ public class DoubleParser extends ParameterParser<Double> {
     try {
       double result = Double.parseDouble(args[offset]);
 
-      if (result < min) {
+      if(result < min) {
         throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
-      } else if (result > max) {
+      } else if(result > max) {
         throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
-    } catch (NumberFormatException e) {
+    } catch(NumberFormatException e) {
       throw new CommandException("The number &e" + args[offset] + "&r isn't valid");
     }
   }

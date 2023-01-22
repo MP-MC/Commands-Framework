@@ -24,9 +24,9 @@ public class LongParser extends ParameterParser<Long> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder("long", "This parameter can only contain an integer",
-        Tuple.of("Min: ", (min != Long.MIN_VALUE ? min + "" : "-∞")),
-        Tuple.of("Max: ", (max != Long.MAX_VALUE ? max + "" : "+∞")),
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+            Tuple.of("Min: ", (min != Long.MIN_VALUE ? min + "" : "-∞")),
+            Tuple.of("Max: ", (max != Long.MAX_VALUE ? max + "" : "+∞")),
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
     );
   }
 
@@ -35,14 +35,14 @@ public class LongParser extends ParameterParser<Long> {
     try {
       long result = Long.parseLong(args[offset]);
 
-      if (result < min) {
+      if(result < min) {
         throw new CommandException("&e" + result + "&r must be equal or greater then &e" + min);
-      } else if (result > max) {
+      } else if(result > max) {
         throw new CommandException("&e" + result + "&r must be equal or lower then &e" + min);
       }
 
       return result;
-    } catch (NumberFormatException e) {
+    } catch(NumberFormatException e) {
       throw new CommandException("The number &e" + args[offset] + "&r isn't valid");
     }
   }

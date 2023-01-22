@@ -22,12 +22,12 @@ public class DescriptionBuilder {
 
     StringBuilder description = new StringBuilder("\n&3" + rawDesc + "\n");
 
-    if (requirements != null && requirements.length > 0) {
+    if(requirements != null && requirements.length > 0) {
       description.append("\n");
 
-      for (Tuple<String, String> requirement : requirements) {
+      for(Tuple<String, String> requirement : requirements) {
         description.append("&e").append(requirement.getFirst()).append("&d")
-            .append(requirement.getSecond()).append("\n");
+                .append(requirement.getSecond()).append("\n");
       }
     }
 

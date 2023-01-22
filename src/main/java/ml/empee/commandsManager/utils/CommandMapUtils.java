@@ -1,9 +1,5 @@
 package ml.empee.commandsManager.utils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Locale;
-import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ml.empee.commandsManager.exceptions.CommandManagerException;
@@ -12,6 +8,11 @@ import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Locale;
+import java.util.Map;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CommandMapUtils {
@@ -27,7 +28,7 @@ public final class CommandMapUtils {
 
       commandMapField = SimpleCommandMap.class.getDeclaredField("knownCommands");
       commandMapField.setAccessible(true);
-    } catch (NoSuchFieldException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+    } catch(NoSuchFieldException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
       throw new CommandManagerException("Unable to retrieve the commandMap", e);
     }
   }
@@ -46,7 +47,7 @@ public final class CommandMapUtils {
       for(String alias : command.getAliases()) {
         map.remove(alias.toLowerCase(Locale.ENGLISH).trim());
       }
-    } catch (IllegalAccessException e) {
+    } catch(IllegalAccessException e) {
       throw new CommandManagerException("Error while unregistering the command '" + command.getName() + "'", e);
     }
   }

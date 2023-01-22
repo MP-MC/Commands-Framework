@@ -15,8 +15,8 @@ public class BoolParser extends ParameterParser<Boolean> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder(
-        "bool", "This parameter can only contain a true or false value",
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
+            "bool", "This parameter can only contain a true or false value",
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().toString()))
     );
   }
 

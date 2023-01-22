@@ -1,16 +1,17 @@
 package ml.empee.commandsManager;
 
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.logging.Logger;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.logging.Logger;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractCommandTest {
 

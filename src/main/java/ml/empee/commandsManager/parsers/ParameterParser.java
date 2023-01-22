@@ -1,14 +1,15 @@
 package ml.empee.commandsManager.parsers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Getter
 @EqualsAndHashCode
@@ -54,11 +55,11 @@ public abstract class ParameterParser<T> {
   public final List<String> getSuggestions(CommandSender source, int offset, String[] args) {
     List<String> suggestions = buildSuggestions(source, offset, args);
 
-    if (suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
+    if(suggestions != null && !args[offset].isEmpty() && !suggestions.isEmpty()) {
       String arg = args[offset].toUpperCase(Locale.ROOT);
       List<String> matchedSuggestions = new ArrayList<>();
-      for (String suggestion : suggestions) {
-        if (suggestion.toUpperCase().startsWith(arg)) {
+      for(String suggestion : suggestions) {
+        if(suggestion.toUpperCase().startsWith(arg)) {
           matchedSuggestions.add(suggestion);
         }
       }

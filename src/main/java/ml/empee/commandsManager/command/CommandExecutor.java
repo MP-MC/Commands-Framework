@@ -1,11 +1,5 @@
 package ml.empee.commandsManager.command;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import ml.empee.commandsManager.CommandManager;
@@ -20,15 +14,21 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public abstract class CommandExecutor extends Controller implements org.bukkit.command.CommandExecutor {
 
-  @Setter
-  private static String prefix = "&4&l > ";
   protected static String malformedCommandMSG = "The command is missing arguments, check the help menu";
   protected static String missingPermissionsMSG = "You haven't enough permissions";
   protected static String runtimeErrorMSG = "Error while executing the command";
   protected static String invalidSenderMSG = "You aren't an allowed sender type of this command";
-
+  @Setter
+  private static String prefix = "&4&l > ";
   @Getter
   protected PluginCommand pluginCommand;
   @Getter
@@ -42,7 +42,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
       int offset = 0;
       CommandContext context = new CommandContext(sender);
       Node node = rootNode;
-      while (node != null) {
+      while(node != null) {
         if(!node.getData().permission().isEmpty() && !sender.hasPermission(node.getData().permission())) {
           throw new CommandException(missingPermissionsMSG);
         }
@@ -67,7 +67,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
         node = nextNode;
         offset += node.getData().label().split(" ").length;
       }
-    } catch (CommandException exception) {
+    } catch(CommandException exception) {
       handleException(sender, args, exception);
     }
 
@@ -79,8 +79,8 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&c" + message));
 
     Throwable cause = exception.getCause();
-    if (cause != null) {
-      if (cause instanceof InvocationTargetException) {
+    if(cause != null) {
+      if(cause instanceof InvocationTargetException) {
         cause = cause.getCause();
       }
 
@@ -92,12 +92,12 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
   private void executeNode(CommandContext context, Node node, List<Tuple<String, Object>> arguments) throws CommandException {
     Object[] args = new Object[arguments.size() + 1];
     args[0] = context.getSource(); //TODO: Move the sender into node execute method
-    if (!node.getSenderType().isInstance(args[0])) {
+    if(!node.getSenderType().isInstance(args[0])) {
       throw new CommandException(invalidSenderMSG);
     }
 
     int i = 1;
-    for (Tuple<String, Object> arg : arguments) {
+    for(Tuple<String, Object> arg : arguments) {
       args[i] = arg.getSecond();
       i += 1;
     }
@@ -106,8 +106,8 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
       addContext(context.getSource(), context);
       node.executeNode(context, args);
       removeContext(context.getSource());
-    } catch (Exception e) {
-      if (e.getCause() instanceof CommandException) {
+    } catch(Exception e) {
+      if(e.getCause() instanceof CommandException) {
         throw (CommandException) e.getCause();
       }
 
@@ -118,9 +118,9 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
   private List<Tuple<String, Object>> parseArguments(ParameterParser<?>[] parsers, String[] args, int offset) {
     List<Tuple<String, Object>> arguments = new ArrayList<>();
 
-    for (ParameterParser<?> parser : parsers) {
-      if (offset >= args.length) {
-        if (parser.isOptional()) {
+    for(ParameterParser<?> parser : parsers) {
+      if(offset >= args.length) {
+        if(parser.isOptional()) {
           arguments.add(Tuple.of(parser.getLabel(), parser.getDefaultValue()));
         } else {
           throw new CommandException(malformedCommandMSG);

@@ -1,9 +1,5 @@
 package ml.empee.commandsManager.parsers.types;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +9,11 @@ import ml.empee.commandsManager.utils.helpers.Tuple;
 import org.bukkit.Material;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -25,7 +26,7 @@ public class MaterialParser extends ParameterParser<Material> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder("material", "This parameter can only contain a material name",
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().name()))
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue().name()))
     );
   }
 
@@ -36,7 +37,7 @@ public class MaterialParser extends ParameterParser<Material> {
   @Override
   public Material parse(int offset, String... args) {
     Material material = Material.getMaterial(args[offset].toUpperCase(Locale.ROOT));
-    if (material == null) {
+    if(material == null) {
       throw new CommandException("The value &e" + args[offset] + "&r must be a material");
     } else if(onlyBlocks && !material.isBlock()) {
       throw new CommandException("The value &e" + args[offset] + "&r must be a block");
@@ -49,9 +50,9 @@ public class MaterialParser extends ParameterParser<Material> {
   public List<String> buildSuggestions(CommandSender source, String arg) {
     if(materials == null) {
       materials = Arrays.stream(Material.values())
-          .filter(m -> !onlyBlocks || m.isBlock())
-          .map(Material::name)
-          .collect(Collectors.toList());
+              .filter(m -> !onlyBlocks || m.isBlock())
+              .map(Material::name)
+              .collect(Collectors.toList());
     }
 
     return materials;

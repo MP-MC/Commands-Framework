@@ -9,7 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DoubleParam {
   String label() default "";
+
   String defaultValue() default "";
+
   double min() default -Double.MAX_VALUE;
+
   double max() default Double.MAX_VALUE;
 }

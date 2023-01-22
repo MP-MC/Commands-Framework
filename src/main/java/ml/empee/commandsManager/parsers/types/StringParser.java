@@ -15,7 +15,7 @@ public class StringParser extends ParameterParser<String> {
   @Override
   public DescriptionBuilder getDescriptionBuilder() {
     return new DescriptionBuilder("string", "This parameter can only contain string value",
-        Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue()))
+            Tuple.of("Default value: ", (getDefaultValue() == null ? "none" : getDefaultValue()))
     );
   }
 

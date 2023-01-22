@@ -1,8 +1,5 @@
 package ml.empee.commandsManager.services;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import ml.empee.commandsManager.command.Node;
 import ml.empee.commandsManager.parsers.DescriptionBuilder;
 import ml.empee.commandsManager.parsers.ParameterParser;
@@ -14,6 +11,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class HelpMenuService {
 
@@ -29,14 +30,6 @@ public class HelpMenuService {
   private final String footerTemplate;
 
 
-  private static BaseComponent[] fromLegacy(String legacy) {
-    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', legacy));
-  }
-
-  private static String toLegacy(BaseComponent... components) {
-    return ChatColor.stripColor(BaseComponent.toLegacyText(components));
-  }
-
   public HelpMenuService(String title, Node root) {
     header = fromLegacy(" &eInteractive Menu  &7-  &6" + title + "\n");
     legacyHeader = toLegacy(header);
@@ -45,11 +38,19 @@ public class HelpMenuService {
     totalPages = (int) Math.ceil((double) body.length / HELP_PAGE_ROWS);
 
     legacyBody = new String[body.length];
-    for (int i = 0; i < body.length; i++) {
+    for(int i = 0; i < body.length; i++) {
       legacyBody[i] = toLegacy(body[i]);
     }
 
     footerTemplate = ChatColor.translateAlternateColorCodes('&', "\n &7Page &e%page_number% &7of &e" + totalPages);
+  }
+
+  private static BaseComponent[] fromLegacy(String legacy) {
+    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', legacy));
+  }
+
+  private static String toLegacy(BaseComponent... components) {
+    return ChatColor.stripColor(BaseComponent.toLegacyText(components));
   }
 
   private BaseComponent[] buildNodeEntries(Node root) {
@@ -64,6 +65,7 @@ public class HelpMenuService {
 
     return entries.toArray(new BaseComponent[0]);
   }
+
   private void buildNodeEntries(List<BaseComponent> entries, BaseComponent entry, Node node) {
 
     TextComponent nodeLabel = new TextComponent(node.getData().label() + " ");
@@ -89,21 +91,21 @@ public class HelpMenuService {
   }
 
   private void addParameters(BaseComponent entry, Node node) {
-    for (ParameterParser<?> parameterParser : node.getParameterParsers()) {
+    for(ParameterParser<?> parameterParser : node.getParameterParsers()) {
       String parameterLabel = parameterParser.getLabel();
       DescriptionBuilder descriptionBuilder = parameterParser.getDescriptionBuilder();
 
-      if (parameterLabel.isEmpty()) {
+      if(parameterLabel.isEmpty()) {
         parameterLabel = descriptionBuilder.getFallbackLabel();
       }
 
       TextComponent parameterLabelComponent = new TextComponent("<" + parameterLabel + "> ");
       parameterLabelComponent.setColor(ChatColor.RED);
       parameterLabelComponent.setHoverEvent(
-          new HoverEvent(
-              HoverEvent.Action.SHOW_TEXT,
-              fromLegacy(descriptionBuilder.getDescription())
-          )
+              new HoverEvent(
+                      HoverEvent.Action.SHOW_TEXT,
+                      fromLegacy(descriptionBuilder.getDescription())
+              )
       );
 
       entry.addExtra(parameterLabelComponent);
@@ -115,7 +117,7 @@ public class HelpMenuService {
       throw new CommandException(INVALID_PAGE_ERROR);
     }
 
-    if (target instanceof Player) {
+    if(target instanceof Player) {
       Player player = (Player) target;
       player.spigot().sendMessage(header);
 

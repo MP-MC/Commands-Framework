@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MsgParam {
   String label() default "";
+
   String defaultValue() default "";
 }

@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PlayerParam {
   String label() default "";
+
   boolean online() default true;
+
   String defaultValue() default "";
 }

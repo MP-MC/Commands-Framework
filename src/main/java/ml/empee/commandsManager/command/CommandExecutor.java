@@ -138,7 +138,7 @@ public abstract class CommandExecutor extends Controller implements org.bukkit.c
     logger = commandManager.getPlugin().getLogger();
     rootNode = Node.buildCommandTree(commandManager, this);
     //No need to check existence of the annotation, it's already done in the CommandNode
-    pluginCommand = PluginCommandUtils.of(getClass().getAnnotation(CommandNode.class));
+    pluginCommand = PluginCommandUtils.of(getClass().getAnnotation(CommandNode.class), commandManager.getPlugin());
     pluginCommand.setExecutor(this);
     helpMenu = new HelpMenuService(pluginCommand.getPlugin().getName(), rootNode);
     return pluginCommand;

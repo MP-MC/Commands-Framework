@@ -27,10 +27,6 @@ public final class PluginCommandUtils {
     }
   }
 
-  public static PluginCommand of(CommandNode cmdRoot) {
-    return of(cmdRoot, JavaPlugin.getProvidingPlugin(PluginCommandUtils.class));
-  }
-
   public static PluginCommand of(CommandNode cmdRoot, JavaPlugin plugin) {
     try {
       PluginCommand command = pluginCommandConstructor.newInstance(cmdRoot.label(), plugin);

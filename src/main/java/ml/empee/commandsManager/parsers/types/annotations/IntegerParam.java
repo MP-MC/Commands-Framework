@@ -15,4 +15,6 @@ public @interface IntegerParam {
   int min() default Integer.MIN_VALUE;
 
   int max() default Integer.MAX_VALUE;
+
+  boolean optional() default false;
 }

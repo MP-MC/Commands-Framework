@@ -15,4 +15,6 @@ public @interface DoubleParam {
   double min() default -Double.MAX_VALUE;
 
   double max() default Double.MAX_VALUE;
+
+  boolean optional() default false;
 }

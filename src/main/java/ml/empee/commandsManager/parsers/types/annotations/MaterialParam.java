@@ -13,4 +13,6 @@ public @interface MaterialParam {
   String defaultValue() default "";
 
   boolean onlyBlocks() default false;
+
+  boolean optional() default false;
 }

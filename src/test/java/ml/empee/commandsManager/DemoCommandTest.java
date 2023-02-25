@@ -7,6 +7,7 @@ import ml.empee.commandsManager.command.annotations.Context;
 import ml.empee.commandsManager.parsers.types.annotations.ColorParam;
 import ml.empee.commandsManager.parsers.types.annotations.DoubleParam;
 import ml.empee.commandsManager.parsers.types.annotations.IntegerParam;
+import ml.empee.commandsManager.parsers.types.annotations.StringParam;
 import ml.empee.commandsManager.parsers.types.annotations.greedy.MsgParam;
 import ml.empee.commandsManager.services.HelpMenuService;
 import ml.empee.commandsManager.utils.PluginCommandUtils;
@@ -101,6 +102,14 @@ class DemoCommandTest extends AbstractCommandTest {
     executeCommand(consoleSender, "help", "1");
   }
 
+  @Test
+  void shouldUseNullField() {
+    executeCommand("nullableArg", "label1");
+    assertEquals("label1", senderReceivedMessage.poll());
+    executeCommand("nullableArg");
+    assertEquals("null", senderReceivedMessage.poll());
+  }
+
   public static class TestCommand extends CommandExecutor {
     @Override
     public PluginCommand build(CommandManager commandManager) {
@@ -116,6 +125,11 @@ class DemoCommandTest extends AbstractCommandTest {
 
   @CommandNode(label = "demo", description = "Demo command")
   public final class DemoCommand extends TestCommand {
+
+    @CommandNode(parent = "demo", label = "nullableArg")
+    public void nullableArg(CommandSender sender, @StringParam(optional = true) String value) {
+      sender.sendMessage(value == null ? "null" : value);
+    }
 
     @CommandNode(label = "demo")
     public void onCommand(CommandSender sender) {

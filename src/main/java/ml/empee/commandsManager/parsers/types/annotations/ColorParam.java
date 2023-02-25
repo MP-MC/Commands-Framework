@@ -11,4 +11,6 @@ public @interface ColorParam {
   String label() default "";
 
   String defaultValue() default "";
+
+  boolean optional() default false;
 }

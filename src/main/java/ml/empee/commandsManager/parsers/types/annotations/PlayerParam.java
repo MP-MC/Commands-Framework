@@ -13,4 +13,6 @@ public @interface PlayerParam {
   boolean online() default true;
 
   String defaultValue() default "";
+
+  boolean optional() default false;
 }

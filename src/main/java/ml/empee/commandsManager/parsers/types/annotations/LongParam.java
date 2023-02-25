@@ -15,4 +15,6 @@ public @interface LongParam {
   long min() default Long.MIN_VALUE;
 
   long max() default Long.MAX_VALUE;
+
+  boolean optional() default false;
 }
